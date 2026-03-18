@@ -9,7 +9,10 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Início'),
+        toolbarHeight: 80,
+        title: Image.asset('assets/images/logoContaLibras.png', height: 60),
+        centerTitle: true,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -17,7 +20,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Olá, Estudante!',
+              '👋Olá, Estudante!',
               style: AppTextStyles.heading1,
             ),
             const SizedBox(height: 8),

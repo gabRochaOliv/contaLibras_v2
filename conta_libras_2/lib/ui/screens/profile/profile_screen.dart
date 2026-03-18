@@ -9,7 +9,10 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Perfil'),
+        toolbarHeight: 80,
+        title: Image.asset('assets/images/logoContaLibras.png', height: 60),
+        centerTitle: true,
+        elevation: 0,
       ),
       body: ListView(
         padding: const EdgeInsets.all(24.0),

@@ -32,37 +32,14 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  )
-                ],
-              ),
-              child: const Icon(
-                Icons.menu_book_rounded,
-                size: 60,
-                color: AppColors.primary,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Image.asset(
+                'assets/images/logoContaLibras.png',
+                fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              'ContaLibras',
-              style: AppTextStyles.heading1.copyWith(color: AppColors.surface),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'O Contábil em suas Mãos',
-              style: AppTextStyles.bodyLarge.copyWith(color: AppColors.surface.withOpacity(0.8)),
-            ),
-            const SizedBox(height: 48),
+            const SizedBox(height: 64),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.accent),
             ),

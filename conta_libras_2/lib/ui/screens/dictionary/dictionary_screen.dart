@@ -26,7 +26,10 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dicionário'),
+        toolbarHeight: 80,
+        title: Image.asset('assets/images/logoContaLibras.png', height: 60),
+        centerTitle: true,
+        elevation: 0,
       ),
       body: Column(
         children: [
