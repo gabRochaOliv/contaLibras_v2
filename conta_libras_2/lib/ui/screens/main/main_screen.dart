@@ -3,6 +3,7 @@ import '../home/home_screen.dart';
 import '../dictionary/dictionary_screen.dart';
 import '../favorites/favorites_screen.dart';
 import '../profile/profile_screen.dart';
+import '../../widgets/first_access_dialog.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,13 +14,32 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  String _userName = 'Estudante';
 
-  final List<Widget> _screens = [
-    const HomeScreen(),
+  List<Widget> get _screens => [
+    HomeScreen(userName: _userName),
     const DictionaryScreen(),
     const FavoritesScreen(),
     const ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final result = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: Colors.black54,
+        builder: (context) => const FirstAccessDialog(),
+      );
+      if (result != null && result.isNotEmpty && mounted) {
+        setState(() {
+          _userName = result;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
