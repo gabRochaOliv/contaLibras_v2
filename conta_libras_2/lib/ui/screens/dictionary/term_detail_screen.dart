@@ -331,9 +331,12 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
         centerTitle: true,
         elevation: 0,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
           Container(
             color: AppColors.surface,
             padding: const EdgeInsets.only(top: 8.0, bottom: 16.0, left: 16.0, right: 16.0),
@@ -371,6 +374,8 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
           ),
         ],
       ),
+    ),
+    ),
     );
   }
 }

@@ -43,33 +43,77 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Início',
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 800) {
+          return Scaffold(
+            body: Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: _currentIndex,
+                  onDestinationSelected: (index) => setState(() => _currentIndex = index),
+                  labelType: NavigationRailLabelType.all,
+                  destinations: const [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.home_rounded),
+                      label: Text('Início'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.book_rounded),
+                      label: Text('Dicionário'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.bookmark_rounded),
+                      label: Text('Favoritos'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.person_rounded),
+                      label: Text('Perfil'),
+                    ),
+                  ],
+                ),
+                const VerticalDivider(thickness: 1, width: 1),
+                Expanded(
+                  child: IndexedStack(
+                    index: _currentIndex,
+                    children: _screens,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Scaffold(
+          body: IndexedStack(
+            index: _currentIndex,
+            children: _screens,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book_rounded),
-            label: 'Dicionário',
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _currentIndex,
+            onTap: (index) => setState(() => _currentIndex = index),
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_rounded),
+                label: 'Início',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.book_rounded),
+                label: 'Dicionário',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.bookmark_rounded),
+                label: 'Favoritos',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_rounded),
+                label: 'Perfil',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark_rounded),
-            label: 'Favoritos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
-            label: 'Perfil',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

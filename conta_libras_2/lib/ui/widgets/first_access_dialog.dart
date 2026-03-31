@@ -47,7 +47,9 @@ class _FirstAccessDialogState extends State<FirstAccessDialog> {
         insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Form(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Form(
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
@@ -153,6 +155,7 @@ class _FirstAccessDialogState extends State<FirstAccessDialog> {
                 ],
               ),
             ),
+          ),
           ),
         ),
       ),

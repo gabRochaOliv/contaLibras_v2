@@ -31,8 +31,11 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Column(
-        children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: TextField(
@@ -72,6 +75,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
           ),
         ],
       ),
+    ),
+    ),
     );
   }
 }

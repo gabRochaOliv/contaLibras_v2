@@ -14,9 +14,12 @@ class ProfileScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24.0),
-        children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: ListView(
+            padding: const EdgeInsets.all(24.0),
+            children: [
           const CircleAvatar(
             radius: 50,
             backgroundColor: AppColors.primary,
@@ -45,6 +48,8 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
+    ),
     );
   }
 }

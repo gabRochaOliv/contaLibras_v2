@@ -15,7 +15,9 @@ class FavoritesScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: Center(
-        child: Column(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.bookmark_border_rounded, size: 80, color: AppColors.textSecondary),
@@ -31,6 +33,7 @@ class FavoritesScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

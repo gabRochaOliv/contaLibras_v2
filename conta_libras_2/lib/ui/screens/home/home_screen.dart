@@ -21,9 +21,12 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -184,6 +187,8 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
+    ),
     );
   }
 }
