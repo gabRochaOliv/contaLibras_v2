@@ -3,7 +3,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../dictionary/term_detail_screen.dart';
 import '../../../data/mock/mock_dictionary_repository.dart';
-
+import '../../../data/managers/progress_manager.dart';
+import '../../../data/managers/user_manager.dart';
+import '../../../data/managers/theme_manager.dart';
 class HomeScreen extends StatelessWidget {
   final String userName;
   const HomeScreen({super.key, this.userName = 'Estudante'});
@@ -41,9 +43,14 @@ class HomeScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Olá, $userName!',
-                        style: AppTextStyles.heading1,
+                      AnimatedBuilder(
+                        animation: UserManager(),
+                        builder: (context, child) {
+                          return Text(
+                            'Olá, ${UserManager().userName}!',
+                            style: AppTextStyles.heading1,
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -54,6 +61,81 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 32),
+            AnimatedBuilder(
+              animation: ProgressManager(),
+              builder: (context, child) {
+                final manager = ProgressManager();
+                final progress = manager.progressRatio;
+                final viewed = manager.viewedCount;
+                final total = manager.totalTerms;
+                
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    border: Border.all(color: AppColors.divider),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Progresso de Aprendizado',
+                            style: AppTextStyles.heading3.copyWith(
+                              color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary
+                            ),
+                          ),
+                          Icon(Icons.emoji_events_rounded, color: Colors.amber.shade600, size: 28),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Termos explorados:',
+                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                          ),
+                          Text(
+                            '$viewed / $total',
+                            style: AppTextStyles.heading3.copyWith(color: AppColors.accent),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 10,
+                          backgroundColor: AppColors.divider,
+                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '${(progress * 100).toStringAsFixed(0)}% concluído',
+                          style: AppTextStyles.label.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 32),
             GestureDetector(
@@ -88,19 +170,19 @@ class HomeScreen extends StatelessWidget {
                           Text(
                             'Termo do Dia',
                             style: AppTextStyles.label.copyWith(
-                              color: AppColors.surface.withOpacity(0.8),
+                              color: Colors.white.withOpacity(0.8),
                               fontSize: 10,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             termoDoDia.title,
-                            style: AppTextStyles.heading3.copyWith(color: AppColors.surface),
+                            style: AppTextStyles.heading3.copyWith(color: Colors.white),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             termoDoDia.concept,
-                            style: AppTextStyles.label.copyWith(color: AppColors.surface.withOpacity(0.9)),
+                            style: AppTextStyles.label.copyWith(color: Colors.white.withOpacity(0.9)),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -116,7 +198,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     Icon(
                       Icons.arrow_forward_ios_rounded,
-                      color: AppColors.surface.withOpacity(0.5),
+                      color: Colors.white.withOpacity(0.5),
                       size: 14,
                     ),
                   ],
@@ -141,7 +223,7 @@ class HomeScreen extends StatelessWidget {
                       offset: const Offset(0, 2),
                     ),
                   ],
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: AppColors.divider),
                 ),
                 child: Row(
                   children: [

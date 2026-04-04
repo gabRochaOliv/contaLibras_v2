@@ -30,7 +30,7 @@ class AppTheme {
         backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
         titleTextStyle: AppTextStyles.heading2,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -49,6 +49,58 @@ class AppTheme {
         color: AppColors.surface,
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.05),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      ),
+    );
+  }
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        brightness: Brightness.dark,
+        seedColor: AppColors.primary,
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        background: const Color(0xFF121212),
+        surface: const Color(0xFF1E1E1E),
+        error: AppColors.accent,
+      ),
+      scaffoldBackgroundColor: const Color(0xFF121212),
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
+        displayLarge: AppTextStyles.heading1.copyWith(color: Colors.white),
+        headlineMedium: AppTextStyles.heading2.copyWith(color: Colors.white),
+        titleLarge: AppTextStyles.heading3.copyWith(color: Colors.white),
+        bodyLarge: AppTextStyles.bodyLarge.copyWith(color: Colors.grey.shade300),
+        bodyMedium: AppTextStyles.bodyMedium.copyWith(color: Colors.grey.shade400),
+        labelSmall: AppTextStyles.label.copyWith(color: Colors.grey.shade500),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: const Color(0xFF121212),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: AppTextStyles.heading2.copyWith(color: Colors.white),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: const Color(0xFF1E1E1E),
+        selectedItemColor: AppColors.secondary,
+        unselectedItemColor: Colors.grey.shade600,
+        selectedLabelStyle: AppTextStyles.label.copyWith(
+          color: AppColors.secondary,
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: AppTextStyles.label,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
+      cardTheme: CardTheme(
+        color: const Color(0xFF1E1E1E),
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),

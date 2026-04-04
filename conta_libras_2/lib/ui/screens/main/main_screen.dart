@@ -18,9 +18,9 @@ class _MainScreenState extends State<MainScreen> {
 
   List<Widget> get _screens => [
     HomeScreen(userName: _userName),
-    const DictionaryScreen(),
-    const FavoritesScreen(),
-    const ProfileScreen(),
+    DictionaryScreen(),
+    FavoritesScreen(),
+    ProfileScreen(),
   ];
 
   @override

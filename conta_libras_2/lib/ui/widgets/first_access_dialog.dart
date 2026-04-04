@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../data/managers/user_manager.dart';
 
 class FirstAccessDialog extends StatefulWidget {
   const FirstAccessDialog({super.key});
@@ -32,6 +33,7 @@ class _FirstAccessDialogState extends State<FirstAccessDialog> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
+      UserManager().setUserData(_nameController.text.trim(), _selectedCategory ?? '');
       Navigator.of(context).pop(_nameController.text.trim());
     }
   }

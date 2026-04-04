@@ -42,19 +42,19 @@ class TermCard extends StatelessWidget {
                   children: [
                     Text(
                       term.title,
-                      style: AppTextStyles.heading3,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       term.category,
-                      style: AppTextStyles.label,
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
               ),
             ],
           ),

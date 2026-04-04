@@ -3,7 +3,9 @@ import 'package:video_player/video_player.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/term_model.dart';
-
+import '../../../data/managers/favorites_manager.dart';
+import '../../../data/managers/progress_manager.dart';
+import '../../../data/managers/theme_manager.dart';
 class TermDetailScreen extends StatefulWidget {
   final TermModel term;
 
@@ -20,6 +22,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
+    ProgressManager().markAsViewed(widget.term.id);
     _tabController = TabController(length: 3, vsync: this);
     if (widget.term.videoUrl.isNotEmpty) {
       _videoController = VideoPlayerController.asset(widget.term.videoUrl)
@@ -45,7 +48,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.videocam_off_rounded, size: 80, color: AppColors.textSecondary),
+            Icon(Icons.videocam_off_rounded, size: 80, color: AppColors.textSecondary),
             const SizedBox(height: 16),
             Text(
               'Vídeo não disponível ou carregando...',
@@ -63,7 +66,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.divider),
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
             ],
@@ -133,7 +136,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             title: 'Conceito',
             content: widget.term.concept,
             icon: Icons.menu_book_rounded,
-            color: AppColors.primary,
+            color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary,
           ),
           if (widget.term.example.isNotEmpty) ...[
             const SizedBox(height: 16),
@@ -250,7 +253,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.image_not_supported_rounded, size: 80, color: AppColors.textSecondary),
+            Icon(Icons.image_not_supported_rounded, size: 80, color: AppColors.textSecondary),
             const SizedBox(height: 16),
             Text(
               'Imagens não disponíveis',
@@ -269,14 +272,16 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
           if (widget.term.imageLbsUrl.isNotEmpty) ...[
             Text(
               'Linguagem Brasileira de Sinais',
-              style: AppTextStyles.heading2.copyWith(color: AppColors.primary),
+              style: AppTextStyles.heading2.copyWith(
+                color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: AppColors.divider),
                 boxShadow: [
                   BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
                 ],
@@ -302,7 +307,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: AppColors.divider),
                 boxShadow: [
                   BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
                 ],
@@ -330,6 +335,27 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
         title: Image.asset('assets/images/logoContaLibras.png', height: 60),
         centerTitle: true,
         elevation: 0,
+        actions: [
+          AnimatedBuilder(
+            animation: FavoritesManager(),
+            builder: (context, child) {
+              final isFav = FavoritesManager().isFavorite(widget.term.id);
+              return IconButton(
+                icon: Icon(
+                  isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  color: isFav 
+                      ? (ThemeManager().isDarkMode ? Colors.white : AppColors.primary) 
+                      : AppColors.textSecondary,
+                  size: 32,
+                ),
+                onPressed: () {
+                  FavoritesManager().toggleFavorite(widget.term);
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 16),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(
@@ -350,7 +376,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             color: AppColors.surface,
             child: TabBar(
               controller: _tabController,
-              labelColor: AppColors.primary,
+              labelColor: ThemeManager().isDarkMode ? Colors.white : AppColors.primary,
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.accent,
               indicatorWeight: 3,
