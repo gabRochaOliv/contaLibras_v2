@@ -2,90 +2,62 @@
 
 ## 📌 Sobre o projeto
 
-O projeto **ContaLibras** foi iniciado em **2024**, durante o curso de **Ciência da Computação**, como um projeto voltada ao estudo e prática de desenvolvimento de aplicações utilizando **Flutter**.
+O **ContaLibras** é uma aplicação desenvolvida com **Flutter** que foi iniciada em 2024 como parte de um projeto acadêmico em **Ciência da Computação** e agora serve como base para o **Trabalho de Conclusão de Curso (TCC)**.
 
-A primeira versão do projeto foi criada como base experimental para explorar conceitos importantes como organização de código, estruturação de projetos e construção de interfaces para aplicações multiplataforma.
+## 🌐 Acesse a aplicação
 
-Este repositório representa a **segunda versão do projeto**, que está sendo desenvolvida com o objetivo de evoluir a aplicação original e servir como base para o **Trabalho de Conclusão de Curso (TCC)**.
+A aplicação está disponível em produção:  
+**[🔗 https://conta-libras.vercel.app/](https://conta-libras.vercel.app/)**
 
-Nesta nova etapa, o projeto será gradualmente aprimorado, recebendo melhorias na estrutura, funcionalidades e organização do código, acompanhando o desenvolvimento do trabalho acadêmico ao longo do curso.
+## 🚀 Como executar localmente
 
-------------------------------------------------------------------------
+### Pré-requisitos
 
-## 🚀 Como executar o projeto
+Antes de executar o projeto, certifique-se de ter instalado:
 
-### 1. Clonar o repositório
+- Flutter SDK
+- Dart
+- Git
+- Chrome (para execução web)
 
-``` bash
-git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
-```
-
-### 2. Entrar na pasta do projeto
-
-``` bash
-cd SEU-REPOSITORIO
-```
-
-### 3. Instalar as dependências
-
-``` bash
-flutter pub get
-```
-
-### 4. Rodar o projeto
-
-Para rodar no navegador:
-
-``` bash
-flutter run -d chrome
-```
-
-Para rodar em um dispositivo conectado:
-
-``` bash
-flutter run
-```
-
-------------------------------------------------------------------------
-
-## ⚙️ Pré-requisitos
-
-Antes de executar o projeto, é necessário ter instalado:
-
--   Flutter SDK
--   Dart
--   Git
--   Chrome (para execução web)
-
-Para verificar se o Flutter está configurado corretamente:
-
+Verifique a instalação:
 ``` bash
 flutter doctor
 ```
 
-------------------------------------------------------------------------
+### Execução
+
+1. Clonar o repositório:
+``` bash
+git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
+cd SEU-REPOSITORIO
+```
+
+2. Instalar as dependências:
+``` bash
+flutter pub get
+```
+
+3. Rodar o projeto:
+``` bash
+# No navegador
+flutter run -d chrome
+
+# Em um dispositivo conectado
+flutter run
+```
 
 ## 🛠️ Comandos úteis
 
-Atualizar dependências:
-
 ``` bash
+# Atualizar dependências
 flutter pub get
-```
 
-Limpar o projeto:
-
-``` bash
+# Limpar o projeto
 flutter clean
+
+# Rebuild após limpeza
+flutter pub get && flutter run -d chrome
 ```
-
-Rodar novamente após limpeza:
-
-``` bash
-flutter pub get
-flutter run -d chrome
-```
-
-------------------------------------------------------------------------
 
 
