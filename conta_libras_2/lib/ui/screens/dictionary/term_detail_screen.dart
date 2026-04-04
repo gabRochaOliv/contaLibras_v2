@@ -18,16 +18,27 @@ class TermDetailScreen extends StatefulWidget {
 class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   VideoPlayerController? _videoController;
+  bool _isFullScreen = false;
 
   @override
   void initState() {
     super.initState();
     ProgressManager().markAsViewed(widget.term.id);
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (_videoController != null && _videoController!.value.isInitialized) {
+        if (_tabController.index == 0 && !_isFullScreen) {
+          _videoController!.play();
+        } else {
+          _videoController!.pause();
+        }
+      }
+    });
     if (widget.term.videoUrl.isNotEmpty) {
       _videoController = VideoPlayerController.asset(widget.term.videoUrl)
         ..initialize().then((_) {
           _videoController!.setVolume(0); // Garante que o vídeo comece mudo
+          _videoController!.setLooping(true); // Faz o vídeo repetir automaticamente
           setState(() {});
         }).catchError((error) {
           debugPrint("Erro ao carregar vídeo: $error");
@@ -40,6 +51,122 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
     _tabController.dispose();
     _videoController?.dispose();
     super.dispose();
+  }
+
+  void _toggleFullScreen() async {
+    final bool wasPlaying = _videoController!.value.isPlaying;
+    
+    if (wasPlaying) {
+      await _videoController!.pause();
+    }
+
+    setState(() {
+      _isFullScreen = true;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (!mounted) return;
+
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Center(
+                  child: AspectRatio(
+                    aspectRatio: _videoController!.value.aspectRatio,
+                    child: ValueListenableBuilder<VideoPlayerValue>(
+                      valueListenable: _videoController!,
+                      builder: (context, value, child) {
+                        return GestureDetector(
+                          onTap: () {
+                            value.isPlaying
+                                ? _videoController!.pause()
+                                : _videoController!.play();
+                          },
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              VideoPlayer(_videoController!),
+                              if (!value.isPlaying)
+                                Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black45,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.play_arrow_rounded,
+                                      color: Colors.white,
+                                      size: 64,
+                                    ),
+                                  ),
+                                ),
+                              VideoProgressIndicator(
+                                _videoController!,
+                                allowScrubbing: true,
+                                colors: const VideoProgressColors(
+                                  playedColor: AppColors.primary,
+                                  bufferedColor: Colors.grey,
+                                  backgroundColor: Colors.white24,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.black45,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.fullscreen_exit_rounded, color: Colors.white, size: 36),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    )).then((_) async {
+      final bool endedPlaying = _videoController!.value.isPlaying;
+      if (endedPlaying) {
+        await _videoController!.pause();
+      }
+      
+      if (mounted) {
+        setState(() {
+          _isFullScreen = false;
+        });
+      }
+
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (endedPlaying && mounted) {
+        _videoController!.play();
+      } else if (mounted) {
+        setState(() {}); // refresh generic UI
+      }
+    });
+
+    if (wasPlaying && mounted) {
+      _videoController!.play();
+    }
   }
 
   Widget _buildVideoTab() {
@@ -60,7 +187,23 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
       );
     }
 
-    return SingleChildScrollView(
+    if (_isFullScreen) {
+      return Center(
+         child: Column(
+           mainAxisAlignment: MainAxisAlignment.center,
+           children: [
+             Icon(Icons.fullscreen_rounded, size: 48, color: AppColors.textSecondary),
+             const SizedBox(height: 16),
+             Text(
+               'Reproduzindo em tela cheia...',
+               style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+             )
+           ],
+         ),
+      );
+    }
+
+    return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Center(
         child: Container(
@@ -108,6 +251,14 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
                       playedColor: AppColors.primary,
                       bufferedColor: Colors.grey,
                       backgroundColor: Colors.white24,
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: IconButton(
+                      icon: const Icon(Icons.fullscreen_rounded, color: Colors.white, size: 30),
+                      onPressed: _toggleFullScreen,
                     ),
                   ),
                 ],
@@ -267,7 +418,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (widget.term.imageLbsUrl.isNotEmpty) ...[
             Text(
@@ -278,20 +429,23 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.divider),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Image.asset(
-                  widget.term.imageLbsUrl,
-                  fit: BoxFit.contain,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 350),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.divider),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.asset(
+                    widget.term.imageLbsUrl,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -304,20 +458,23 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.divider),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Image.asset(
-                  widget.term.imageRvUrl,
-                  fit: BoxFit.contain,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 350),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.divider),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.asset(
+                    widget.term.imageRvUrl,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -384,7 +541,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
               tabs: const [
                 Tab(icon: Icon(Icons.play_circle_fill_rounded), text: 'Vídeo'),
                 Tab(icon: Icon(Icons.description_rounded), text: 'Conteúdo'),
-                Tab(icon: Icon(Icons.animation_rounded), text: 'Passos'),
+                Tab(icon: Icon(Icons.animation_rounded), text: 'Visual'),
               ],
             ),
           ),
@@ -392,9 +549,9 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildVideoTab(),
-                _buildContentTab(),
-                _buildAnimationTab(),
+                _KeepAliveTab(child: _buildVideoTab()),
+                _KeepAliveTab(child: _buildContentTab()),
+                _KeepAliveTab(child: _buildAnimationTab()),
               ],
             ),
           ),
@@ -403,5 +560,24 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
     ),
     ),
     );
+  }
+}
+
+class _KeepAliveTab extends StatefulWidget {
+  final Widget child;
+  const _KeepAliveTab({required this.child});
+
+  @override
+  State<_KeepAliveTab> createState() => _KeepAliveTabState();
+}
+
+class _KeepAliveTabState extends State<_KeepAliveTab> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }

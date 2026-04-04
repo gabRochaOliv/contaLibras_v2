@@ -6,6 +6,8 @@ import '../../../data/mock/mock_dictionary_repository.dart';
 import '../../../data/managers/progress_manager.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
+import '../../widgets/evaluation_dialog.dart';
+
 class HomeScreen extends StatelessWidget {
   final String userName;
   const HomeScreen({super.key, this.userName = 'Estudante'});
@@ -208,7 +210,10 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
             InkWell(
               onTap: () {
-                // Future evaluation logic
+                showDialog(
+                  context: context,
+                  builder: (context) => const EvaluationDialog(),
+                );
               },
               borderRadius: BorderRadius.circular(16),
               child: Container(
