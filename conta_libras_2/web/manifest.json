@@ -1,6 +1,6 @@
 {
-    "name": "conta_libras_2",
-    "short_name": "conta_libras_2",
+    "name": "Conta Libras",
+    "short_name": "Conta Libras",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
