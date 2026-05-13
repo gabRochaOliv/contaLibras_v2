@@ -23,7 +23,10 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    ProgressManager().markAsViewed(widget.term.id);
+    // Adiado para após o build para evitar setState during layout
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ProgressManager().markAsViewed(widget.term.id);
+    });
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_videoController != null && _videoController!.value.isInitialized) {
@@ -486,34 +489,37 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 80,
-        title: Image.asset('assets/images/logoContaLibras.png', height: 60),
-        centerTitle: true,
-        elevation: 0,
-        actions: [
-          AnimatedBuilder(
-            animation: FavoritesManager(),
-            builder: (context, child) {
-              final isFav = FavoritesManager().isFavorite(widget.term.id);
-              return IconButton(
-                icon: Icon(
-                  isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                  color: isFav 
-                      ? (ThemeManager().isDarkMode ? Colors.white : AppColors.primary) 
-                      : AppColors.textSecondary,
-                  size: 32,
-                ),
-                onPressed: () {
-                  FavoritesManager().toggleFavorite(widget.term);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth > 800;
+        return Scaffold(
+          appBar: isDesktop ? null : AppBar(
+            toolbarHeight: 80,
+            title: Image.asset('assets/images/logoContaLibras.png', height: 60),
+            centerTitle: true,
+            elevation: 0,
+            actions: [
+              AnimatedBuilder(
+                animation: FavoritesManager(),
+                builder: (context, child) {
+                  final isFav = FavoritesManager().isFavorite(widget.term.id);
+                  return IconButton(
+                    icon: Icon(
+                      isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                      color: isFav
+                          ? (ThemeManager().isDarkMode ? Colors.white : AppColors.primary)
+                          : AppColors.textSecondary,
+                      size: 32,
+                    ),
+                    onPressed: () {
+                      FavoritesManager().toggleFavorite(widget.term);
+                    },
+                  );
                 },
-              );
-            },
+              ),
+              const SizedBox(width: 16),
+            ],
           ),
-          const SizedBox(width: 16),
-        ],
-      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
@@ -559,6 +565,8 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
       ),
     ),
     ),
+        );
+      },
     );
   }
 }

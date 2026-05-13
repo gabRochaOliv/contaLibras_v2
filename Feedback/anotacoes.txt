@@ -1,3 +1,19 @@
-Quiz dentro de cada termo como se fosse que a pessoa vai acumulando pontos para meio que zerar o aplicativo
-com a barra de progresso
+
+
+
+* Quiz dentro de cada termo como se fosse que a pessoa vai acumulando pontos para meio que 
+zerar o aplicativo com a barra de progresso *
+
+Arrumar barra de progreso de aprendizado, trocar nome, deixar ela mais pra baixo (p/ termos acessados)
+
+Arrumar layout principal no desktop 
+
+Colocar como uma das questões o fato de virar um Curso a partir do questionário
+
+
+
+
+
+
+
 

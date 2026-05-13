@@ -8,9 +8,12 @@ import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 import '../../widgets/evaluation_dialog.dart';
 
+import '../../../data/models/term_model.dart';
+
 class HomeScreen extends StatelessWidget {
   final String userName;
-  const HomeScreen({super.key, this.userName = 'Estudante'});
+  final void Function(TermModel)? onTermSelected;
+  const HomeScreen({super.key, this.userName = 'Estudante', this.onTermSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +21,12 @@ class HomeScreen extends StatelessWidget {
     final termIndex = daysSinceEpoch % MockDictionaryRepository.terms.length;
     final termoDoDia = MockDictionaryRepository.terms[termIndex];
 
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth > 800;
+
     return Scaffold(
-      appBar: AppBar(
+      appBar: isDesktop ? null : AppBar(
         toolbarHeight: 80,
         title: Image.asset('assets/images/logoContaLibras.png', height: 60),
         centerTitle: true,
@@ -70,8 +77,6 @@ class HomeScreen extends StatelessWidget {
               builder: (context, child) {
                 final manager = ProgressManager();
                 final progress = manager.progressRatio;
-                final viewed = manager.viewedCount;
-                final total = manager.totalTerms;
                 
                 return Container(
                   padding: const EdgeInsets.all(20),
@@ -94,7 +99,7 @@ class HomeScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Progresso de Aprendizado',
+                            'Termos Explorados',
                             style: AppTextStyles.heading3.copyWith(
                               color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary
                             ),
@@ -102,20 +107,7 @@ class HomeScreen extends StatelessWidget {
                           Icon(Icons.emoji_events_rounded, color: Colors.amber.shade600, size: 28),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Termos explorados:',
-                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-                          ),
-                          Text(
-                            '$viewed / $total',
-                            style: AppTextStyles.heading3.copyWith(color: AppColors.accent),
-                          ),
-                        ],
-                      ),
+
                       const SizedBox(height: 12),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
@@ -140,74 +132,6 @@ class HomeScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: 32),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TermDetailScreen(term: termoDoDia),
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Termo do Dia',
-                            style: AppTextStyles.label.copyWith(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 10,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            termoDoDia.title,
-                            style: AppTextStyles.heading3.copyWith(color: Colors.white),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            termoDoDia.concept,
-                            style: AppTextStyles.label.copyWith(color: Colors.white.withOpacity(0.9)),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Icon(
-                      Icons.school_rounded,
-                      color: AppColors.accent,
-                      size: 36,
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white.withOpacity(0.5),
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
             InkWell(
               onTap: () {
                 showDialog(
@@ -270,6 +194,78 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () {
+                if (onTermSelected != null) {
+                  onTermSelected!(termoDoDia);
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TermDetailScreen(term: termoDoDia),
+                    ),
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Termo do Dia',
+                            style: AppTextStyles.label.copyWith(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 10,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            termoDoDia.title,
+                            style: AppTextStyles.heading3.copyWith(color: Colors.white),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            termoDoDia.concept,
+                            style: AppTextStyles.label.copyWith(color: Colors.white.withOpacity(0.9)),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Icon(
+                      Icons.school_rounded,
+                      color: AppColors.accent,
+                      size: 36,
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white.withOpacity(0.5),
+                      size: 14,
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 32),
           ],
         ),
@@ -277,5 +273,7 @@ class HomeScreen extends StatelessWidget {
     ),
     ),
     );
+      }, // fim builder
+    ); // fim LayoutBuilder
   }
 }

@@ -21,7 +21,7 @@ class MockDictionaryRepository {
       concept: 'Ativo é um recurso econômico presente controlado pela entidade como resultado de eventos passados e a geração de benefício econômico futuro.',
       example: 'Tomando o encerramento do exercício social em 31 de dezembro de X1, o balanço patrimonial terá em seu ativo:\n\nAtivo Circulante Ativo Não Circulante Ativo Realizável a Longo Prazo: Bens e Direitos da mesma natureza das do ativo não circulante, porém realizáveis após 31.12.X2.\n\nInvestimentos: Participações em outras empresas, de caráter permanente.\n\nImobilizado: Bens e direitos necessários à manutenção da atividade da empresa e que sejam tangíveis, como máquinas, edifícios, computadores etc.',
       observation: '',
-      videoUrl: 'assets/videos/ativo.mp4',
+      videoUrl: 'assets/videosTermos/ativo.webm',
       animationUrl: 'assets/animations/ativo.json',
     ),
     const TermModel(
@@ -31,7 +31,7 @@ class MockDictionaryRepository {
       concept: 'É uma demonstração contábil destinada a evidenciar, qualitativa e quantitativamente, numa determinada data, a posição patrimonial e financeira da entidade. O Balanço é composto por contas do Ativo, Passivo e Patrimônio Líquido da empresa.',
       example: 'O contador registra todas as movimentações patrimoniais da empresa (bens, direitos e obrigações) e as classifica em seus respectivos grupos de contas.',
       observation: '',
-      videoUrl: 'assets/videos/balancocontabiloubalancopatrimonial.mp4',
+      videoUrl: 'assets/videosTermos/balanco_contabil.webm',
       animationUrl: 'assets/animations/balancocontabiloubalancopatrimonial.json',
     ),
     const TermModel(
@@ -41,7 +41,7 @@ class MockDictionaryRepository {
       concept: 'São as coisas capazes de satisfazer às necessidades das pessoas e das empresas, suscetíveis de avaliação econômica. Podem ser tangíveis ou intangíveis, podendo ser classificados como móveis ou imóveis.',
       example: 'Por meio de levantamentos, foram identificado alguns BENS da empresa AMG, como: Dinheiro; Marca da Empresa; Ponto Comercial; Veículos; Móveis e Utensílios; Máquinas e Equipamentos.',
       observation: '',
-      videoUrl: 'assets/videos/bens.mp4',
+      videoUrl: 'assets/videosTermos/bens.webm',
       animationUrl: 'assets/animations/bens.json',
     ),
     const TermModel(
@@ -51,7 +51,7 @@ class MockDictionaryRepository {
       concept: 'É a denominação dada a uma conta que registra os recursos financeiros disponíveis para movimento.',
       example: 'Caixa (dinheiro da empresa em poder da própria empresa).\n\nBanco conta movimento (dinheiro em poder de estabelecimentos bancários, depositado em contas-correntes).\n\nAplicações Financeiras de Liquidez Imediata (dinheiro da entidade investido em aplicações de altíssima liquidez).',
       observation: '',
-      videoUrl: 'assets/videos/caixa.mp4',
+      videoUrl: 'assets/videosTermos/caixa.webm',
       animationUrl: 'assets/animations/caixa.json',
     ),
     const TermModel(
@@ -61,7 +61,7 @@ class MockDictionaryRepository {
       concept: 'É o valor, a integralizar ou integralizado, correspondente à contrapartida do titular, sócios ou acionistas de um empreendimento, para o início ou a manutenção dos negócios.',
       example: 'Abertura da empresa MJK com valor de CAPITAL SOCIAL a integralizado de R\$ 20.000,00 efetivados através de depósito bancário na conta da empresa.\n\n**DÉBITO:** Banco Conta Movimento (Ativo Circulante)\n\n**CRÉDITO**: Capital Social (Patrimônio Líquido)',
       observation: '',
-      videoUrl: 'assets/videos/capital.mp4',
+      videoUrl: 'assets/videosTermos/capital.webm',
       animationUrl: 'assets/animations/capital.json',
     ),
     const TermModel(
@@ -71,7 +71,7 @@ class MockDictionaryRepository {
       concept: 'É o valor, a integralizar ou integralizado, correspondente à contrapartida do titular, sócios ou acionistas de um empreendimento, para o início ou a manutenção dos negócios.',
       example: 'Abertura da empresa MJK com valor de CAPITAL SOCIAL integralizado de R\$ 20.000,00 efetivados por meio de depósito bancário na conta da empresa.\n\n**DÉBITO:** Banco Conta Movimento (Ativo Circulante).\n\n**CRÉDITO**: Capital Social (Patrimônio Líquido).',
       observation: '',
-      videoUrl: 'assets/videos/capitalsocial.mp4',
+      videoUrl: 'assets/videosTermos/capital_social.webm',
       animationUrl: 'assets/animations/capitalsocial.json',
     ),
     const TermModel(
@@ -81,7 +81,7 @@ class MockDictionaryRepository {
       concept: 'É um ativo que a empresa tem por direito a receber de um determinado CLIENTE, podendo ser pessoa física ou jurídica, por ter efetuado uma venda a prazo. Ao realizar uma compra à vista, este consumidor também recebe a mesma denominação.',
       example: 'Venda de mercadoria pelo valor de R\$ 1.000,00, a pagamento a prazo, conforme nota fiscal de venda.\n\n**DÉBITO:** Cliente – Direito (Ativo Circulante).\n\n**CRÉDITO**: Mercadorias (Ativo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/cliente.mp4',
+      videoUrl: 'assets/videosTermos/cliente_1.webm',
       animationUrl: 'assets/animations/cliente.json',
     ),
     const TermModel(
@@ -91,7 +91,7 @@ class MockDictionaryRepository {
       concept: 'O adquirente da mercadoria ou produto ao realizar a compra, tem a opção de efetuar os pagamentos parcelados.',
       example: 'Aquisição de mercadoria pelo valor de R\$ 9.000,00, conforme nota fiscal de venda, com pagamento parcelado em 3 vezes, 30, 60 e 90 dias.\n\n**DÉBITO:** Mercadorias (Ativo Circulante).\n\n**CRÉDITO**: Fornecedor (Passivo Circulante)',
       observation: '',
-      videoUrl: 'assets/videos/comprasaprazo.mp4',
+      videoUrl: 'assets/videosTermos/compras_prazo.webm',
       animationUrl: 'assets/animations/comprasaprazo.json',
     ),
     const TermModel(
@@ -101,7 +101,7 @@ class MockDictionaryRepository {
       concept: 'Ocorre quando o vendedor, no ato da entrega da mercadoria, recebe do comprador o preço estipulado.',
       example: 'Compra de produtos conforme nota fiscal de venda, no valor de R\$ 500,00, com pagamento à vista, em moeda corrente do país.\n\n**DÉBITO:** Mercadorias (Ativo Circulante).\n\n**CRÉDITO**: Caixa (Ativo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/comprasavista.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/comprasavista.json',
     ),
     const TermModel(
@@ -111,7 +111,7 @@ class MockDictionaryRepository {
       concept: 'É a ciência que estuda e pratica as funções de orientação, de controle e de registro relativas à administração econômica.\n\nContabilidade é a ciência social que tem por objeto o patrimônio das entidades e por objetivo o controle desse patrimônio, com a finalidade de fornecer informações a seus usuários.',
       example: 'Principais tipos de contabilidade:\n\nContabilidade Financeira: é um ramo específico da contabilidade que processa e registra as informações financeiras de uma empresa, incluindo suas receitas, despesas e investimentos.\n\nContabilidade Fiscal: esse tipo de contabilidade é voltado à gestão fiscal das empresas, ou seja, ao processo de apuração e recolhimento de impostos.\n\nContabilidade Pública: é o ramo da ciência contábil destinado ao controle patrimonial de entidades do setor público, incluindo órgãos, autarquias e fundações públicas.\n\nContabilidade de Custo: é voltada à análise e à gestão de custos das empresas. Seu papel é identificar onde o negócio pode reduzir gastos e avaliar como as despesas impactam a margem de lucro da organização.\n\nContabilidade Gerencial: tem por objetivo, identificar, medir, analisar, interpretar e fornecer aos gestores informações e indicadores que possam contribuir para a tomada de decisões assertivas para o cumprimento dos objetivos das organizações.',
       observation: '',
-      videoUrl: 'assets/videos/contabilidade.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/contabilidade.json',
     ),
     const TermModel(
@@ -121,7 +121,7 @@ class MockDictionaryRepository {
       concept: 'É um direito que a empresa tem de receber de um determinado cliente, podendo ser pessoa física ou jurídica, por ter efetuado uma venda a prazo.',
       example: 'Recebimento de R\$ 2.000,00 por meio de depósito bancário, referente à venda de produtos conforme Nota Fiscal de venda, primeira parcela.\n\n**DÉBITO:** Banco Conta Movimento (Ativo Circulante).\n\n**CRÉDITO**: Contas a Receber (Ativo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/contasareceber.mp4',
+      videoUrl: 'assets/videosTermos/contas_receber.webm',
       animationUrl: 'assets/animations/contasareceber.json',
     ),
     const TermModel(
@@ -131,7 +131,7 @@ class MockDictionaryRepository {
       concept: 'Significa registrar uma importância na coluna de Crédito de uma conta, para aumentar seu valor (se a conta representa uma obrigação) ou para diminuir seu valor (se a conta representa um Bem ou Direito).',
       example: 'Compra de VEÍCULO (AP) pelo valor de R\$ 60.000,00, conforme Nota Fiscal de venda do FORNECEDOR (PC) JCZ Automóveis, com pagamento a prazo.\n\n**DÉBITO:** Veículo.\n\n**CRÉDITO**: Fornecedor.',
       observation: '',
-      videoUrl: 'assets/videos/credito.mp4',
+      videoUrl: 'assets/videosTermos/credito.webm',
       animationUrl: 'assets/animations/credito.json',
     ),
     const TermModel(
@@ -141,7 +141,7 @@ class MockDictionaryRepository {
       concept: 'São os custos diretos necessários para produzir as mercadorias ou serviços para venda, diminuído dos tributos recuperáveis por uma empresa durante um determinado período.',
       example: 'Se uma empresa tem R\$ 10.000,00 de estoque no início do ano, compra R\$ 55.000,00 durante o ano, e, ao final do período, tem R\$ 16.000,00 de estoque, isso demonstra que o custo das mercadorias vendidas foi de R\$ 49.000,00. Aplicando a fórmula CMV = EI + Compras – EF, é possível confirmar esta informação (10.000 + 55.000 – 16.000 = 49.000).',
       observation: '',
-      videoUrl: 'assets/videos/custodemercadoriasvendidas.mp4',
+      videoUrl: 'assets/videosTermos/custo_mercadoria_vendida.webm',
       animationUrl: 'assets/animations/custodemercadoriasvendidas.json',
     ),
     const TermModel(
@@ -151,7 +151,7 @@ class MockDictionaryRepository {
       concept: 'Significa fazer uma anotação, na coluna do Débito de uma conta, para aumentar o seu valor (se a conta representa um bem ou um direito), ou para diminuir seu valor (se a conta representa uma obrigação).',
       example: 'Compra de VEÍCULO (AP) pelo valor de R\$ 60.000,00, conforme Nota Fiscal de venda do FORNECEDOR (PC) JCZ Automóveis, com pagamento a prazo.\n\n**DÉBITO:** Veículo.\n\n**CRÉDITO**: Fornecedor.',
       observation: '',
-      videoUrl: 'assets/videos/debito.mp4',
+      videoUrl: 'assets/videosTermos/debito.webm',
       animationUrl: 'assets/animations/debito.json',
     ),
     const TermModel(
@@ -161,7 +161,7 @@ class MockDictionaryRepository {
       concept: 'As Demonstrações Contábeis são uma representação monetária estruturada da posição patrimonial e financeira em determinada data e das transações realizadas por uma entidade no período findo nessa data.',
       example: 'As Demonstrações Contábeis possuem critérios específicos para sua elaboração, podendo ser composta pelos componentes:\n1. Balanço Patrimonial.\n2. Demonstração do Resultado.\n3. Demonstração dos lucros ou prejuízos acumulados, podendo ser substituído pela Demonstração das Mutações do Patrimônio Líquido.\n4. Demonstração dos Fluxos de Caixa.\n5. Demonstração do Valor Adicionado.\n6. Notas explicativas, incluindo a descrição das práticas contábeis.',
       observation: '',
-      videoUrl: 'assets/videos/demonstracaocontabil.mp4',
+      videoUrl: 'assets/videosTermos/demonstracao_contabil.webm',
       animationUrl: 'assets/animations/demonstracaocontabil.json',
     ),
     const TermModel(
@@ -171,7 +171,7 @@ class MockDictionaryRepository {
       concept: 'É a demonstração que apresenta de forma resumida o resultado apurado em relação ao conjunto de operações realizadas num determinado período, a qual é elaborada em conjunto com o Balanço Patrimonial.',
       example: 'Para elaboração da DRE, serão necessários os seguintes valores:\n\nReceita Bruta: Representa o somatório dos valores das notas fiscais emitidas durante o período.\n\nDeduções: Ajustes realizados, impostos, descontos e devoluções.\n- Realizando a subtração da (Receita Bruta – Deduções), encontraremos a Receita Líquida.\n- Na sequência, identifica-se o Custo das Mercadorias Vendidas/Produtos.\n- Com a dedução (Receita Líquida – Custo das Mercadorias) identificamos o Lucro Bruto.\n- Após identificado o Lucro Bruto, encontram-se as Despesas de Venda (inclua aqui comissões de vendedores e investimentos em marketing), as Despesas Administrativas e as Despesas Financeiras. Estes grupos de despesas representam as suas Despesas Operacionais.\n- Ao reduzir o Lucro Bruto com as Despesas Operacionais, identificamos o Lucro Operacional.\n- O próximo passo é subtrair outras Despesas Não Operacionais e somar outras Despesas Operacionais (perdas).',
       observation: '',
-      videoUrl: 'assets/videos/demonstracaodoresultadodoexerciciodre.mp4',
+      videoUrl: 'assets/videosTermos/demonstracao_resultado_exercicio.webm',
       animationUrl: 'assets/animations/demonstracaodoresultadodoexerciciodre.json',
     ),
     const TermModel(
@@ -181,7 +181,7 @@ class MockDictionaryRepository {
       concept: 'Corresponde a uma entrega de fundos a uma instituição de crédito, que fica obrigada a devolver o montante depositado, de acordo com as condições que tenham sido contratadas, e, em alguns casos, a pagar uma remuneração.',
       example: 'Realização de depósito bancário em dinheiro junto ao Banco Invest as no valor de R\$ 5.000,00, proveniente de recursos da conta caixa.\n\n**DÉBITO:** Banco Conta Movimento (Ativo Circulante).\n\n**CRÉDITO**: Caixa (Ativo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/depositobancario.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/depositobancario.json',
     ),
     const TermModel(
@@ -191,7 +191,7 @@ class MockDictionaryRepository {
       concept: 'É a alocação sistemática do valor depreciável de um ativo ao longo da sua vida útil, ou seja, o registro da redução do valor dos bens pelo desgaste ou perda de utilidade por uso, ação da natureza ou obsolescência. Contabilizadas como Depreciação Econômica dos bens imobilizados, com manutenção da Depreciação Fiscal, para efeito de tributação do Lucro Real.',
       example: 'Aquisição de um veículo a prazo, no valor de R\$ 75.000,00. A DEPRECIAÇÃO econômica desse veículo será de 10 anos. Aplicando o seguinte cálculo (75.000 / 10 / 12), teremos o valor de depreciação de R\$ 625,00 ao mês.\n\n**DÉBITO:** Despesas com Depreciação de Veículo (Contas de Resultado) – R\$ 625,00.\n\n**CRÉDITO**: Depreciação Acumulada (Ativo Não Circulante) – R\$ 625,00.',
       observation: '',
-      videoUrl: 'assets/videos/depreciacao.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/depreciacao.json',
     ),
     const TermModel(
@@ -201,7 +201,7 @@ class MockDictionaryRepository {
       concept: 'São reduções nos ativos ou aumentos nos passivos, que resultam em reduções no patrimônio líquido, exceto aqueles referentes a distribuições aos detentores de direitos sobre o patrimônio.',
       example: 'Despesas incorridas com conta de telefone no mês de março, que será paga em abril. Para fins de contabilização, trata-se de despesas incorridas no mês de março, portanto, devem ser contabilizadas no mês que ocorreu a despesa.\n\n**DÉBITO:** Telefone (Custos ou Despesas).\n\n**CRÉDITO**: Contas a Pagar (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/despesa.mp4',
+      videoUrl: 'assets/videosTermos/despesas.webm',
       animationUrl: 'assets/animations/despesa.json',
     ),
     const TermModel(
@@ -211,7 +211,7 @@ class MockDictionaryRepository {
       concept: 'São todos os valores que a empresa ou o indivíduo têm para receber de terceiros, seja por venda de algo, seja por serviços prestados.',
       example: 'Pagamentos por parcelas pelos clientes que estão agendados, mas ainda não ocorreram quando a documentação foi feita.\n\nAluguéis, salários, adiantamentos e outras quantias das quais se têm conhecimento e previsão de recebimento.',
       observation: '',
-      videoUrl: 'assets/videos/direito.mp4',
+      videoUrl: 'assets/videosTermos/direito.webm',
       animationUrl: 'assets/animations/direito.json',
     ),
     const TermModel(
@@ -221,7 +221,7 @@ class MockDictionaryRepository {
       concept: 'São as obrigações da empresa junto a instituições financeiras do país e do exterior, cujos recursos são destinados para financiar imobilizações ou manutenção de capital de giro. O registro contábil deve ser efetuado quando a empresa receber os recursos, o que muitas vezes coincide com a data do contrato.',
       example: 'A empresa AKL SA contratou empréstimo pós-fixado em 01/01/2020 no valor de R\$ 150.000,00, a uma taxa de juros de 12% a.a., que deverá ser pago em 31/12/2020.\n\n**REGISTRO DO EMPRÉSTIMO**\n\n\n\n**DÉBITO:** Banco Conta Movimento (Ativo Circulante) – R\$ 100.000,00.\n\n**CRÉDITO**: Empréstimos a Pagar (Passivo Circulante) – R\$ 100.000,00.\n\n**REGISTRO DOS JUROS**\n\n\n\n**DÉBITO:** Despesas Financeiras (Conta de Resultado) – R\$ 19.023,75.\n\n**CRÉDITO**: Empréstimos a Pagar (Passivo Circulante) – R\$ 19.023,75.\n\n**REGISTRO DA LÍQUIDAÇÃO DO EMPRÉSTIMO**\n\n\n\n**DÉBITO:** Empréstimos a Pagar (Passivo Circulante) – R\$ 119.023,75.',
       observation: '',
-      videoUrl: 'assets/videos/emprestimo.mp4',
+      videoUrl: 'assets/videosTermos/emprestimo.webm',
       animationUrl: 'assets/animations/emprestimo.json',
     ),
     const TermModel(
@@ -231,7 +231,7 @@ class MockDictionaryRepository {
       concept: 'São ativos mantidos para venda no curso normal dos negócios, em processo de produção para venda ou na forma de materiais ou suprimentos a serem consumidos ou transformados no processo de produção ou na prestação de serviços.',
       example: 'Aquisição de 1.000 unidades de mercadoria para revenda, da empresa Envolve SA, pelo valor de R\$ 25.000,00 a prazo com ICMS de 18% incluso na Nota Fiscal.\n\n**DÉBITO:** MERCADORIAS (Ativo Circulante) – R\$ 20.500,00.\n\n**DÉBITO:** ICMS A RECUPERAR (Ativo Circulante “direito”) – R\$ 4.500,00.\n\n**CRÉDITO**: FORNECEDOR (Passivo Circulante) – R\$ 25.000,00.',
       observation: '',
-      videoUrl: 'assets/videos/estoque.mp4',
+      videoUrl: 'assets/videosTermos/estoque.webm',
       animationUrl: 'assets/animations/estoque.json',
     ),
     const TermModel(
@@ -241,7 +241,7 @@ class MockDictionaryRepository {
       concept: 'São ocorrências que têm por efeito a alteração da composição do patrimônio, seja em seu aspecto qualitativo, sejaem seu aspecto quantitativo. Podem ser: Fatos contábeis permutativos (qualitativos ou compensativos), Fatos contábeis modificativos (ou quantitativos) e Fatos contábeis mistos (ou compostos).',
       example: 'Como exemplo, podemos citar uma compra, uma venda, um pagamento, um recebimento, uma depreciação e qualquer outra transação que ocorra na empresa e que envolva, no mínimo, duas contas – é um fato contábil.',
       observation: '',
-      videoUrl: 'assets/videos/fatocontabil.mp4',
+      videoUrl: 'assets/videosTermos/fato_contabil.webm',
       animationUrl: 'assets/animations/fatocontabil.json',
     ),
     const TermModel(
@@ -251,7 +251,7 @@ class MockDictionaryRepository {
       concept: 'Fundo de Garantia do Tempo de Serviço é um depósito mensal, referente a um percentual de 8% do salário do empregado, que o empregador fica obrigado a depositar em uma conta bancária no nome do empregado e que deve ser aberta na Caixa Econômica Federal.',
       example: 'Registro do cálculo do FGTS de 8% sobre o salário de R\$ 2.000,00.\n\n(2.000 x 8% = R\$ 160,00).\n\n**DÉBITO:** DESPESAS COM FGTS (Conta de Resultado) – R\$ 160,00.\n\n**CRÉDITO**: FGTS À PAGAR (Passivo Circulante) – R\$ 160,00.',
       observation: '',
-      videoUrl: 'assets/videos/fgts.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/fgts.json',
     ),
     const TermModel(
@@ -261,7 +261,7 @@ class MockDictionaryRepository {
       concept: 'É toda empresa (ou pessoa física) que forneça materiais, bens ou serviços, para que a empresa constitua atividade e, posteriormente, realize a venda de um produto ou serviço.',
       example: 'Compra de mercadorias para revenda a prazo do FORNECEDOR MK Derivados LTDA, conforme Nota Fiscal de venda, no valor de R\$ 55.000,00.\n\n**DÉBITO:** Mercadorias (Ativo Circulante).\n\n**CRÉDITO**: Fornecedor (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/fornecedor.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/fornecedor.json',
     ),
     const TermModel(
@@ -271,7 +271,7 @@ class MockDictionaryRepository {
       concept: 'É formado pelo conjunto de bens e direitos necessários à manutenção das atividades da entidade, caracterizados por se apresentar na forma tangível, isto é, um bem palpável que pode ser usado para produção, fornecimento de mercadorias ou serviços, aluguel a outros ou para fins administrativos.',
       example: 'São exemplos de Ativo Imobilizado: Imóveis (Terrenos e Edifícios); Móveis e Utensílios; Veículos; Equipamentos de Informática; Ferramentas; Imobilizado em Andamento; Máquinas e Equipamentos, entre outros.\n\nA empresa XVZ fez aquisição de Imóveis a prazo, pelo valor de R\$ 120.000,00, conforme Nota Fiscal de compra.\n\n**DÉBITO:** Imóveis (Ativo Não Circulante).\n\n**CRÉDITO**: Fornecedor (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/imobilizado.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/imobilizado.json',
     ),
     const TermModel(
@@ -281,7 +281,7 @@ class MockDictionaryRepository {
       concept: 'É o tributo cuja obrigação tem por fato gerador uma situação independente de qualquer atividade estatal específica, relativa ao contribuinte.',
       example: '**PRINCIPAIS IMPOSTOS**\n\n\n\n**ICMS** – Imposto sobre Circulação de Mercadorias e Serviços – na esfera estadual.\n\n**IPVA** – Imposto sobre Proprietários de Veículos Automotivos – na esfera municipal.\n\n**IPTU** – Imposto Predial e Territorial Urbano – na esfera municipal.\n\n**IRPJ** – Imposto de Renda da Pessoa Jurídica – na esfera Federal.\n\n**IOF** – Imposto sobre Operações Financeiras – nos créditos por empréstimos e operações de caráter financeiro em instituições bancárias e afins.\n\n**ISS** – Imposto sobre Serviços – na esfera municipal.',
       observation: '',
-      videoUrl: 'assets/videos/imposto.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/imposto.json',
     ),
     const TermModel(
@@ -291,7 +291,7 @@ class MockDictionaryRepository {
       concept: 'É um tributo cobrado anualmente pelo Governo Federal sobre os ganhos de pessoas e empresas. Seu valor é pago conforme os rendimentos declarados. Como o Imposto de Renda é uma tributação aplicada para pessoas físicas e jurídicas, ele se divide em duas categorias: o Imposto de Renda Pessoa Física (IRPF) e o Imposto de Renda Pessoa Jurídica (IRPJ).\n\nO IRPF é calculado sobre a renda e os proventos de contribuintes residentes no país ou no exterior e que recebem rendimentos de fontes no Brasil, denominado Imposto de Renda Retido na Fonte.\n\nO IRPJ é destinado a empresas brasileiras. Nesse caso, a alíquota aplicada incide sobre o lucro, que pode ser real, presumido ou arbitrado, dependendo da atividade desenvolvida e do porte do negócio.',
       example: 'Contabilização do Imposto de Renda Retido na Fonte (IRRF), para seu cálculo deve reconhecer a base de cálculo, a alíquota e a parcela a deduzir. Podendo ser, base de cálculo Isento, ou alíquota de 7,5%, 15%, 22,5% e 27,5%. Os ajustes se dão seguindo as faixas de salários englobadas para cada uma das alíquotas.\n\nConsidere que um funcionário recebeu um salário bruto de R\$ 2.500,00 em março de 2022, para esse valor, o desconto de INSS seguirá a faixa de 7,5% resultando no valor de R\$ 225,00. Assim a base de cálculo para o IRRF será de R\$ 2.275,00 (2.500 – 225).',
       observation: 'É de suma importância estar atento às legislações. Podendo acompanhar as orientações e mudanças no portal do Receita Federal: https://www.gov.br/receitafederal/pt-br',
-      videoUrl: 'assets/videos/impostoderendair.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/impostoderendair.json',
     ),
     const TermModel(
@@ -301,7 +301,7 @@ class MockDictionaryRepository {
       concept: 'Instituto Nacional do Seguro Social é o imposto responsável por formar o patrimônio da Previdência Social. Trata-se de um seguro público que tem o objetivo de assegurar a aposentadoria e fornecer benefícios aos cidadãos brasileiros.',
       example: 'Registro do cálculo do INSS segue as alíquotas de contribuição, sendo de 7,5%, 9%, 12% e 14%. Os ajustes se dão seguindo as faixas de salários englobadas para cada uma das alíquotas. O colaborador cujo  salário de R\$ 2.000,00 se enquadra na faixa de 9%, teria o seguinte cálculo sobre esta remuneração:\n\n(2.000 x 9% = R\$ 180,00)\n\n**DÉBITO:** DESPESAS COM INSS (Conta de Resultado) – R\$ 180,00\n\n**CRÉDITO**: INSS À PAGAR (Passivo Circulante) – R\$ 180,00',
       observation: 'É de suma importância estar atento às legislações. Acompanhar as orientações e mudanças no portal do INSS.',
-      videoUrl: 'assets/videos/inss.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/inss.json',
     ),
     const TermModel(
@@ -311,7 +311,7 @@ class MockDictionaryRepository {
       concept: 'É o processo no qual o sócio entrega os valores prometidos na emissão do Contrato Social. Esses valores, por sua vez, podem ser em dinheiro, bens móveis, bens imóveis e/ou títulos de crédito.',
       example: 'Os sócios Antônio e Ricardo resolvem se juntar para abrir uma cafeteria. Para isto concluem que é necessário juntar R\$ 50.000,00. Em conversa, definiram que o Antônio vai contribuir com R\$ 25.000,00 em Equipamentos e, o Ricardo, com R\$ 25.000,00 em dinheiro.\n\nPorém, no momento da constituição da empresa, o dinheiro e o equipamento ainda não serão transferidos. Isso porque ele está na conta bancária do Ricardo e a empresa, recém-aberta, ainda não terá conta bancária. Assim, o equipamento levará um prazo para sua transferência para a empresa.\n\n**SUBSCRIÇÃO DO CAPITAL**\n\n\n\n**DÉBITO:** Capital Social a Integralizar (Patrimônio Líquido) – R\$ 50.000,00.\n\n**CRÉDITO**: Capital Social Subscrito (Patrimônio Líquido) – R\$ 50.000,00.\n\n**INTEGRALIZAÇÃO DO CAPITAL**\n\n\n\n**DÉBITO:** Equipamentos (Ativo Não Circulante).\n\n**CRÉDITO**: Capital Social a Integralizar (Patrimônio Líquido) – R\$ 25.000,00.',
       observation: '',
-      videoUrl: 'assets/videos/integralizacaodecapital.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/integralizacaodecapital.json',
     ),
     const TermModel(
@@ -321,7 +321,7 @@ class MockDictionaryRepository {
       concept: 'São “as participações permanentes em outras sociedades e os direitos de qualquer natureza, não classificáveis no Ativo Circulante, e que não se destinem à manutenção da atividade da companhia ou da empresa”.',
       example: 'Aquisição de participação societária na Cia. Industrial Completa, no valor de R\$ 2.000.000,00, mediante contrato com previsão de pagamento de R\$ 900.000,00 à vista (pago em cheque) e o saldo em 60 dias.\n\n**DÉBITO:** Cia. Industrial Completa – Investimento (Ativo Não Circulante).\n\n**CRÉDITO**: Banco Conta Movimento (Ativo Circulante).\n\n**CRÉDITO**: Aquisição de Investimento – Contas a Pagar (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/investimento.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/investimento.json',
     ),
     const TermModel(
@@ -331,7 +331,7 @@ class MockDictionaryRepository {
       concept: 'É o resultado financeiro dado pela receita total menos os custos explícitos de uma empresa, conforme apurado pela contabilidade.',
       example: 'No encerramento do exercício social, a empresa Alvora QTZ teve o resultado líquido final apurado com saldo positivo (LUCRO) classificado no Patrimônio Líquido, em Lucros do Exercício.\n\nAssim, temos os lançamentos:\n\n**DÉBITO:** Resultado do Exercício (Conta de Resultado).\n\n**CRÉDITO**: Lucros do exercício (Patrimônio Líquido).',
       observation: '',
-      videoUrl: 'assets/videos/lucro.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/lucro.json',
     ),
     const TermModel(
@@ -341,7 +341,7 @@ class MockDictionaryRepository {
       concept: 'Enquadra-se como Ativo Não Circulante, do grupo Imobilizado, que a empresa usa para desenvolver as suas atividades.',
       example: 'Em uma padaria, houve a aquisição de um fogão industrial para fazer pães em grande escala, pelo valor de R\$ 15.000,00 a prazo conforme Nota Fiscal de compra. para desenvolver o produto que venderá.\n\n**DÉBITO:** Máquinas e Equipamentos (Ativo Não Circulante).\n\n**CRÉDITO**: Fornecedor (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/maquinaeequipamentos.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/maquinaeequipamentos.json',
     ),
     const TermModel(
@@ -351,7 +351,7 @@ class MockDictionaryRepository {
       concept: 'É um produto natural ou transformado (semimanufaturado), que as empresas utilizam como base em um processo produtivo para a obtenção de um produto acabado.',
       example: 'Vegetal: o látex, matéria-prima para a fabricação da borracha.\n\nAnimal: de origem da criação de animais, como a carne, o leite, o couro.\n\nMineral: são os materiais extraídos do solo, como, por exemplo, o petróleo que será transformado em gasolina e outros derivados.\n\nA Indústria Móveis compra, a prazo, R\$ 15.000,00 em madeiras para fabricação de guarda-roupa.\n\n**DÉBITO:** Estoque de Matéria Prima (Ativo Circulante).\n\n**CRÉDITO**: Fornecedor (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/materiaprima.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/materiaprima.json',
     ),
     const TermModel(
@@ -361,7 +361,7 @@ class MockDictionaryRepository {
       concept: 'São todos os artigos adquiridos pelo comércio para revenda em seus estabelecimentos, seja a varejo, seja em atacado.',
       example: 'Aquisição de mercadoria no valor de R\$ 5.000,00, conforme nota fiscal de venda, com pagamento parcelado em 3 vezes, 30, 60 e 90 dias.\n\n**DÉBITO:** Mercadorias (Ativo Circulante).\n\n**CRÉDITO**: Fornecedor (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/mercadoria.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/mercadoria.json',
     ),
     const TermModel(
@@ -371,7 +371,7 @@ class MockDictionaryRepository {
       concept: 'São parâmetros e diretrizes de conduta ética, utilizadas para nortear tecnicamente todos os procedimentos contábeis.',
       example: 'As Normas Brasileiras de Contabilidade (NBC) classificam-se em Profissionais e Técnicas.\n\nAs Normas Profissionais estabelecem regras de exercício profissional e classificam-se em:\n- NBC PG – Geral\n- NBC PA – do Auditor Independente\n- NBC PP - do Perito Contábil As Normas Técnicas estabelecem conceitos doutrinários, regras e procedimentos a serem aplicados e classificam-se em:\n- NBC TG – Geral\n- Normas Completas\n- Normas Simplificadas para PMEs\n- Normas Específicas\n- NBC TSP – do Setor Público\n- NBC TA – de Auditoria Independente de Informação Contábil Histórica\n- NBC TASP – de Auditoria de Informação Contábil Histórica Aplicável ao Setor Público\n- NBC TR – de Revisão de Informação Contábil Histórica',
       observation: '',
-      videoUrl: 'assets/videos/normas.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/normas.json',
     ),
     const TermModel(
@@ -381,7 +381,7 @@ class MockDictionaryRepository {
       concept: 'São dívidas ou débitos contraídos com terceiros (Passivo Real ou obrigações com terceiros) ou com sócios ou acionistas (Patrimônio Líquido ou obrigações próprias) na captação de recursos para serem investidos no ATIVO.',
       example: 'Pode-se destacar algumas obrigações: Salário dos funcionários; Aluguel; Fornecedores; Contas de Consumo; entre outros.\n\nRegistro contábil da folha de pagamento:\n\n**DÉBITO:** Folha de Pagamento (Contas de Resultado).\n\n**CRÉDITO**: Salários a Pagar - Obrigação (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/obrigacoes.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/obrigacoes.json',
     ),
     const TermModel(
@@ -391,7 +391,7 @@ class MockDictionaryRepository {
       concept: 'Passivo é uma obrigação presente da entidade de transferir um recurso econômico como resultado de eventos passados.',
       example: 'Aquisição de mercadoria no valor de R\$ 5.000,00, conforme nota fiscal de venda, com pagamento parcelado em 3 vezes, 30, 60 e 90 dias.\n\n**DÉBITO:** Mercadorias (Ativo Circulante).\n\n**CRÉDITO**: Fornecedor (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/passivo.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/passivo.json',
     ),
     const TermModel(
@@ -401,7 +401,7 @@ class MockDictionaryRepository {
       concept: 'Patrimônio líquido é a participação residual nos ativos da entidade após a dedução de todos os seus passivos.',
       example: 'Contas que compõem o Patrimônio Líquido:\na) Capital Social.\nb) Reservas de Capital.\nc) Ajustes de Avaliação Patrimonial.\nd) Reservas de Lucros.\ne) Ações em Tesouraria.\nf) Lucros ou Prejuízos Acumulados.',
       observation: '',
-      videoUrl: 'assets/videos/patrimonioliquido.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/patrimonioliquido.json',
     ),
     const TermModel(
@@ -411,7 +411,7 @@ class MockDictionaryRepository {
       concept: 'É o valor que será cobrado dos seus clientes por seu produto ou serviço. É o preço que será cobrado pelo que vai vender. Para calcular o Preço de Venda, aplica-se o Markup, seguindo a fórmula: Markup = (1- (DF% + DV% + ML%))',
       example: 'Vamos imaginar que uma empresa tenha a proporção de 12% em Despesas Fixas. Já as Despesas Variáveis, com inclusão dos impostos é de 20%, com uma Margem de Lucro esperada de 30%.\n\nMarkup = (1-(0,12+0,20+0,30)) = 0,38 Assim sendo, se a empresa for de revenda de alguma mercadoria com um custo de R\$ 55,00, o seu preço de revenda pode ser de:\n\nPreço de Venda = Preço de Custo / Markup Preço de Venda = R\$ 55,00 / 0,38 Preço de Venda = R\$ 144,74',
       observation: '',
-      videoUrl: 'assets/videos/precodevenda.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/precodevenda.json',
     ),
     const TermModel(
@@ -421,7 +421,7 @@ class MockDictionaryRepository {
       concept: 'Ocorre quando as receitas de determinado exercício são superadas pelas despesas e custos (sob o regime de competência), sendo sua compensação efetuada com reservas existentes ou com lucros contábeis futuros.',
       example: 'No encerramento do exercício social, a empresa Alvora QTZ teve o resultado líquido final apurado como saldo negativo (PREJUÍZO), classificado no Patrimônio Líquido, em Lucros do Exercício.\n\nAssim, temos os lançamentos:\n\n**DÉBITO:** Prejuízos Acumulados (Patrimônio Líquido).\n\n**CRÉDITO**: Resultado do Exercício (Conta de Resultado).',
       observation: '',
-      videoUrl: 'assets/videos/prejuizo.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/prejuizo.json',
     ),
     const TermModel(
@@ -431,7 +431,7 @@ class MockDictionaryRepository {
       concept: 'É definido como a contraprestação que o empregador deve pagar, pago diretamente pelo empregador a cada trabalhador nos dias normais de trabalho.',
       example: 'Para todos os efeitos legais, alimentação, habitação, vestuário ou outras prestações in natura que a empresa, por força do contrato ou do costume, fornece habitualmente ao empregado.\n\nRegistro contábil da folha de pagamento:\n\n**DÉBITO:** Folha de Pagamento (Contas de Resultado).\n\n**CRÉDITO**: Salários a Pagar - Obrigação (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/salarios.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/salarios.json',
     ),
     const TermModel(
@@ -441,7 +441,7 @@ class MockDictionaryRepository {
       concept: 'São os carros, motos, camionetes, caminhões etc. que são usados para o desenvolvimento da companhia, seja para entrega de produtos, deslocamento dos funcionários, seja para qualquer outra atividade da empresa.',
       example: 'A empresa PYL fez aquisição de Veículo a prazo para uso da empresa, pelo valor de R\$ 75.000,00 conforme Nota Fiscal de compra.\n\n**DÉBITO:** Veículo (Ativo Não Circulante).\n\n**CRÉDITO**: Fornecedor (Passivo Circulante).',
       observation: '',
-      videoUrl: 'assets/videos/veiculo.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/veiculo.json',
     ),
     const TermModel(
@@ -451,7 +451,7 @@ class MockDictionaryRepository {
       concept: 'É a ação e o efeito de vender (transferir a propriedade de algo para outra pessoa mediante o pagamento de um preço estipulado).',
       example: 'Venda de mercadorias em estoque pelo valor de R\$ 15.000,00 a prazo, conforme Nota Fiscal.\n\n**DÉBITO:** Contas a Receber/Clientes (Ativo Circulante).\n\n**CRÉDITO**: Receita com Vendas de Mercadorias (Conta de Resultado).',
       observation: '',
-      videoUrl: 'assets/videos/venda.mp4',
+      videoUrl: '',
       animationUrl: 'assets/animations/venda.json',
     ),
   ];

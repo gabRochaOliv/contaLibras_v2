@@ -6,7 +6,8 @@ import '../../widgets/term_card.dart';
 import 'term_detail_screen.dart';
 
 class DictionaryScreen extends StatefulWidget {
-  const DictionaryScreen({super.key});
+  final void Function(TermModel)? onTermSelected;
+  const DictionaryScreen({super.key, this.onTermSelected});
 
   @override
   State<DictionaryScreen> createState() => _DictionaryScreenState();
@@ -22,15 +23,29 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
     });
   }
 
+  void _openTerm(BuildContext context, TermModel term) {
+    if (widget.onTermSelected != null) {
+      widget.onTermSelected!(term);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => TermDetailScreen(term: term)),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 80,
-        title: Image.asset('assets/images/logoContaLibras.png', height: 60),
-        centerTitle: true,
-        elevation: 0,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth > 800;
+        return Scaffold(
+          appBar: isDesktop ? null : AppBar(
+            toolbarHeight: 80,
+            title: Image.asset('assets/images/logoContaLibras.png', height: 60),
+            centerTitle: true,
+            elevation: 0,
+          ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
@@ -61,14 +76,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 final term = _filteredTerms[index];
                 return TermCard(
                   term: term,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TermDetailScreen(term: term),
-                      ),
-                    );
-                  },
+                  onTap: () => _openTerm(context, term),
                 );
               },
             ),
@@ -77,6 +85,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
       ),
     ),
     ),
+        );
+      },
     );
   }
 }
