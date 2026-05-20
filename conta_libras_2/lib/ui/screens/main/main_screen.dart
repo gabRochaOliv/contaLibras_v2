@@ -4,7 +4,7 @@ import '../dictionary/dictionary_screen.dart';
 import '../favorites/favorites_screen.dart';
 import '../profile/profile_screen.dart';
 import '../dictionary/term_detail_screen.dart';
-import '../../widgets/first_access_dialog.dart';
+import '../../../data/managers/user_manager.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/term_model.dart';
 
@@ -36,25 +36,13 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(userName: _userName, onTermSelected: _onTermSelected),
     DictionaryScreen(onTermSelected: _onTermSelected),
     FavoritesScreen(onTermSelected: _onTermSelected),
-    ProfileScreen(),
+    const ProfileScreen(),
   ];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final result = await showDialog<String>(
-        context: context,
-        barrierDismissible: false,
-        barrierColor: Colors.black54,
-        builder: (context) => const FirstAccessDialog(),
-      );
-      if (result != null && result.isNotEmpty && mounted) {
-        setState(() {
-          _userName = result;
-        });
-      }
-    });
+    _userName = UserManager().userName;
   }
 
   @override
@@ -63,70 +51,107 @@ class _MainScreenState extends State<MainScreen> {
       builder: (context, constraints) {
         if (constraints.maxWidth > 800) {
           return Scaffold(
-            body: Column(
+            body: Row(
               children: [
+                // Barra Lateral (Sidebar) no Desktop
                 Container(
-                  height: 80,
+                  width: 210,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                    color: AppColors.surface,
+                    border: Border(
+                      right: BorderSide(
+                        color: AppColors.divider,
+                        width: 1,
                       ),
-                    ],
+                    ),
                   ),
-                  child: Stack(
-                    alignment: Alignment.center,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Logo fixo à esquerda
-                      Positioned(
-                        left: 24,
+                      // Logo no topo da barra lateral (maior)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 28.0),
                         child: Image.asset(
                           'assets/images/logoContaLibras.png',
-                          height: 60,
+                          height: 70,
+                          fit: BoxFit.contain,
                         ),
                       ),
-                      // Itens de navegação centralizados
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (_selectedTerm != null)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: IconButton(
-                                icon: const Icon(Icons.arrow_back_rounded),
-                                color: AppColors.primary,
-                                tooltip: 'Voltar',
-                                onPressed: _clearSelectedTerm,
+                      
+                      // Botão de Voltar se houver termo selecionado
+                      if (_selectedTerm != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 20.0),
+                          child: InkWell(
+                            onTap: _clearSelectedTerm,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                                borderRadius: BorderRadius.circular(12),
+                                color: AppColors.primary.withOpacity(0.05),
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.arrow_back_rounded, color: AppColors.primary, size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Voltar',
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          _buildDesktopNavItem(0, 'Início', Icons.home_rounded),
-                          const SizedBox(width: 16),
-                          _buildDesktopNavItem(1, 'Dicionário', Icons.book_rounded),
-                          const SizedBox(width: 16),
-                          _buildDesktopNavItem(2, 'Favoritos', Icons.bookmark_rounded),
-                          const SizedBox(width: 16),
-                          _buildDesktopNavItem(3, 'Perfil', Icons.person_rounded),
-                        ],
+                          ),
+                        )
+                      else
+                        const SizedBox(height: 12),
+
+                      // Itens de Navegação Empilhados
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildDesktopNavItem(0, 'Início', Icons.home_rounded),
+                              const SizedBox(height: 8),
+                              _buildDesktopNavItem(1, 'Dicionário', Icons.book_rounded),
+                              const SizedBox(height: 8),
+                              _buildDesktopNavItem(2, 'Favoritos', Icons.bookmark_rounded),
+                              const SizedBox(height: 8),
+                              _buildDesktopNavItem(3, 'Perfil', Icons.person_rounded),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
+
+                // Área de Conteúdo à Direita
                 Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: _selectedTerm != null
-                        ? TermDetailScreen(
-                            key: ValueKey(_selectedTerm!.id),
-                            term: _selectedTerm!,
-                          )
-                        : IndexedStack(
-                            key: const ValueKey('main_stack'),
-                            index: _currentIndex,
-                            children: _screens,
-                          ),
+                  child: Container(
+                    color: AppColors.background,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: _selectedTerm != null
+                          ? TermDetailScreen(
+                              key: ValueKey(_selectedTerm!.id),
+                              term: _selectedTerm!,
+                            )
+                          : IndexedStack(
+                              key: const ValueKey('main_stack'),
+                              index: _currentIndex,
+                              children: _screens,
+                            ),
+                    ),
                   ),
                 ),
               ],
@@ -177,7 +202,7 @@ class _MainScreenState extends State<MainScreen> {
       }),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.transparent,

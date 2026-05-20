@@ -19,6 +19,8 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
   late TabController _tabController;
   VideoPlayerController? _videoController;
   bool _isFullScreen = false;
+  bool _videoLoading = false;
+  bool _videoError = false;
 
   @override
   void initState() {
@@ -38,14 +40,31 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
       }
     });
     if (widget.term.videoUrl.isNotEmpty) {
+      _videoLoading = true;
+      _videoError = false;
       _videoController = VideoPlayerController.asset(widget.term.videoUrl)
         ..initialize().then((_) {
-          _videoController!.setVolume(0); // Garante que o vídeo comece mudo
-          _videoController!.setLooping(true); // Faz o vídeo repetir automaticamente
-          setState(() {});
+          if (mounted) {
+            _videoController!.setVolume(0); // Garante que o vídeo comece mudo
+            _videoController!.setLooping(true); // Faz o vídeo repetir automaticamente
+            setState(() {
+              _videoLoading = false;
+            });
+            if (_tabController.index == 0 && !_isFullScreen) {
+              _videoController!.play();
+            }
+          }
         }).catchError((error) {
           debugPrint("Erro ao carregar vídeo: $error");
+          if (mounted) {
+            setState(() {
+              _videoLoading = false;
+              _videoError = true;
+            });
+          }
         });
+    } else {
+      _videoError = true;
     }
   }
 
@@ -173,7 +192,26 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
   }
 
   Widget _buildVideoTab() {
-    if (_videoController == null || !_videoController!.value.isInitialized) {
+    if (_videoLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Carregando vídeo, aguarde...',
+              style: AppTextStyles.heading3.copyWith(color: AppColors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_videoError || _videoController == null || !_videoController!.value.isInitialized) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -181,7 +219,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             Icon(Icons.videocam_off_rounded, size: 80, color: AppColors.textSecondary),
             const SizedBox(height: 16),
             Text(
-              'Vídeo não disponível ou carregando...',
+              'Vídeo indisponível',
               style: AppTextStyles.heading3.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
@@ -529,10 +567,41 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
           Container(
             color: AppColors.surface,
             padding: const EdgeInsets.only(top: 8.0, bottom: 16.0, left: 16.0, right: 16.0),
-            child: Text(
-              widget.term.title,
-              style: AppTextStyles.heading1,
-              textAlign: TextAlign.center,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 48.0),
+                  child: Text(
+                    widget.term.title,
+                    style: AppTextStyles.heading1,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                if (isDesktop)
+                  Positioned(
+                    right: 8,
+                    child: AnimatedBuilder(
+                      animation: FavoritesManager(),
+                      builder: (context, child) {
+                        final isFav = FavoritesManager().isFavorite(widget.term.id);
+                        return IconButton(
+                          icon: Icon(
+                            isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                            color: isFav
+                                ? (ThemeManager().isDarkMode ? Colors.white : AppColors.primary)
+                                : AppColors.textSecondary,
+                            size: 28,
+                          ),
+                          tooltip: isFav ? 'Remover dos favoritos' : 'Favoritar termo',
+                          onPressed: () {
+                            FavoritesManager().toggleFavorite(widget.term);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+              ],
             ),
           ),
           Container(
