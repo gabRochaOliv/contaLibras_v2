@@ -21,9 +21,19 @@ class _MainScreenState extends State<MainScreen> {
   TermModel? _selectedTerm;
 
   void _onTermSelected(TermModel term) {
-    setState(() {
-      _selectedTerm = term;
-    });
+    final isMobile = MediaQuery.of(context).size.width <= 800;
+    if (isMobile) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TermDetailScreen(term: term),
+        ),
+      );
+    } else {
+      setState(() {
+        _selectedTerm = term;
+      });
+    }
   }
 
   void _clearSelectedTerm() {
