@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!.*\\.).*)",
+      "destination": "/conta_libras_2/build/web/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/conta_libras_2/build/web/$1"
+    }
+  ]
+}
