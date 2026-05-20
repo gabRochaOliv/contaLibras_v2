@@ -21,19 +21,9 @@ class _MainScreenState extends State<MainScreen> {
   TermModel? _selectedTerm;
 
   void _onTermSelected(TermModel term) {
-    final isMobile = MediaQuery.of(context).size.width <= 800;
-    if (isMobile) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TermDetailScreen(term: term),
-        ),
-      );
-    } else {
-      setState(() {
-        _selectedTerm = term;
-      });
-    }
+    setState(() {
+      _selectedTerm = term;
+    });
   }
 
   void _clearSelectedTerm() {
@@ -169,16 +159,29 @@ class _MainScreenState extends State<MainScreen> {
           );
         }
 
-        // Mobile: navegação normal com Navigator.push
+        // Mobile: navegação mantendo o BottomNavigationBar visível
         return Scaffold(
-          body: IndexedStack(
-            index: _currentIndex,
-            children: _screens,
+          body: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: _selectedTerm != null
+                ? TermDetailScreen(
+                    key: ValueKey(_selectedTerm!.id),
+                    term: _selectedTerm!,
+                    onBackPressed: _clearSelectedTerm,
+                  )
+                : IndexedStack(
+                    key: const ValueKey('main_stack'),
+                    index: _currentIndex,
+                    children: _screens,
+                  ),
           ),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             currentIndex: _currentIndex,
-            onTap: (index) => setState(() => _currentIndex = index),
+            onTap: (index) => setState(() {
+              _currentIndex = index;
+              _selectedTerm = null;
+            }),
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_rounded),

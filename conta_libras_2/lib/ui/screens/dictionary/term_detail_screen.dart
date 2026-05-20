@@ -8,8 +8,9 @@ import '../../../data/managers/progress_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 class TermDetailScreen extends StatefulWidget {
   final TermModel term;
+  final VoidCallback? onBackPressed;
 
-  const TermDetailScreen({super.key, required this.term});
+  const TermDetailScreen({super.key, required this.term, this.onBackPressed});
 
   @override
   State<TermDetailScreen> createState() => _TermDetailScreenState();
@@ -536,6 +537,16 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             title: Image.asset('assets/images/logoContaLibras.png', height: 60),
             centerTitle: true,
             elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded, color: AppColors.primary, size: 28),
+              onPressed: () {
+                if (widget.onBackPressed != null) {
+                  widget.onBackPressed!();
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
             actions: [
               AnimatedBuilder(
                 animation: FavoritesManager(),
