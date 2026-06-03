@@ -57,16 +57,16 @@ Source: measured from `evaluation_dialog.dart` and `home_screen.dart`
 
 All styles use Google Fonts Inter. Source: `app_text_styles.dart`.
 
+The question body text (16px/bold) is the primary visual anchor of each section page.
+
 | Role | Size | Weight | Line Height | Color | Usage in Dialog |
 |------|------|--------|-------------|-------|-----------------|
-| Heading (dialog title) | 22px | 700 | 1.2 | `AppColors.textPrimary` | "Avaliacao" dialog header — `AppTextStyles.heading2` |
-| Section header | 18px | 600 | 1.2 | `AppColors.textPrimary` | Section title inside PageView (e.g. "Usabilidade do Sistema") — `AppTextStyles.heading3` |
-| Question body | 16px | 700 | 1.5 | `AppColors.textPrimary` | Individual question text — `AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)` |
-| Label | 12px | 500 | 1.3 | `AppColors.textSecondary` | "Discordo Totalmente" / "Concordo Totalmente" anchors — `AppTextStyles.label` |
+| Heading (dialog title) | 22px | w700 | 1.2 | `AppColors.textPrimary` | "Avaliacao" dialog header — `AppTextStyles.heading2` |
+| Section header | 18px | w700 | 1.2 | `AppColors.textPrimary` | Section title inside PageView (e.g. "Usabilidade do Sistema") — `AppTextStyles.heading3` |
+| Question body | 16px | w700 | 1.5 | `AppColors.textPrimary` | Individual question text — `AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)` |
+| Label | 12px | w400 | 1.3 | `AppColors.textSecondary` | "Discordo Totalmente" / "Concordo Totalmente" anchors — `AppTextStyles.label` |
 
-Additional used in TCLE view only:
-- Section title in TCLE: 14px / w700 / `AppColors.primary` — `AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary)`
-- Body paragraph in TCLE: 14px / w400 / `AppColors.textSecondary` — `AppTextStyles.bodyMedium`
+TCLE content uses the same scale: TCLE section titles use 16px/w700 (`AppTextStyles.bodyLarge` bold) in `AppColors.primary`; TCLE body paragraphs use 16px/w400 (`AppTextStyles.bodyLarge`) in `AppColors.textSecondary`.
 
 Likert circle number: 18px / bold / white (selected) or `AppColors.textSecondary` (unselected) — hardcoded in existing component, preserve as-is.
 
@@ -165,7 +165,7 @@ Structure: `Container` inserted between the section content and navigation row.
 - Border radius: 8px
 - Padding: 12px all sides
 - Icon: `Icons.error_outline`, `Colors.red.shade600`, size 18
-- Text: `AppTextStyles.bodyMedium.copyWith(color: Colors.red.shade700)` — see Copywriting section
+- Text: `AppTextStyles.bodyLarge.copyWith(color: Colors.red.shade700)` — see Copywriting section
 - Below text: `TextButton` with label "Tentar novamente", `AppColors.primary` color
 - Dismisses automatically when retry succeeds
 
