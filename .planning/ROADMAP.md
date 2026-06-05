@@ -57,4 +57,22 @@
 - Gráficos das respostas Likert
 - Exportação dos dados (CSV ou similar)
 
+**Plans:** 4 plans em 3 waves
+
+**Wave 1** *(paralelo — sem dependências)*
+- [ ] 02-01-PLAN.md — Infra de testes: requirements.txt, runtime.txt, pytest.ini, config.toml, fixtures, test_transforms.py (RED), test_auth.py (GREEN)
+- [ ] 02-02-PLAN.md — Camada de dados e gráficos: database.py (urlparse+sslmode), transforms.py (pivot JSONB), charts.py (3 figuras Plotly)
+
+**Wave 2** *(bloqueado pela Wave 1 — requer 02-01 e 02-02)*
+- [ ] 02-03-PLAN.md — Entrypoint Streamlit: app.py completo com auth gate, sidebar, 5 seções, empty/error states
+
+**Wave 3** *(bloqueado pela Wave 2 — requer 02-03)*
+- [ ] 02-04-PLAN.md — Deploy Railway: railway.json + segundo serviço Railway + verificação no browser (checkpoint)
+
+**Cross-cutting constraints:**
+- Todos os planos: DATABASE_URL e DASHBOARD_PASSWORD apenas como variáveis de ambiente Railway — nunca no código
+- database.py: SEMPRE usar urlparse + kwargs separados (NUNCA psycopg2.connect(url_string)) — fix para Session Pooler Supabase
+- database.py: SEMPRE incluir sslmode="require" — Supabase Session Pooler exige SSL em produção
+- charts.py: NÃO usar use_container_width=True — deprecated; usar width="stretch" em st.plotly_chart
+
 **Status:** pending
