@@ -218,7 +218,28 @@ st.divider()
 
 
 # ---------------------------------------------------------------------------
-# Seção 5 — Exportação CSV (D-11, D-12)
+# Seção 5 — Respondentes
+# ---------------------------------------------------------------------------
+
+st.header("Respondentes")
+
+df_respondentes = df_wide[["nome", "idade", "categoria", "criado_em"]].copy()
+df_respondentes["criado_em"] = pd.to_datetime(df_respondentes["criado_em"]).dt.strftime("%d/%m/%Y %H:%M")
+df_respondentes = df_respondentes.rename(columns={
+    "nome": "Nome",
+    "idade": "Idade",
+    "categoria": "Categoria",
+    "criado_em": "Data de resposta",
+}).reset_index(drop=True)
+
+st.dataframe(df_respondentes, use_container_width=True, hide_index=True)
+st.caption(f"{len(df_respondentes)} respondente(s) exibido(s).")
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# Seção 6 — Exportação CSV (D-11, D-12)
 # ---------------------------------------------------------------------------
 
 st.header("Exportar Dados")
