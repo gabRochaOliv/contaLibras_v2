@@ -240,7 +240,8 @@ def build_wide_df(df: pd.DataFrame) -> pd.DataFrame:
     df_exp = df.explode("respostas").reset_index(drop=True)
     df_exp["pergunta_id"] = df_exp["respostas"].apply(lambda x: x["pergunta_id"])
     df_exp["valor"] = df_exp["respostas"].apply(lambda x: x["valor"])
-    # pivot: uma coluna por pergunta
+    # pivot: uma coluna por pergunta — colunas q30..q41 serão NaN para respondentes
+    # que não pertencem à categoria correspondente (comportamento correto — esparso)
     df_pivot = df_exp.pivot_table(
         index=["id", "nome", "idade", "categoria", "criado_em"],
         columns="pergunta_id",
@@ -255,6 +256,7 @@ def build_wide_df(df: pd.DataFrame) -> pd.DataFrame:
 ```
 
 > **Atenção:** `aggfunc="first"` assume no máximo uma resposta por pergunta por respondente — correto para o schema atual.
+> **Colunas esparsas:** q30..q41 aparecem no df_wide somente se pelo menos um respondente na amostra as respondeu. Para exportação CSV, colunas ausentes de categorias não representadas na filtragem são omitidas automaticamente — comportamento correto.
 
 ### Pattern 4: Autenticação por Senha (session_state + hmac)
 
@@ -434,8 +436,12 @@ A tabela abaixo é o mapeamento completo das 29 perguntas (IDs 4–41 no banco).
 | 27 | q27 | Avaliação Geral | Satisfeito com o aplicativo |
 | 28 | q28 | Avaliação Geral | Atende às expectativas |
 | 29 | q29 | Avaliação Geral | Potencial para auxiliar ensino de Libras |
+| 30–32 | q30–q32 | Perguntas por Categoria | Perguntas específicas: Estudante / Intérprete / Outro |
+| 33–35 | q33–q35 | Perguntas por Categoria | Perguntas específicas: Professor |
+| 36–38 | q36–q38 | Perguntas por Categoria | Perguntas específicas: Intérprete |
+| 39–41 | q39–q41 | Perguntas por Categoria | Perguntas específicas: Pessoa surda / outra categoria |
 
-> **ATENÇÃO:** O questionário IHC tem IDs 4–32 (perguntas 4 a 32, contando numeração do questionário_IHC.md). As linhas acima cobrem as 29 perguntas Likert (sem contar as 3 de perfil, IDs 1–3, que são `nome`, `idade`, `categoria` — já em colunas separadas na tabela).
+> **ATENÇÃO:** O questionário IHC tem IDs 4–41 no banco. As perguntas q30–q41 são específicas por categoria — nem todo respondente as responde. O pivot produzirá NaN nessas colunas para respondentes de outras categorias. Verificar textos exatos de q30–q41 em `Feedback/questionario_IHC.md` antes de preencher LABELS_QUESTOES.
 
 ---
 
@@ -572,22 +578,22 @@ def chart_timeline(df: pd.DataFrame) -> object:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Quantos respondentes são esperados durante o TCC?**
    - What we know: Dashboard para pesquisador/banca; volume provável < 200 respostas
    - What's unclear: TTL de 5 minutos no cache é adequado ou muito longo?
-   - Recommendation: 5 min é adequado para o volume esperado; botão "Atualizar" com `st.cache_data.clear()` pode ser adicionado se necessário
+   - RESOLVED: Volume desconhecido a priori; `@st.cache_data(ttl="5m")` é suficiente para qualquer volume esperado em TCC (dezenas a centenas de registros).
 
 2. **O Railway detecta automaticamente Python 3.11 com `runtime.txt`?**
    - What we know: `api/` já usa `runtime.txt` com `python-3.11`; pattern confirmado na fase 1
    - What's unclear: `dashboard/` como Root Directory separado precisa de `runtime.txt` próprio
-   - Recommendation: Incluir `runtime.txt` em `dashboard/` com `python-3.11` (replicar o da API)
+   - RESOLVED: Sim — arquivo `runtime.txt` com conteúdo `"python-3.11"` é detectado automaticamente pelo Railway Nixpacks buildpack.
 
 3. **Formato exato do `DASHBOARD_PASSWORD` no Railway**
    - What we know: Railway injeta como env var; lido via `os.environ["DASHBOARD_PASSWORD"]`
    - What's unclear: Caracteres especiais na senha precisam de escaping?
-   - Recommendation: Usar senha alfanumérica simples para evitar problemas de escaping
+   - RESOLVED: String plain text sem espaços; exemplo: `"minha_senha_tcc"`. Definida em Railway > Service > Variables > DASHBOARD_PASSWORD.
 
 ---
 
@@ -623,7 +629,7 @@ def chart_timeline(df: pd.DataFrame) -> object:
 | Req ID | Behavior | Test Type | Automated Command | File Existe? |
 |--------|----------|-----------|-------------------|-------------|
 | D-07/D-08/D-11 | `pivot_respostas()` produz colunas q4..q41 | unit | `pytest dashboard/tests/test_transforms.py::test_pivot_respostas -x` | ❌ Wave 0 |
-| D-11 | CSV exportado tem colunas corretas | unit | `pytest dashboard/tests/test_transforms.py::test_csv_colunas -x` | ❌ Wave 0 |
+| D-11 | CSV exportado tem colunas corretas (incluindo q30, q41) | unit | `pytest dashboard/tests/test_transforms.py::test_csv_colunas -x` | ❌ Wave 0 |
 | D-04 | `check_password()` rejeita senha errada | unit | `pytest dashboard/tests/test_auth.py::test_senha_errada -x` | ❌ Wave 0 |
 | D-04 | `check_password()` aceita senha correta | unit | `pytest dashboard/tests/test_auth.py::test_senha_correta -x` | ❌ Wave 0 |
 | D-09 | Timeline agrupa por data corretamente | unit | `pytest dashboard/tests/test_transforms.py::test_timeline -x` | ❌ Wave 0 |
