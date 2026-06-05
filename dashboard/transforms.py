@@ -208,6 +208,26 @@ def pivot_respostas(df: pd.DataFrame) -> pd.DataFrame:
     return df_wide
 
 
+FAIXAS_ETARIAS = ["< 18", "18–25", "26–35", "36–50", "> 50"]
+
+
+def calcular_faixa_etaria(idade) -> str:
+    """Converte idade exata para faixa etária categórica."""
+    try:
+        n = int(idade)
+    except (TypeError, ValueError):
+        return "Desconhecida"
+    if n < 18:
+        return "< 18"
+    if n <= 25:
+        return "18–25"
+    if n <= 35:
+        return "26–35"
+    if n <= 50:
+        return "36–50"
+    return "> 50"
+
+
 def build_wide_df(df: pd.DataFrame) -> pd.DataFrame:
     """Wrapper de pivot_respostas — retorna DataFrame wide com colunas qN.
 

@@ -10,20 +10,50 @@ import pandas as pd
 import streamlit as st
 
 from database import fetch_feedbacks
-from transforms import pivot_respostas, build_timeline_df, SECOES_IHC, LABELS_QUESTOES, FULL_QUESTOES
-from charts import chart_medias_por_questao, chart_comparativo_categoria, chart_timeline, chart_distribuicao_por_questao
+from transforms import (
+    pivot_respostas,
+    SECOES_IHC,
+    LABELS_QUESTOES,
+    FULL_QUESTOES,
+    calcular_faixa_etaria,
+)
+from charts import (
+    chart_perfil_respondentes,
+    chart_timeline,
+    chart_avaliacao_geral,
+    chart_likert_horizontal,
+    chart_faixa_etaria,
+)
+
+st.set_page_config(
+    page_title="ContaLibras — Dashboard",
+    page_icon="📊",
+    layout="wide",
+)
+
+# CSS mínimo para cards de KPI
+st.markdown(
+    """
+    <style>
+    [data-testid="stMetric"] {
+        background-color: #f8f9fb;
+        border: 1px solid #e8eaed;
+        border-radius: 10px;
+        padding: 1rem 1.2rem;
+    }
+    [data-testid="stMetricValue"] { font-size: 1.9rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.78rem !important; color: #6b7280 !important; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # ---------------------------------------------------------------------------
-# Autenticação por senha (D-04 / T-02-05)
+# Autenticação por senha
 # ---------------------------------------------------------------------------
 
 def check_password() -> bool:
-    """Retorna True se o usuário está autenticado.
-
-    Usa hmac.compare_digest para resistência a timing attacks (D-04, T-02-05).
-    Senha lida de DASHBOARD_PASSWORD env var — nunca hardcoded.
-    """
     def _verify():
         entered = st.session_state.get("password_input", "")
         correct = os.environ.get("DASHBOARD_PASSWORD", "")
@@ -36,16 +66,10 @@ def check_password() -> bool:
     if st.session_state.get("authenticated"):
         return True
 
-    # Layout centralizado — coluna central estreita para o formulário de login
     _, col_center, _ = st.columns([1, 2, 1])
     with col_center:
         st.header("Acesso Restrito")
-        st.text_input(
-            "Senha",
-            type="password",
-            key="password_input",
-            on_change=_verify,
-        )
+        st.text_input("Senha", type="password", key="password_input", on_change=_verify)
         st.button("Acessar Dashboard", on_click=_verify)
         if st.session_state.get("auth_error"):
             st.error("Senha incorreta. Tente novamente.")
@@ -53,220 +77,222 @@ def check_password() -> bool:
     return False
 
 
-# ---------------------------------------------------------------------------
-# Auth gate — bloqueia tudo abaixo até autenticação
-# ---------------------------------------------------------------------------
-
 if not check_password():
     st.stop()
 
 
 # ---------------------------------------------------------------------------
-# Sidebar — filtro por categoria de usuário (D-10)
-# ---------------------------------------------------------------------------
-
-st.sidebar.title("Filtros")
-
-categorias_disponiveis = [
-    "Todos",
-    "Pessoa surda",
-    "Professor",
-    "Estudante",
-    "Intérprete",
-    "Outro",
-]
-
-categoria_selecionada = st.sidebar.selectbox(
-    "Categoria de Usuário",
-    categorias_disponiveis,
-)
-
-st.sidebar.caption("Filtro aplicado a todos os gráficos.")
-
-
-# ---------------------------------------------------------------------------
-# Carregar e transformar dados
+# Carregar dados brutos (antes dos filtros — necessário para limites de data)
 # ---------------------------------------------------------------------------
 
 try:
     df_raw = fetch_feedbacks()
 except Exception:
-    st.error(
-        "Erro ao carregar os dados. Verifique a conexão com o banco de dados e recarregue a página."
-    )
+    st.error("Erro ao carregar os dados. Verifique a conexão com o banco e recarregue a página.")
     st.stop()
 
-# Verificar se há dados no banco antes de qualquer processamento
 if len(df_raw) == 0:
     st.info("Nenhuma resposta coletada ainda. Os gráficos serão exibidos quando houver dados.")
     st.stop()
 
-# Pivot JSONB → colunas qN
-df_wide = pivot_respostas(df_raw)
-
-# Aplicar filtro de categoria em memória (sem nova query ao banco)
-if categoria_selecionada != "Todos":
-    df_wide = df_wide[df_wide["categoria"] == categoria_selecionada]
-    df_raw_filtrado = df_raw[df_raw["categoria"] == categoria_selecionada]
-else:
-    df_raw_filtrado = df_raw
-
-# Empty state — filtro resultou em zero linhas
-if len(df_wide) == 0:
-    st.warning(
-        "Nenhuma resposta encontrada para o filtro selecionado. "
-        "Altere a categoria ou aguarde novas respostas."
-    )
-    st.stop()
-
-# Identificar colunas qN presentes no DataFrame filtrado
-q_cols = [c for c in df_wide.columns if c.startswith("q")]
-
-
-# ---------------------------------------------------------------------------
-# Título da página
-# ---------------------------------------------------------------------------
-
-st.title("ContaLibras — Dashboard de Análise")
-st.caption("Dados do questionário IHC (questões Likert q4–q41)")
-
-with st.expander("Ver perguntas do questionário"):
-    secao_atual = None
-    for q, texto in FULL_QUESTOES.items():
-        secao = SECOES_IHC.get(q, "Outras")
-        if secao != secao_atual:
-            st.markdown(f"**{secao}**")
-            secao_atual = secao
-        st.markdown(f"- {texto}")
-
-
-# ---------------------------------------------------------------------------
-# Seção 1 — Resumo Geral (D-06)
-# ---------------------------------------------------------------------------
-
-st.header("Resumo Geral")
-
-col1, col2, col3 = st.columns(3)
-
-media_geral = df_wide[q_cols].mean().mean() if q_cols else None
-
-# Melhor e pior seção (médias por seção)
-if q_cols:
-    medias_secao = {
-        secao: df_wide[[c for c in q_cols if SECOES_IHC.get(c) == secao]].mean().mean()
-        for secao in dict.fromkeys(SECOES_IHC.values())
-        if any(SECOES_IHC.get(c) == secao for c in q_cols)
-    }
-    melhor_secao = max(medias_secao, key=medias_secao.get) if medias_secao else "—"
-    pior_secao = min(medias_secao, key=medias_secao.get) if medias_secao else "—"
-else:
-    melhor_secao = pior_secao = "—"
-
-col1.metric("Total de Respostas", len(df_wide))
-col2.metric("Média Geral (1–5)", f"{media_geral:.2f}" if media_geral else "—")
-col3.metric("Categorias Ativas", df_wide["categoria"].nunique())
-
-col4, col5 = st.columns(2)
-col4.metric("Seção com maior média", melhor_secao,
-            f"{medias_secao.get(melhor_secao, 0):.2f}" if melhor_secao != "—" else None)
-col5.metric("Seção com menor média", pior_secao,
-            f"{medias_secao.get(pior_secao, 0):.2f}" if pior_secao != "—" else None)
-
-st.divider()
-
-
-# ---------------------------------------------------------------------------
-# Seção 2 — Médias por Questão (D-07)
-# ---------------------------------------------------------------------------
-
-st.header("Médias por Questão (Likert 1–5)")
-st.caption("Passe o mouse sobre as barras para ver o texto completo de cada pergunta. Escala de 1 (discordo totalmente) a 5 (concordo totalmente).")
-fig1 = chart_medias_por_questao(df_wide)
-st.plotly_chart(fig1, width="stretch")
-
-st.subheader("Distribuição de respostas por pergunta")
-st.caption("Selecione uma pergunta para ver quantas pessoas deram cada nota (1–5).")
-questao_selecionada = st.selectbox(
-    "Pergunta",
-    options=q_cols,
-    format_func=lambda q: f"{q.upper()} — {LABELS_QUESTOES.get(q, q)}",
+df_raw["_data"] = (
+    pd.to_datetime(df_raw["criado_em"])
+    .dt.tz_convert("America/Sao_Paulo")
+    .dt.date
 )
-fig_dist = chart_distribuicao_por_questao(df_wide, questao_selecionada)
-st.plotly_chart(fig_dist, width="stretch")
-
-st.divider()
+data_min = df_raw["_data"].min()
+data_max = df_raw["_data"].max()
 
 
 # ---------------------------------------------------------------------------
-# Seção 3 — Comparativo por Categoria de Usuário (D-08)
+# Sidebar — filtros
 # ---------------------------------------------------------------------------
 
-st.header("Comparativo por Categoria de Usuário")
+st.sidebar.title("ContaLibras")
+st.sidebar.caption("Dashboard de Feedback — Glossário de Contabilidade")
+st.sidebar.divider()
+st.sidebar.subheader("Filtros")
 
-fig2 = chart_comparativo_categoria(df_wide)
-st.plotly_chart(fig2, width="stretch")
-st.caption("Média por seção do questionário, agrupada por categoria de usuário.")
+categorias_disponiveis = [
+    "Todos", "Pessoa surda", "Professor", "Estudante", "Intérprete", "Outro",
+]
+categoria_selecionada = st.sidebar.selectbox("Categoria de Usuário", categorias_disponiveis)
 
-st.divider()
+periodo = st.sidebar.date_input(
+    "Período de coleta",
+    value=(data_min, data_max),
+    min_value=data_min,
+    max_value=data_max,
+)
 
+# Tratar caso em que o usuário ainda não concluiu a seleção do intervalo
+if isinstance(periodo, (list, tuple)):
+    data_inicio = periodo[0]
+    data_fim = periodo[-1]
+else:
+    data_inicio = data_fim = periodo
 
-# ---------------------------------------------------------------------------
-# Seção 4 — Timeline de Coleta (D-09)
-# ---------------------------------------------------------------------------
+st.sidebar.divider()
 
-st.header("Volume de Coleta por Período")
-
-fig3 = chart_timeline(df_raw_filtrado)
-st.plotly_chart(fig3, width="stretch")
-st.caption("Número de respostas recebidas por dia durante o período de coleta.")
-
-st.divider()
-
-
-# ---------------------------------------------------------------------------
-# Seção 5 — Respondentes
-# ---------------------------------------------------------------------------
-
-st.header("Respondentes")
-
-df_respondentes = df_wide[["nome", "idade", "categoria", "criado_em"]].copy()
-df_respondentes["criado_em"] = pd.to_datetime(df_respondentes["criado_em"]).dt.strftime("%d/%m/%Y %H:%M")
-df_respondentes = df_respondentes.rename(columns={
-    "nome": "Nome",
-    "idade": "Idade",
-    "categoria": "Categoria",
-    "criado_em": "Data de resposta",
-}).reset_index(drop=True)
-
-st.dataframe(df_respondentes, use_container_width=True, hide_index=True)
-st.caption(f"{len(df_respondentes)} respondente(s) exibido(s).")
-
-st.divider()
-
-
-# ---------------------------------------------------------------------------
-# Seção 6 — Exportação CSV (D-11, D-12)
-# ---------------------------------------------------------------------------
-
-st.header("Exportar Dados")
+# Exportar CSV na sidebar (discreto)
+st.sidebar.subheader("Exportar")
 
 
 @st.cache_data
-def to_csv_bytes(df: pd.DataFrame) -> bytes:
-    """Converte DataFrame para bytes CSV em UTF-8. Cache atualiza quando df muda."""
+def _to_csv(df: pd.DataFrame) -> bytes:
     return df.to_csv(index=False).encode("utf-8")
 
 
-col_desc, col_btn = st.columns([3, 1])
+# ---------------------------------------------------------------------------
+# Aplicar filtros
+# ---------------------------------------------------------------------------
 
-col_desc.write(
-    "Dados brutos com uma linha por resposta. "
-    "Colunas: id, nome, idade, categoria, criado_em, q4–q41."
-)
+mask = (df_raw["_data"] >= data_inicio) & (df_raw["_data"] <= data_fim)
+df_raw_filtrado = df_raw[mask].copy()
 
-col_btn.download_button(
-    label="Exportar CSV",
-    data=to_csv_bytes(df_wide),
+if categoria_selecionada != "Todos":
+    df_raw_filtrado = df_raw_filtrado[df_raw_filtrado["categoria"] == categoria_selecionada]
+
+df_wide = pivot_respostas(df_raw_filtrado)
+
+if len(df_wide) == 0:
+    st.warning(
+        "Nenhuma resposta encontrada para os filtros selecionados. "
+        "Ajuste a categoria ou o período e tente novamente."
+    )
+    st.stop()
+
+q_cols = [c for c in df_wide.columns if c.startswith("q")]
+
+# Botão de export só aparece quando há dados
+st.sidebar.download_button(
+    label="Baixar CSV",
+    data=_to_csv(df_wide),
     file_name="feedbacks_contalibras.csv",
     mime="text/csv",
 )
+
+st.sidebar.caption(f"{len(df_wide)} resposta(s) nos filtros selecionados.")
+
+
+# ---------------------------------------------------------------------------
+# Cabeçalho
+# ---------------------------------------------------------------------------
+
+st.title("Dashboard de Feedback — Glossário de Contabilidade")
+st.caption(
+    f"Dados coletados de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')} "
+    f"· {len(df_wide)} resposta(s)"
+)
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# KPIs
+# ---------------------------------------------------------------------------
+
+media_geral = df_wide[q_cols].mean().mean() if q_cols else None
+
+qs_facilidade = [q for q in ("q5", "q8") if q in df_wide.columns]
+media_facilidade = df_wide[qs_facilidade].mean().mean() if qs_facilidade else None
+
+qs_utilidade = [q for q in ("q19", "q21") if q in df_wide.columns]
+media_utilidade = df_wide[qs_utilidade].mean().mean() if qs_utilidade else None
+
+if q_cols:
+    total_resp_ind = df_wide[q_cols].count().sum()
+    concordancias = (df_wide[q_cols] >= 4).sum().sum()
+    taxa_concordancia = concordancias / total_resp_ind * 100 if total_resp_ind > 0 else 0.0
+else:
+    taxa_concordancia = None
+
+kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
+kpi1.metric("Total de Respostas", len(df_wide))
+kpi2.metric("Média Geral (1–5)", f"{media_geral:.2f}" if media_geral is not None else "—")
+kpi3.metric("Facilidade de Uso", f"{media_facilidade:.2f}" if media_facilidade is not None else "—")
+kpi4.metric("Utilidade p/ Aprendizado", f"{media_utilidade:.2f}" if media_utilidade is not None else "—")
+kpi5.metric("Taxa de Concordância", f"{taxa_concordancia:.0f}%" if taxa_concordancia is not None else "—")
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# 3 gráficos lado a lado
+# ---------------------------------------------------------------------------
+
+col_a, col_b, col_c = st.columns(3)
+
+with col_a:
+    st.plotly_chart(chart_perfil_respondentes(df_wide), use_container_width=True)
+
+with col_b:
+    st.plotly_chart(chart_timeline(df_raw_filtrado), use_container_width=True)
+
+with col_c:
+    st.plotly_chart(chart_avaliacao_geral(df_wide, q_cols), use_container_width=True)
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# Distribuição Likert horizontal empilhada
+# ---------------------------------------------------------------------------
+
+st.subheader("Avaliação das Afirmações (Likert 1–5)")
+st.caption(
+    "Cada barra mostra a distribuição percentual das respostas (1 = Discordo totalmente → 5 = Concordo totalmente). "
+    "O número à direita é a média da questão."
+)
+
+secoes_com_dados = list(dict.fromkeys(
+    SECOES_IHC[q]
+    for q in q_cols
+    if q in SECOES_IHC
+))
+
+if secoes_com_dados:
+    secao_selecionada = st.selectbox("Seção do questionário", secoes_com_dados)
+    st.plotly_chart(
+        chart_likert_horizontal(df_wide, secao_selecionada),
+        use_container_width=True,
+    )
+else:
+    st.info("Nenhuma questão Likert disponível para o filtro selecionado.")
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# Distribuição por faixa etária
+# ---------------------------------------------------------------------------
+
+st.subheader("Distribuição por Faixa Etária")
+st.plotly_chart(chart_faixa_etaria(df_wide), use_container_width=True)
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# Tabela de respondentes
+# ---------------------------------------------------------------------------
+
+st.subheader("Respondentes")
+
+df_resp = df_wide[["nome", "idade", "categoria", "criado_em"]].copy()
+df_resp["faixa_etaria"] = df_resp["idade"].apply(calcular_faixa_etaria)
+df_resp["criado_em"] = pd.to_datetime(df_resp["criado_em"]).dt.strftime("%d/%m/%Y")
+df_resp = (
+    df_resp
+    .rename(columns={
+        "nome": "Nome",
+        "idade": "Idade",
+        "faixa_etaria": "Faixa Etária",
+        "categoria": "Categoria",
+        "criado_em": "Data",
+    })
+    [["Nome", "Idade", "Faixa Etária", "Categoria", "Data"]]
+    .reset_index(drop=True)
+)
+
+st.dataframe(df_resp, use_container_width=True, hide_index=True)
+st.caption(f"{len(df_resp)} respondente(s) exibido(s).")
