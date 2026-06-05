@@ -2,12 +2,20 @@ import os
 import psycopg2
 from psycopg2.extras import Json
 from dotenv import load_dotenv
+from urllib.parse import urlparse
 
 load_dotenv()
 
 
 def get_connection():
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    url = urlparse(os.environ["DATABASE_URL"])
+    return psycopg2.connect(
+        host=url.hostname,
+        port=url.port,
+        database=url.path.lstrip("/"),
+        user=url.username,
+        password=url.password,
+    )
 
 
 def insert_feedback(payload):
