@@ -44,7 +44,7 @@
 - Todos os planos Flutter: manter padrão Singleton ChangeNotifier dos managers existentes
 - 01-02 e 01-05: DATABASE_URL apenas em variável de ambiente Railway — nunca no código-fonte
 
-**Status:** planned
+**Status:** complete
 
 ---
 
