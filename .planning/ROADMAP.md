@@ -24,16 +24,27 @@
 - `conta_libras_2/lib/ui/widgets/evaluation_dialog.dart`
 - `conta_libras_2/lib/data/managers/user_manager.dart`
 
-**Plans:** 5 plans
+**Plans:** 5 plans em 4 waves
 
-Plans:
+**Wave 1** *(paralelo — sem dependências)*
 - [ ] 01-01-PLAN.md — Flutter infra: UserManager (age), FirstAccessScreen, AppConstants, pubspec http
 - [ ] 01-02-PLAN.md — API Python: FastAPI app, Pydantic models, psycopg2 database, deploy config, testes pytest
+
+**Wave 2** *(bloqueado pela Wave 1 — requer 01-01)*
 - [ ] 01-03-PLAN.md — FeedbackService: singleton HTTP service com submit, loading/error state
+
+**Wave 3** *(bloqueado pela Wave 2 — requer 01-01 e 01-03)*
 - [ ] 01-04-PLAN.md — EvaluationDialog: reescrita completa com 6 seções + categoria, submissão, error banner
+
+**Wave 4** *(bloqueado pela Wave 3 — requer 01-02 e 01-04)*
 - [ ] 01-05-PLAN.md — Deploy e integração: Supabase table, Railway deploy, URLs reais
 
-**Status:** planning
+**Cross-cutting constraints:**
+- Todos os planos: usar import paths relativos (sem barrel exports nem `package:conta_libras_2/...`)
+- Todos os planos Flutter: manter padrão Singleton ChangeNotifier dos managers existentes
+- 01-02 e 01-05: DATABASE_URL apenas em variável de ambiente Railway — nunca no código-fonte
+
+**Status:** planned
 
 ---
 

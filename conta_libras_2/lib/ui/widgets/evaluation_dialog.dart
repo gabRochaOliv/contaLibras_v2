@@ -1,38 +1,205 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../data/services/feedback_service.dart';
+import '../../data/managers/user_manager.dart';
 
 class EvaluationDialog extends StatefulWidget {
-  const EvaluationDialog({super.key});
+  const EvaluationDialog({
+    super.key,
+    this.initialPage = 0,
+    this.initialAnswers = const {},
+    this.initialHasAcceptedTerms = false,
+    this.submitHandler,
+  });
+
+  final int initialPage;
+  final Map<int, int> initialAnswers;
+  final bool initialHasAcceptedTerms;
+  final Future<bool> Function(Map<int, int>)? submitHandler;
 
   @override
   State<EvaluationDialog> createState() => _EvaluationDialogState();
 }
 
 class _EvaluationDialogState extends State<EvaluationDialog> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-  bool _hasAcceptedTerms = false;
-  
-  // Respostas salvas: índice da pergunta -> valor (1 a 5)
-  final Map<int, int> _answers = {};
+  late final PageController _pageController;
+  late int _currentPage;
+  late bool _hasAcceptedTerms;
+  late Map<int, int> _answers;
+  bool _showError = false;
+  bool _isSubmitting = false;
 
-  final List<String> _questions = [
-    '1. Avalie a facilidade de uso do aplicativo:',
-    '2. O quão útil você achou o conteúdo em Libras?',
-    '3. Como você avalia o design e visual do app?',
+  static const List<Map<String, dynamic>> _sections = [
+    {
+      'title': 'Usabilidade do Sistema (SUS)',
+      'icon': Icons.tune,
+      'questions': [
+        {'id': 4,  'text': 'Eu gostaria de utilizar este aplicativo com frequência.'},
+        {'id': 5,  'text': 'O aplicativo é fácil de usar.'},
+        {'id': 6,  'text': 'As funcionalidades do aplicativo são bem integradas.'},
+        {'id': 7,  'text': 'A maioria das pessoas conseguiria aprender a usar este aplicativo rapidamente.'},
+        {'id': 8,  'text': 'Navegar pelo aplicativo é simples e intuitivo.'},
+        {'id': 9,  'text': 'Eu me senti confiante ao utilizar o aplicativo.'},
+        {'id': 10, 'text': 'Não encontrei dificuldades significativas ao usar o aplicativo.'},
+      ],
+    },
+    {
+      'title': 'Experiência do Usuário (UX)',
+      'icon': Icons.star_outline,
+      'questions': [
+        {'id': 11, 'text': 'O design do aplicativo é agradável.'},
+        {'id': 12, 'text': 'A organização das telas facilita o uso do aplicativo.'},
+        {'id': 13, 'text': 'O aplicativo responde rapidamente às ações do usuário.'},
+        {'id': 14, 'text': 'O aplicativo é visualmente claro e compreensível.'},
+      ],
+    },
+    {
+      'title': 'Qualidade do Conteúdo',
+      'icon': Icons.library_books_outlined,
+      'questions': [
+        {'id': 15, 'text': 'Os vídeos em Libras ajudam na compreensão dos termos apresentados.'},
+        {'id': 16, 'text': 'As descrições escritas são claras e fáceis de entender.'},
+        {'id': 17, 'text': 'O conteúdo apresentado é relevante para o aprendizado.'},
+        {'id': 18, 'text': 'O aplicativo apresenta informações confiáveis.'},
+      ],
+    },
+    {
+      'title': 'Aprendizado',
+      'icon': Icons.school_outlined,
+      'questions': [
+        {'id': 19, 'text': 'O aplicativo contribuiu para meu aprendizado de Libras.'},
+        {'id': 20, 'text': 'O aplicativo facilitou a compreensão de termos contábeis em Libras.'},
+        {'id': 21, 'text': 'O aplicativo pode ser útil como ferramenta de apoio educacional.'},
+        {'id': 22, 'text': 'O aplicativo pode ajudar na inclusão de pessoas surdas na área contábil.'},
+      ],
+    },
+    {
+      'title': 'Aceitação da Tecnologia (TAM)',
+      'icon': Icons.thumb_up_outlined,
+      'questions': [
+        {'id': 23, 'text': 'O aplicativo é útil para o aprendizado de Libras.'},
+        {'id': 24, 'text': 'O aplicativo melhora o acesso ao conhecimento sobre contabilidade em Libras.'},
+        {'id': 25, 'text': 'Eu recomendaria este aplicativo para outras pessoas.'},
+        {'id': 26, 'text': 'Eu utilizaria este aplicativo novamente no futuro.'},
+      ],
+    },
+    {
+      'title': 'Avaliação Geral',
+      'icon': Icons.assessment_outlined,
+      'questions': [
+        {'id': 27, 'text': 'No geral, estou satisfeito com o aplicativo.'},
+        {'id': 28, 'text': 'O aplicativo atende às expectativas dos usuários.'},
+        {'id': 29, 'text': 'O aplicativo possui potencial para auxiliar no ensino de Libras.'},
+      ],
+    },
   ];
 
-  void _nextPage() {
-    if (_currentPage < _questions.length - 1) {
+  static const Map<String, List<Map<String, dynamic>>> _categoryQuestions = {
+    'Estudante': [
+      {'id': 30, 'text': 'O aplicativo é útil como complemento aos estudos na área contábil.'},
+      {'id': 31, 'text': 'Utilizaria o aplicativo para estudar termos contábeis em Libras.'},
+      {'id': 32, 'text': 'O aplicativo facilitaria minha comunicação com colegas surdos.'},
+    ],
+    'Professor': [
+      {'id': 33, 'text': 'Utilizaria o aplicativo como recurso pedagógico em sala de aula.'},
+      {'id': 34, 'text': 'O conteúdo está adequado para uso em contexto educacional formal.'},
+      {'id': 35, 'text': 'O aplicativo pode contribuir para a inclusão de alunos surdos.'},
+    ],
+    'Pessoa surda': [
+      {'id': 36, 'text': 'Os sinais apresentados correspondem ao que conheço de Libras.'},
+      {'id': 37, 'text': 'O aplicativo facilita minha compreensão de termos contábeis.'},
+      {'id': 38, 'text': 'O aplicativo poderia me ajudar no mercado de trabalho na área contábil.'},
+    ],
+    'Intérprete de Libras': [
+      {'id': 39, 'text': 'Os sinais apresentados são adequados para uso em contexto profissional.'},
+      {'id': 40, 'text': 'O aplicativo pode ser útil para atualização do vocabulário técnico.'},
+      {'id': 41, 'text': 'Recomendaria o uso deste aplicativo aos alunos que atendo.'},
+    ],
+  };
+
+  bool get _hasCategorySection =>
+      _categoryQuestions.containsKey(UserManager().userCategory);
+
+  int get _totalSections => _sections.length + (_hasCategorySection ? 1 : 0);
+
+  List<Map<String, dynamic>> _getQuestionsForSection(int sectionIndex) {
+    if (sectionIndex < _sections.length) {
+      return List<Map<String, dynamic>>.from(
+          _sections[sectionIndex]['questions'] as List);
+    }
+    return List<Map<String, dynamic>>.from(
+        _categoryQuestions[UserManager().userCategory] ?? []);
+  }
+
+  bool _isSectionComplete(List<Map<String, dynamic>> questions) {
+    return questions.every((q) => _answers.containsKey(q['id'] as int));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPage = widget.initialPage;
+    _hasAcceptedTerms = widget.initialHasAcceptedTerms;
+    _answers = Map.from(widget.initialAnswers);
+    _pageController = PageController(initialPage: widget.initialPage);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _selectAnswer(int questionId, int value) {
+    setState(() {
+      _answers[questionId] = value;
+    });
+  }
+
+  void _goBack() {
+    _pageController.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _goForward() {
+    if (_currentPage < _totalSections - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      // Finalizou
+      _submit();
+    }
+  }
+
+  Future<void> _submit() async {
+    setState(() {
+      _isSubmitting = true;
+      _showError = false;
+    });
+
+    bool success;
+    if (widget.submitHandler != null) {
+      success = await widget.submitHandler!(_answers);
+    } else {
+      await FeedbackService().submit(_answers);
+      success = !FeedbackService().hasError;
+    }
+
+    if (!mounted) return;
+
+    if (!success) {
+      setState(() {
+        _isSubmitting = false;
+        _showError = true;
+      });
+    } else {
+      final messenger = ScaffoldMessenger.of(context);
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text(
             'Obrigado pela sua avaliação e contribuição à pesquisa!',
@@ -45,14 +212,205 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
     }
   }
 
-  void _selectAnswer(int questionIndex, int value) {
-    setState(() {
-      _answers[questionIndex] = value;
-    });
-    // Autonext
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) _nextPage();
-    });
+  Widget _buildErrorBanner() {
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.red.shade50,
+          border: Border.all(color: Colors.red.shade200),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.red.shade600, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Não foi possível enviar sua avaliação.',
+                    style: AppTextStyles.bodyLarge
+                        .copyWith(color: Colors.red.shade700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Verifique sua conexão com a internet e tente novamente.',
+              style: AppTextStyles.bodyMedium
+                  .copyWith(color: Colors.red.shade700),
+            ),
+            const SizedBox(height: 8),
+            Semantics(
+              button: true,
+              label: 'Tentar novamente enviar a avaliação',
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    _showError = false;
+                  });
+                  _submit();
+                },
+                child: const Text(
+                  'Tentar novamente',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionProgress() {
+    return Column(
+      children: [
+        LinearProgressIndicator(
+          minHeight: 6,
+          value: (_currentPage + 1) / _totalSections,
+          backgroundColor: AppColors.divider,
+          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
+        ),
+        const SizedBox(height: 4),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            'Seção ${_currentPage + 1} de $_totalSections',
+            style: AppTextStyles.label,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionPage(int sectionIndex) {
+    final questions = _getQuestionsForSection(sectionIndex);
+    final isLastSection = sectionIndex == _totalSections - 1;
+    final isSectionComplete = _isSectionComplete(questions);
+
+    String sectionTitle;
+    IconData sectionIcon;
+    if (sectionIndex < _sections.length) {
+      sectionTitle = _sections[sectionIndex]['title'] as String;
+      sectionIcon = _sections[sectionIndex]['icon'] as IconData;
+    } else {
+      sectionTitle =
+          'Perguntas para ${_categoryLabel(UserManager().userCategory)}';
+      sectionIcon = Icons.person_outline;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(sectionIcon, size: 20, color: AppColors.secondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: Text(sectionTitle, style: AppTextStyles.heading3),
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 16),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: questions.map((q) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          q['text'] as String,
+                          style: AppTextStyles.bodyLarge
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildLikertScale(q['id'] as int),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (_showError && isLastSection) _buildErrorBanner(),
+          Row(
+            children: [
+              if (sectionIndex > 0) ...[
+                Expanded(
+                  child: SizedBox(
+                    height: 48,
+                    child: OutlinedButton(
+                      onPressed: _goBack,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Voltar'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: (isSectionComplete && !_isSubmitting)
+                        ? _goForward
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor:
+                          AppColors.primary.withOpacity(0.4),
+                      disabledForegroundColor:
+                          Colors.white.withOpacity(0.6),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: (_isSubmitting && isLastSection)
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          )
+                        : Text(isLastSection ? 'Enviar Avaliação' : 'Próximo'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _categoryLabel(String category) {
+    const labels = {
+      'Estudante': 'Estudantes',
+      'Professor': 'Professores',
+      'Pessoa surda': 'Pessoas Surdas',
+      'Intérprete de Libras': 'Intérpretes de Libras',
+    };
+    return labels[category] ?? category;
   }
 
   Widget _buildLikertScale(int questionIndex) {
@@ -62,38 +420,41 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(5, (index) {
-            int value = index + 1;
-            bool isSelected = _answers[questionIndex] == value;
-            return GestureDetector(
-              onTap: () => _selectAnswer(questionIndex, value),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 45,
-                height: 45,
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : AppColors.surface,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? AppColors.primary : AppColors.divider,
-                    width: 2,
+            final value = index + 1;
+            final isSelected = _answers[questionIndex] == value;
+            return Semantics(
+              label: 'Opção $value de 5',
+              child: GestureDetector(
+                onTap: () => _selectAnswer(questionIndex, value),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 45,
+                  height: 45,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppColors.primary : AppColors.surface,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected ? AppColors.primary : AppColors.divider,
+                      width: 2,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                            ),
+                          ]
+                        : null,
                   ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
-                            blurRadius: 8,
-                            spreadRadius: 2,
-                          )
-                        ]
-                      : null,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  value.toString(),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                  alignment: Alignment.center,
+                  child: Text(
+                    value.toString(),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
+                    ),
                   ),
                 ),
               ),
@@ -104,62 +465,13 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Discordo\nTotalmente', textAlign: TextAlign.left, style: AppTextStyles.label.copyWith(fontSize: 10)),
-            Text('Concordo\nTotalmente', textAlign: TextAlign.right, style: AppTextStyles.label.copyWith(fontSize: 10)),
+            Text('Discordo\nTotalmente',
+                textAlign: TextAlign.left,
+                style: AppTextStyles.label.copyWith(fontSize: 10)),
+            Text('Concordo\nTotalmente',
+                textAlign: TextAlign.right,
+                style: AppTextStyles.label.copyWith(fontSize: 10)),
           ],
-        )
-      ],
-    );
-  }
-
-  Widget _buildQuestionsView() {
-    return Column(
-      children: [
-        Expanded(
-          child: PageView.builder(
-            controller: _pageController,
-            physics: const NeverScrollableScrollPhysics(),
-            onPageChanged: (int page) {
-              setState(() {
-                _currentPage = page;
-              });
-            },
-            itemCount: _questions.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      _questions[index],
-                      style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 32),
-                    _buildLikertScale(index),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-           mainAxisAlignment: MainAxisAlignment.center,
-           children: List.generate(
-             _questions.length,
-             (index) => Container(
-               margin: const EdgeInsets.symmetric(horizontal: 4),
-               width: 8,
-               height: 8,
-               decoration: BoxDecoration(
-                 shape: BoxShape.circle,
-                 color: _currentPage == index ? AppColors.primary : AppColors.divider,
-               ),
-             ),
-           ),
         ),
       ],
     );
@@ -175,28 +487,31 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
               children: [
                 Text(
                   'TERMO DE CONSENTIMENTO LIVRE E ESCLARECIDO',
-                  style: AppTextStyles.heading3.copyWith(fontWeight: FontWeight.bold),
+                  style: AppTextStyles.heading3
+                      .copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
                 _buildSectionTitle('Pesquisa: Avaliação do Aplicativo ContaLibras'),
-                _buildParagraph('Você está sendo convidado(a) a participar de uma pesquisa acadêmica relacionada ao desenvolvimento e avaliação do aplicativo ContaLibras, realizada no contexto de um TCC do curso de Ciência da Computação.'),
-                _buildParagraph('O objetivo desta pesquisa é avaliar aspectos relacionados à usabilidade, experiência do usuário e utilidade educacional do aplicativo, voltado para termos contábeis em Libras.'),
-                
+                _buildParagraph(
+                    'Você está sendo convidado(a) a participar de uma pesquisa acadêmica relacionada ao desenvolvimento e avaliação do aplicativo ContaLibras, realizada no contexto de um TCC do curso de Ciência da Computação.'),
+                _buildParagraph(
+                    'O objetivo desta pesquisa é avaliar aspectos relacionados à usabilidade, experiência do usuário e utilidade educacional do aplicativo, voltado para termos contábeis em Libras.'),
                 _buildSectionTitle('Sobre a participação'),
-                _buildParagraph('Sua participação é voluntária e consiste em responder a um questionário sobre sua experiência (usabilidade, qualidade do conteúdo, etc.). Tempo estimado: 5 a 10 minutos.'),
-                
+                _buildParagraph(
+                    'Sua participação é voluntária e consiste em responder a um questionário sobre sua experiência (usabilidade, qualidade do conteúdo, etc.). Tempo estimado: 5 a 10 minutos.'),
                 _buildSectionTitle('Confidencialidade e privacidade'),
-                _buildParagraph('As informações serão usadas exclusivamente para fins acadêmicos. Nenhuma informação de identidade será divulgada. Os dados coletados serão analisados de forma anônima.'),
-                
+                _buildParagraph(
+                    'As informações serão usadas exclusivamente para fins acadêmicos. Nenhuma informação de identidade será divulgada. Os dados coletados serão analisados de forma anônima.'),
                 _buildSectionTitle('Riscos e benefícios'),
-                _buildParagraph('A participação não apresenta riscos significativos. Os resultados podem contribuir para melhorias no app e promoção de ferramentas educacionais e acessibilidade.'),
-                
+                _buildParagraph(
+                    'A participação não apresenta riscos significativos. Os resultados podem contribuir para melhorias no app e promoção de ferramentas educacionais e acessibilidade.'),
                 _buildSectionTitle('Liberdade de participação'),
-                _buildParagraph('Você poderá interromper sua participação a qualquer momento sem necessidade de justificativa.'),
-                
+                _buildParagraph(
+                    'Você poderá interromper sua participação a qualquer momento sem necessidade de justificativa.'),
                 _buildSectionTitle('Declaração de consentimento'),
-                _buildParagraph('Declaro que li e compreendi as informações apresentadas, tive a oportunidade de esclarecer dúvidas e concordo voluntariamente em participar da pesquisa.'),
+                _buildParagraph(
+                    'Declaro que li e compreendi as informações apresentadas, tive a oportunidade de esclarecer dúvidas e concordo voluntariamente em participar da pesquisa.'),
                 const SizedBox(height: 16),
               ],
             ),
@@ -212,7 +527,8 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                   foregroundColor: Colors.red.shade400,
                   side: BorderSide(color: Colors.red.shade200),
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text('Não Concordo'),
               ),
@@ -229,13 +545,14 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text('Concordo'),
               ),
             ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -245,7 +562,8 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
       padding: const EdgeInsets.only(top: 12, bottom: 4),
       child: Text(
         title,
-        style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
+        style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.bold, color: AppColors.primary),
       ),
     );
   }
@@ -270,10 +588,12 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        // The dialog dynamically adjusts height up to a max of 600 or 80% of screen height
-        height: _hasAcceptedTerms ? 380 : MediaQuery.of(context).size.height * 0.8,
+        height: _hasAcceptedTerms
+            ? MediaQuery.of(context).size.height * 0.85
+            : MediaQuery.of(context).size.height * 0.8,
         width: 500,
-        constraints: const BoxConstraints(maxHeight: 650),
+        constraints:
+            BoxConstraints(maxHeight: _hasAcceptedTerms ? 700 : 650),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
@@ -283,7 +603,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
               color: Colors.black.withOpacity(0.1),
               blurRadius: 15,
               offset: const Offset(0, 5),
-            )
+            ),
           ],
         ),
         child: Column(
@@ -305,8 +625,25 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
               ],
             ),
             const Divider(),
+            if (_hasAcceptedTerms) ...[
+              _buildSectionProgress(),
+              const SizedBox(height: 8),
+            ],
             Expanded(
-              child: _hasAcceptedTerms ? _buildQuestionsView() : _buildTCLEView(),
+              child: _hasAcceptedTerms
+                  ? PageView.builder(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      onPageChanged: (page) {
+                        setState(() {
+                          _currentPage = page;
+                          _showError = false;
+                        });
+                      },
+                      itemCount: _totalSections,
+                      itemBuilder: (_, i) => _buildSectionPage(i),
+                    )
+                  : _buildTCLEView(),
             ),
           ],
         ),

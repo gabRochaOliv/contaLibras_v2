@@ -35,7 +35,11 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      UserManager().setUserData(_nameController.text.trim(), _selectedCategory ?? '');
+      UserManager().setUserData(
+        _nameController.text.trim(),
+        _selectedCategory ?? '',
+        int.tryParse(_ageController.text.trim()) ?? 0,
+      );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MainScreen()),
       );
