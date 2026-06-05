@@ -69,7 +69,7 @@
 - [x] 02-03-PLAN.md — Entrypoint Streamlit: app.py completo com auth gate, sidebar, 5 seções, empty/error states
 
 **Wave 4** *(bloqueado pela Wave 3 — requer 02-03)*
-- [ ] 02-04-PLAN.md — Deploy Railway: railway.json + segundo serviço Railway + verificação no browser (checkpoint) ⏳ CHECKPOINT ATIVO — Task 1 OK (railway.json commitado 5680902), Task 2 aguarda verificação humana do deploy
+- [x] 02-04-PLAN.md — Deploy Railway: railway.json + segundo serviço Railway + verificação no browser (checkpoint aprovado)
 
 **Cross-cutting constraints:**
 - Todos os planos: DATABASE_URL e DASHBOARD_PASSWORD apenas como variáveis de ambiente Railway — nunca no código
@@ -77,4 +77,4 @@
 - database.py: SEMPRE incluir sslmode="require" — Supabase Session Pooler exige SSL em produção
 - charts.py: NÃO usar use_container_width=True — deprecated; usar width="stretch" em st.plotly_chart
 
-**Status:** in-progress (3/4 planos completos + plano 04 em checkpoint humano)
+**Status:** complete

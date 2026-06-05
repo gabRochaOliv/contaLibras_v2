@@ -2,19 +2,25 @@
 
 ## Current
 - **Phase:** 2
-- **Plan:** 4 (checkpoint ativo — Task 2 aguarda verificação humana)
-- **Status:** in-progress — 3/4 planos completos + plano 04 em checkpoint
-- **Last session:** 2026-06-05 — Plano 02-04 Task 1 executada (railway.json criado, commit 5680902) — aguardando deploy Railway pelo pesquisador
+- **Status:** complete — Milestone 1 concluído (Fase 1 + Fase 2 completas)
+- **Last session:** 2026-06-05 — Fase 2 completa: dashboard Streamlit deployado no Railway e verificado no browser
 
-## Plans — Fase 2 (Dashboard de Visualização)
-- `.planning/phases/02-dashboard/02-01-PLAN.md` — Wave 1 (Infra testes) ✅ COMPLETO
-- `.planning/phases/02-dashboard/02-02-PLAN.md` — Wave 2 (Dados + gráficos) ✅ COMPLETO
-- `.planning/phases/02-dashboard/02-03-PLAN.md` — Wave 3 (app.py Streamlit) ✅ COMPLETO
-- `.planning/phases/02-dashboard/02-04-PLAN.md` — Wave 4 (Deploy Railway) ⏳ CHECKPOINT ATIVO (Task 1 OK, Task 2 aguarda verificação)
+## Milestone 1 — COMPLETO ✅
+
+### Fase 1: Coleta de Feedbacks e API ✅
+- 5 planos executados, API FastAPI deployada no Railway
+- Flutter app envia feedbacks para o banco Supabase
+
+### Fase 2: Dashboard de Visualização ✅
+- `.planning/phases/02-dashboard/02-01-PLAN.md` — Wave 1 (Infra testes) ✅
+- `.planning/phases/02-dashboard/02-02-PLAN.md` — Wave 2 (Dados + gráficos) ✅
+- `.planning/phases/02-dashboard/02-03-PLAN.md` — Wave 3 (app.py Streamlit) ✅
+- `.planning/phases/02-dashboard/02-04-PLAN.md` — Wave 4 (Deploy Railway) ✅
 
 ## Infraestrutura
 - API: https://contalibrasv2-production.up.railway.app
-- App: https://conta-libras.vercel.app
+- Dashboard: Railway (segundo serviço, Root Directory = dashboard/)
+- App Flutter: https://conta-libras.vercel.app
 - Banco: Supabase projeto `ythfochjtvaopadnuxiq` (sa-east-1)
 
 ## Decisions
@@ -25,8 +31,8 @@
 - fetch_feedbacks() sem parâmetro de filtro — filtro de categoria é responsabilidade de app.py em memória
 - Auth gate usa DASHBOARD_PASSWORD env var com fallback "" — senha vazia garante falha de auth (sem bypass)
 - to_csv_bytes() com @st.cache_data sem TTL — cache invalida quando df_wide (argumento) muda
+- railway.json em vez de Procfile — pattern correto para novos serviços Railway
 
 ## Resume
-- Plano 02-04 em checkpoint — Task 1 completa (dashboard/railway.json commitado, 5680902)
-- Aguardando: pesquisador criar segundo serviço Railway, configurar DATABASE_URL e DASHBOARD_PASSWORD, verificar deploy no browser
-- Resume signal: digitar "aprovado" após verificação bem-sucedida do dashboard
+- Milestone 1 concluído — sistema de coleta + dashboard operacional
+- Próximo: coleta de dados reais com usuários (fase de campo do TCC)

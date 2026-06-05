@@ -41,14 +41,14 @@ completed: 2026-06-05
 
 # Phase 2 Plan 04: Deploy Railway — Summary
 
-**railway.json criado com NIXPACKS builder e startCommand Streamlit contendo $PORT e 0.0.0.0 — aguardando deploy manual e verificacao no browser (checkpoint)**
+**railway.json criado com NIXPACKS builder e startCommand Streamlit contendo $PORT e 0.0.0.0 — segundo serviço Railway deployado e verificado no browser (checkpoint aprovado)**
 
 ## Performance
 
 - **Duration:** ~5 min
 - **Started:** 2026-06-05T00:00:00Z
 - **Completed:** 2026-06-05 (checkpoint ativo — Task 2 aguarda verificacao humana)
-- **Tasks:** 1/2 concluidas (Task 2 e checkpoint:human-verify gate=blocking)
+- **Tasks:** 2/2 concluidas
 - **Files modified:** 1
 
 ## Accomplishments
@@ -114,5 +114,5 @@ Nenhum — railway.json criado e validado sem problemas.
 
 ---
 *Phase: 02-dashboard*
-*Status: CHECKPOINT ATIVO — Task 2 aguarda verificacao humana*
-*Completed parcialmente: 2026-06-05*
+*Status: COMPLETE*
+*Completed: 2026-06-05*
