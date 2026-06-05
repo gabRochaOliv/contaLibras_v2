@@ -10,7 +10,7 @@ import pandas as pd
 import streamlit as st
 
 from database import fetch_feedbacks
-from transforms import pivot_respostas, build_timeline_df, SECOES_IHC
+from transforms import pivot_respostas, build_timeline_df, SECOES_IHC, LABELS_QUESTOES, FULL_QUESTOES
 from charts import chart_medias_por_questao, chart_comparativo_categoria, chart_timeline
 
 
@@ -130,6 +130,15 @@ q_cols = [c for c in df_wide.columns if c.startswith("q")]
 st.title("ContaLibras — Dashboard de Análise")
 st.caption("Dados do questionário IHC (questões Likert q4–q41)")
 
+with st.expander("Ver perguntas do questionário"):
+    secao_atual = None
+    for q, texto in FULL_QUESTOES.items():
+        secao = SECOES_IHC.get(q, "Outras")
+        if secao != secao_atual:
+            st.markdown(f"**{secao}**")
+            secao_atual = secao
+        st.markdown(f"- {texto}")
+
 
 # ---------------------------------------------------------------------------
 # Seção 1 — Resumo Geral (D-06)
@@ -139,12 +148,29 @@ st.header("Resumo Geral")
 
 col1, col2, col3 = st.columns(3)
 
+media_geral = df_wide[q_cols].mean().mean() if q_cols else None
+
+# Melhor e pior seção (médias por seção)
+if q_cols:
+    medias_secao = {
+        secao: df_wide[[c for c in q_cols if SECOES_IHC.get(c) == secao]].mean().mean()
+        for secao in dict.fromkeys(SECOES_IHC.values())
+        if any(SECOES_IHC.get(c) == secao for c in q_cols)
+    }
+    melhor_secao = max(medias_secao, key=medias_secao.get) if medias_secao else "—"
+    pior_secao = min(medias_secao, key=medias_secao.get) if medias_secao else "—"
+else:
+    melhor_secao = pior_secao = "—"
+
 col1.metric("Total de Respostas", len(df_wide))
-col2.metric(
-    "Média Geral",
-    f"{df_wide[q_cols].mean().mean():.2f}" if q_cols else "—",
-)
+col2.metric("Média Geral (1–5)", f"{media_geral:.2f}" if media_geral else "—")
 col3.metric("Categorias Ativas", df_wide["categoria"].nunique())
+
+col4, col5 = st.columns(2)
+col4.metric("Seção com maior média", melhor_secao,
+            f"{medias_secao.get(melhor_secao, 0):.2f}" if melhor_secao != "—" else None)
+col5.metric("Seção com menor média", pior_secao,
+            f"{medias_secao.get(pior_secao, 0):.2f}" if pior_secao != "—" else None)
 
 st.divider()
 

@@ -6,7 +6,7 @@ A responsabilidade de chamar st.plotly_chart() é de app.py.
 import plotly.express as px
 import pandas as pd
 
-from transforms import SECOES_IHC, LABELS_QUESTOES
+from transforms import SECOES_IHC, LABELS_QUESTOES, FULL_QUESTOES
 
 # ---------------------------------------------------------------------------
 # Constantes de cor
@@ -52,9 +52,12 @@ def chart_medias_por_questao(df_wide: pd.DataFrame):
     medias = df_wide[q_cols].mean().reset_index()
     medias.columns = ["questao", "media"]
 
-    # Mapear label curto e seção para cada questão
+    # Mapear label curto, texto completo (hover) e seção para cada questão
     medias["questao_label"] = medias["questao"].apply(
         lambda q: LABELS_QUESTOES.get(q, q)
+    )
+    medias["questao_completa"] = medias["questao"].apply(
+        lambda q: FULL_QUESTOES.get(q, q)
     )
     medias["secao"] = medias["questao"].apply(
         lambda q: SECOES_IHC.get(q, "Outras")
@@ -66,13 +69,22 @@ def chart_medias_por_questao(df_wide: pd.DataFrame):
         y="media",
         color="secao",
         color_discrete_sequence=COLOR_SEQUENCE_SECOES,
+        custom_data=["questao_completa", "questao"],
         labels={
-            "questao_label": "Questão",
+            "questao_label": "",
             "media": "Média (1–5)",
             "secao": "Seção",
         },
         title="Médias Likert por Questão",
         range_y=[1, 5],
+    )
+
+    fig.update_traces(
+        hovertemplate=(
+            "<b>%{customdata[1]}</b><br>"
+            "%{customdata[0]}<br>"
+            "Média: <b>%{y:.2f}</b><extra></extra>"
+        )
     )
 
     # Linha de referência horizontal em y=3 (ponto neutro da escala Likert)
@@ -83,7 +95,12 @@ def chart_medias_por_questao(df_wide: pd.DataFrame):
         annotation_text="Neutro (3)",
     )
 
-    fig.update_layout(height=500)
+    fig.update_layout(
+        height=500,
+        xaxis_tickangle=-45,
+        xaxis_tickfont_size=11,
+        margin={"b": 140},
+    )
 
     return fig
 
@@ -143,7 +160,17 @@ def chart_comparativo_categoria(df_wide: pd.DataFrame):
         range_y=[1, 5],
     )
 
-    fig.update_layout(height=450)
+    fig.add_hline(
+        y=3,
+        line_dash="dot",
+        line_color="gray",
+        annotation_text="Neutro (3)",
+    )
+
+    fig.update_layout(
+        height=450,
+        xaxis_tickangle=-30,
+    )
 
     return fig
 
