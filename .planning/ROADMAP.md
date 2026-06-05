@@ -60,7 +60,7 @@
 **Plans:** 4 plans em 4 waves
 
 **Wave 1** *(sem dependências)*
-- [ ] 02-01-PLAN.md — Infra de testes: requirements.txt, runtime.txt, pytest.ini, config.toml, fixtures, test_transforms.py (RED), test_auth.py (GREEN)
+- [x] 02-01-PLAN.md — Infra de testes: requirements.txt, runtime.txt, pytest.ini, config.toml, fixtures, test_transforms.py (RED), test_auth.py (GREEN)
 
 **Wave 2** *(bloqueado pela Wave 1 — requer 02-01)*
 - [ ] 02-02-PLAN.md — Camada de dados e gráficos: database.py (urlparse+sslmode), transforms.py (pivot JSONB q4..q41), charts.py (3 figuras Plotly)
@@ -77,4 +77,4 @@
 - database.py: SEMPRE incluir sslmode="require" — Supabase Session Pooler exige SSL em produção
 - charts.py: NÃO usar use_container_width=True — deprecated; usar width="stretch" em st.plotly_chart
 
-**Status:** planned
+**Status:** in-progress (1/4 planos completos)
