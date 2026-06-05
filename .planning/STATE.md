@@ -1,16 +1,15 @@
 # State
 
 ## Current
-- **Phase:** 1
-- **Status:** complete — todas as 5 waves concluídas
-- **Last session:** 2026-06-05 — Fase 1 completa, sistema em produção
+- **Phase:** 2
+- **Status:** planned — 4 planos em 4 waves, prontos para execução
+- **Last session:** 2026-06-05 — Fase 2 planejada (UI-SPEC + 4 PLANs aprovados)
 
-## Plans
-- `.planning/phases/01-feedback-api/01-01-PLAN.md` — Wave 1 (Flutter infra) ✅
-- `.planning/phases/01-feedback-api/01-02-PLAN.md` — Wave 1 (API Python) ✅
-- `.planning/phases/01-feedback-api/01-03-PLAN.md` — Wave 2 (FeedbackService) ✅
-- `.planning/phases/01-feedback-api/01-04-PLAN.md` — Wave 3 (EvaluationDialog) ✅
-- `.planning/phases/01-feedback-api/01-05-PLAN.md` — Wave 4 (Deploy) ✅
+## Plans — Fase 2 (Dashboard de Visualização)
+- `.planning/phases/02-dashboard/02-01-PLAN.md` — Wave 1 (Infra testes) ⏳
+- `.planning/phases/02-dashboard/02-02-PLAN.md` — Wave 2 (Dados + gráficos) ⏳
+- `.planning/phases/02-dashboard/02-03-PLAN.md` — Wave 3 (app.py Streamlit) ⏳
+- `.planning/phases/02-dashboard/02-04-PLAN.md` — Wave 4 (Deploy Railway) ⏳
 
 ## Infraestrutura
 - API: https://contalibrasv2-production.up.railway.app
@@ -18,5 +17,5 @@
 - Banco: Supabase projeto `ythfochjtvaopadnuxiq` (sa-east-1)
 
 ## Resume
-- Fase 1 concluída — próximo: Fase 2 (Dashboard de Visualização)
-- `/gsd:discuss-phase 2` para iniciar planejamento da fase 2
+- Fase 2 planejada — próximo: executar
+- `/gsd:execute-phase 2` após `/clear`
