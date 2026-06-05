@@ -11,7 +11,7 @@ import streamlit as st
 
 from database import fetch_feedbacks
 from transforms import pivot_respostas, build_timeline_df, SECOES_IHC, LABELS_QUESTOES, FULL_QUESTOES
-from charts import chart_medias_por_questao, chart_comparativo_categoria, chart_timeline
+from charts import chart_medias_por_questao, chart_comparativo_categoria, chart_timeline, chart_distribuicao_por_questao
 
 
 # ---------------------------------------------------------------------------
@@ -180,13 +180,19 @@ st.divider()
 # ---------------------------------------------------------------------------
 
 st.header("Médias por Questão (Likert 1–5)")
-
+st.caption("Passe o mouse sobre as barras para ver o texto completo de cada pergunta. Escala de 1 (discordo totalmente) a 5 (concordo totalmente).")
 fig1 = chart_medias_por_questao(df_wide)
 st.plotly_chart(fig1, width="stretch")
-st.caption(
-    "Média das respostas Likert por questão. "
-    "Escala de 1 (discordo totalmente) a 5 (concordo totalmente)."
+
+st.subheader("Distribuição de respostas por pergunta")
+st.caption("Selecione uma pergunta para ver quantas pessoas deram cada nota (1–5).")
+questao_selecionada = st.selectbox(
+    "Pergunta",
+    options=q_cols,
+    format_func=lambda q: f"{q.upper()} — {LABELS_QUESTOES.get(q, q)}",
 )
+fig_dist = chart_distribuicao_por_questao(df_wide, questao_selecionada)
+st.plotly_chart(fig_dist, width="stretch")
 
 st.divider()
 

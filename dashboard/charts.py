@@ -36,32 +36,67 @@ COLOR_SEQUENCE_SECOES = [
 # Chart 1: Médias Likert por Questão (D-07)
 # ---------------------------------------------------------------------------
 
-def chart_medias_por_questao(df_wide: pd.DataFrame):
-    """Retorna figura Plotly com médias Likert por questão, agrupadas por seção.
+def chart_distribuicao_por_questao(df_wide: pd.DataFrame, questao: str):
+    """Retorna figura Plotly com distribuição de respostas Likert (1–5) para uma questão.
 
-    Args:
-        df_wide: DataFrame wide com colunas qN (saída de pivot_respostas/build_wide_df).
-
-    Returns:
-        plotly.graph_objects.Figure com range_y=[1,5] e height=500.
+    Barra empilhada mostrando quantas pessoas responderam cada valor.
     """
-    # Selecionar colunas qN
-    q_cols = [c for c in df_wide.columns if c.startswith("q")]
+    label = LABELS_QUESTOES.get(questao, questao)
+    texto = FULL_QUESTOES.get(questao, questao)
 
-    # Calcular médias ignorando NaN (skipna=True por padrão no pandas)
+    serie = df_wide[questao].dropna()
+    if serie.empty:
+        fig = px.bar(title=f"{questao} — sem respostas")
+        fig.update_layout(height=220)
+        return fig
+
+    counts = serie.value_counts().reindex([1, 2, 3, 4, 5], fill_value=0).reset_index()
+    counts.columns = ["valor", "count"]
+    counts["valor"] = counts["valor"].astype(str)
+
+    LIKERT_COLORS = {
+        "1": "#d62728",
+        "2": "#ff7f0e",
+        "3": "#aec7e8",
+        "4": "#2ca02c",
+        "5": "#1f77b4",
+    }
+
+    fig = px.bar(
+        counts,
+        x="valor",
+        y="count",
+        color="valor",
+        color_discrete_map=LIKERT_COLORS,
+        labels={"valor": "Resposta (1–5)", "count": "Nº de respostas"},
+        title=f"<b>{questao.upper()}</b> — {label}",
+    )
+    fig.update_traces(showlegend=False)
+    fig.update_layout(
+        height=220,
+        margin={"t": 50, "b": 30, "l": 40, "r": 10},
+        title_font_size=13,
+    )
+    fig.add_annotation(
+        text=texto,
+        xref="paper", yref="paper",
+        x=0, y=-0.15,
+        showarrow=False,
+        font_size=10,
+        font_color="gray",
+        xanchor="left",
+    )
+    return fig
+
+
+def chart_medias_por_questao(df_wide: pd.DataFrame):
+    """Retorna figura Plotly com médias Likert por questão, agrupadas por seção."""
+    q_cols = [c for c in df_wide.columns if c.startswith("q")]
     medias = df_wide[q_cols].mean().reset_index()
     medias.columns = ["questao", "media"]
-
-    # Mapear label curto, texto completo (hover) e seção para cada questão
-    medias["questao_label"] = medias["questao"].apply(
-        lambda q: LABELS_QUESTOES.get(q, q)
-    )
-    medias["questao_completa"] = medias["questao"].apply(
-        lambda q: FULL_QUESTOES.get(q, q)
-    )
-    medias["secao"] = medias["questao"].apply(
-        lambda q: SECOES_IHC.get(q, "Outras")
-    )
+    medias["questao_label"] = medias["questao"].apply(lambda q: LABELS_QUESTOES.get(q, q))
+    medias["questao_completa"] = medias["questao"].apply(lambda q: FULL_QUESTOES.get(q, q))
+    medias["secao"] = medias["questao"].apply(lambda q: SECOES_IHC.get(q, "Outras"))
 
     fig = px.bar(
         medias,
@@ -70,38 +105,18 @@ def chart_medias_por_questao(df_wide: pd.DataFrame):
         color="secao",
         color_discrete_sequence=COLOR_SEQUENCE_SECOES,
         custom_data=["questao_completa", "questao"],
-        labels={
-            "questao_label": "",
-            "media": "Média (1–5)",
-            "secao": "Seção",
-        },
+        labels={"questao_label": "", "media": "Média (1–5)", "secao": "Seção"},
         title="Médias Likert por Questão",
         range_y=[1, 5],
     )
-
     fig.update_traces(
         hovertemplate=(
-            "<b>%{customdata[1]}</b><br>"
-            "%{customdata[0]}<br>"
+            "<b>%{customdata[1]}</b><br>%{customdata[0]}<br>"
             "Média: <b>%{y:.2f}</b><extra></extra>"
         )
     )
-
-    # Linha de referência horizontal em y=3 (ponto neutro da escala Likert)
-    fig.add_hline(
-        y=3,
-        line_dash="dot",
-        line_color="gray",
-        annotation_text="Neutro (3)",
-    )
-
-    fig.update_layout(
-        height=500,
-        xaxis_tickangle=-45,
-        xaxis_tickfont_size=11,
-        margin={"b": 140},
-    )
-
+    fig.add_hline(y=3, line_dash="dot", line_color="gray", annotation_text="Neutro (3)")
+    fig.update_layout(height=500, xaxis_tickangle=-45, xaxis_tickfont_size=11, margin={"b": 140})
     return fig
 
 
@@ -199,16 +214,17 @@ def chart_timeline(df: pd.DataFrame):
 
     timeline = df.groupby("data").size().reset_index(name="respostas")
 
-    fig = px.line(
+    fig = px.bar(
         timeline,
         x="data",
         y="respostas",
-        markers=True,
-        labels={"data": "Data", "respostas": "Respostas"},
+        labels={"data": "Dia", "respostas": "Nº de respostas"},
         title="Volume de Coleta por Dia",
         color_discrete_sequence=["#1f77b4"],
     )
-
-    fig.update_layout(height=350)
-
+    fig.update_layout(
+        height=350,
+        xaxis_tickformat="%d/%m/%Y",
+        xaxis_tickangle=-30,
+    )
     return fig
