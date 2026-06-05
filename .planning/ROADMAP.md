@@ -66,7 +66,7 @@
 - [x] 02-02-PLAN.md — Camada de dados e gráficos: database.py (urlparse+sslmode), transforms.py (pivot JSONB q4..q41), charts.py (3 figuras Plotly)
 
 **Wave 3** *(bloqueado pela Wave 2 — requer 02-01 e 02-02)*
-- [ ] 02-03-PLAN.md — Entrypoint Streamlit: app.py completo com auth gate, sidebar, 5 seções, empty/error states
+- [x] 02-03-PLAN.md — Entrypoint Streamlit: app.py completo com auth gate, sidebar, 5 seções, empty/error states
 
 **Wave 4** *(bloqueado pela Wave 3 — requer 02-03)*
 - [ ] 02-04-PLAN.md — Deploy Railway: railway.json + segundo serviço Railway + verificação no browser (checkpoint)
@@ -77,4 +77,4 @@
 - database.py: SEMPRE incluir sslmode="require" — Supabase Session Pooler exige SSL em produção
 - charts.py: NÃO usar use_container_width=True — deprecated; usar width="stretch" em st.plotly_chart
 
-**Status:** in-progress (2/4 planos completos)
+**Status:** in-progress (3/4 planos completos)
