@@ -7,7 +7,7 @@ app = FastAPI(title="ContaLibras Feedback API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://conta-libras.vercel.app", "http://localhost:*"],
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
 )
