@@ -29,7 +29,8 @@ def fetch_feedbacks() -> pd.DataFrame:
             cur.execute(
                 """
                 SELECT id, nome, idade, categoria, escolaridade, usa_libras,
-                       conhecimento_libras, respostas, criado_em
+                       conhecimento_libras, comentario_gostou, comentario_melhorar,
+                       comentario_sugestao, respostas, criado_em
                 FROM feedbacks
                 ORDER BY criado_em DESC
                 """

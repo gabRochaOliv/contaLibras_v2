@@ -2,152 +2,121 @@
 import pandas as pd
 
 # ---------------------------------------------------------------------------
-# Mapeamento de seções IHC (q4 a q42)
-# Parte II (geral, q4-q29) + Parte III por categoria (q30-q42): Bloco B
+# Mapeamento de seções (q4 a q32)
+# Parte II (geral, q4-q19) + Parte III por categoria (q20-q32): Bloco B
 # (Professor), Bloco C (Especialista em Libras) e Bloco D (Contabilidade).
+# Fonte: Feedback/questionario.txt
 # ---------------------------------------------------------------------------
 SECOES_IHC = {
-    # Usabilidade do Sistema (SUS) — q4 a q10
-    "q4":  "Usabilidade (SUS)",
-    "q5":  "Usabilidade (SUS)",
-    "q6":  "Usabilidade (SUS)",
-    "q7":  "Usabilidade (SUS)",
-    "q8":  "Usabilidade (SUS)",
-    "q9":  "Usabilidade (SUS)",
-    "q10": "Usabilidade (SUS)",
-    # Experiência do Usuário (UX) — q11 a q14
+    # Usabilidade — q4 a q8
+    "q4": "Usabilidade",
+    "q5": "Usabilidade",
+    "q6": "Usabilidade",
+    "q7": "Usabilidade",
+    "q8": "Usabilidade",
+    # Experiência do Usuário (UX) — q9 a q12
+    "q9":  "Experiência (UX)",
+    "q10": "Experiência (UX)",
     "q11": "Experiência (UX)",
     "q12": "Experiência (UX)",
-    "q13": "Experiência (UX)",
-    "q14": "Experiência (UX)",
-    # Qualidade do Conteúdo — q15 a q18
+    # Qualidade do Conteúdo — q13 a q15
+    "q13": "Qualidade do Conteúdo",
+    "q14": "Qualidade do Conteúdo",
     "q15": "Qualidade do Conteúdo",
-    "q16": "Qualidade do Conteúdo",
-    "q17": "Qualidade do Conteúdo",
-    "q18": "Qualidade do Conteúdo",
-    # Aprendizado — q19 a q22
-    "q19": "Aprendizado",
-    "q20": "Aprendizado",
-    "q21": "Aprendizado",
-    "q22": "Aprendizado",
-    # Aceitação da Tecnologia (TAM) — q23 a q26
-    "q23": "Aceitação (TAM)",
-    "q24": "Aceitação (TAM)",
-    "q25": "Aceitação (TAM)",
-    "q26": "Aceitação (TAM)",
-    # Avaliação Geral — q27 a q29
-    "q27": "Avaliação Geral",
-    "q28": "Avaliação Geral",
-    "q29": "Avaliação Geral",
-    # Perguntas por Categoria — q30 a q42 (esparsas — nem todo respondente responde)
+    # Utilidade — q16 a q18
+    "q16": "Utilidade",
+    "q17": "Utilidade",
+    "q18": "Utilidade",
+    # Satisfação Geral — q19
+    "q19": "Satisfação Geral",
+    # Perguntas por Categoria — q20 a q32 (esparsas — nem todo respondente responde)
+    "q20": "Perguntas por Categoria",
+    "q21": "Perguntas por Categoria",
+    "q22": "Perguntas por Categoria",
+    "q23": "Perguntas por Categoria",
+    "q24": "Perguntas por Categoria",
+    "q25": "Perguntas por Categoria",
+    "q26": "Perguntas por Categoria",
+    "q27": "Perguntas por Categoria",
+    "q28": "Perguntas por Categoria",
+    "q29": "Perguntas por Categoria",
     "q30": "Perguntas por Categoria",
     "q31": "Perguntas por Categoria",
     "q32": "Perguntas por Categoria",
-    "q33": "Perguntas por Categoria",
-    "q34": "Perguntas por Categoria",
-    "q35": "Perguntas por Categoria",
-    "q36": "Perguntas por Categoria",
-    "q37": "Perguntas por Categoria",
-    "q38": "Perguntas por Categoria",
-    "q39": "Perguntas por Categoria",
-    "q40": "Perguntas por Categoria",
-    "q41": "Perguntas por Categoria",
-    "q42": "Perguntas por Categoria",
 }
 
 # ---------------------------------------------------------------------------
-# Mapeamento de labels curtos por questão (q4 a q42)
+# Mapeamento de labels curtos por questão (q4 a q32)
 # ---------------------------------------------------------------------------
 LABELS_QUESTOES = {
-    # Usabilidade (SUS) — rótulo curto para eixo X
-    "q4":  "Usar com frequência",
-    "q5":  "Fácil de usar",
-    "q6":  "Funcionalidades integradas",
-    "q7":  "Aprende rápido",
-    "q8":  "Navegação intuitiva",
-    "q9":  "Confiante ao usar",
-    "q10": "Sem dificuldades",
+    # Usabilidade — rótulo curto para eixo X
+    "q4": "Fácil de usar",
+    "q5": "Navegação simples",
+    "q6": "Aprende rápido",
+    "q7": "Confiante ao usar",
+    "q8": "Foi difícil usar",
     # Experiência (UX)
-    "q11": "Design agradável",
-    "q12": "Telas bem organizadas",
-    "q13": "Responde rapidamente",
-    "q14": "Visualmente claro",
+    "q9":  "Design agradável",
+    "q10": "Telas organizadas",
+    "q11": "Claro e compreensível",
+    "q12": "Responde rapidamente",
     # Qualidade do Conteúdo
-    "q15": "Vídeos Libras ajudam",
-    "q16": "Descrições claras",
-    "q17": "Conteúdo relevante",
-    "q18": "Informações confiáveis",
-    # Aprendizado
-    "q19": "Aprendizado de Libras",
-    "q20": "Termos contábeis",
-    "q21": "Ferramenta educacional",
-    "q22": "Inclusão de surdos",
-    # Aceitação (TAM)
-    "q23": "Útil para Libras",
-    "q24": "Acesso ao conhecimento",
-    "q25": "Recomendaria",
-    "q26": "Usaria novamente",
-    # Avaliação Geral
-    "q27": "Satisfação geral",
-    "q28": "Atende expectativas",
-    "q29": "Potencial de ensino",
-    # Perguntas por Categoria (q30-q42 — esparsas)
-    "q30": "Professor 1",
-    "q31": "Professor 2",
-    "q32": "Professor 3",
-    "q33": "Professor 4",
-    "q34": "Professor 5",
-    "q35": "Libras 1",
-    "q36": "Libras 2",
-    "q37": "Libras 3",
-    "q38": "Libras 4",
-    "q39": "Contabilidade 1",
-    "q40": "Contabilidade 2",
-    "q41": "Contabilidade 3",
-    "q42": "Contabilidade 4",
+    "q13": "Vídeos ajudam",
+    "q14": "Textos fáceis",
+    "q15": "Conteúdo relevante",
+    # Utilidade
+    "q16": "Útil pra aprendizagem",
+    "q17": "Usaria novamente",
+    "q18": "Recomendaria",
+    # Satisfação Geral
+    "q19": "Satisfação geral",
+    # Perguntas por Categoria (q20-q32 — esparsas)
+    "q20": "Professor 1",
+    "q21": "Professor 2",
+    "q22": "Professor 3",
+    "q23": "Professor 4",
+    "q24": "Professor 5",
+    "q25": "Libras 1",
+    "q26": "Libras 2",
+    "q27": "Libras 3",
+    "q28": "Libras 4",
+    "q29": "Contabilidade 1",
+    "q30": "Contabilidade 2",
+    "q31": "Contabilidade 3",
+    "q32": "Contabilidade 4",
 }
 
 # Texto completo da pergunta — usado no hover dos gráficos
 FULL_QUESTOES = {
-    "q4":  "Q4 (SUS): Eu gostaria de utilizar este aplicativo com frequência.",
-    "q5":  "Q5 (SUS): O aplicativo é fácil de usar.",
-    "q6":  "Q6 (SUS): As funcionalidades do aplicativo são bem integradas.",
-    "q7":  "Q7 (SUS): A maioria das pessoas conseguiria aprender a usar rapidamente.",
-    "q8":  "Q8 (SUS): Navegar pelo aplicativo é simples e intuitivo.",
-    "q9":  "Q9 (SUS): Eu me senti confiante ao utilizar o aplicativo.",
-    "q10": "Q10 (SUS): Não encontrei dificuldades significativas ao usar.",
-    "q11": "Q11 (UX): O design do aplicativo é agradável.",
-    "q12": "Q12 (UX): A organização das telas facilita o uso.",
-    "q13": "Q13 (UX): O aplicativo responde rapidamente às ações do usuário.",
-    "q14": "Q14 (UX): O aplicativo é visualmente claro e compreensível.",
-    "q15": "Q15 (Conteúdo): Os vídeos em Libras ajudam na compreensão dos termos.",
-    "q16": "Q16 (Conteúdo): As descrições escritas são claras e fáceis de entender.",
-    "q17": "Q17 (Conteúdo): O conteúdo apresentado é relevante para o aprendizado.",
-    "q18": "Q18 (Conteúdo): O aplicativo apresenta informações confiáveis.",
-    "q19": "Q19 (Aprendizado): O aplicativo contribuiu para meu aprendizado de Libras.",
-    "q20": "Q20 (Aprendizado): Facilitou a compreensão de termos contábeis em Libras.",
-    "q21": "Q21 (Aprendizado): Pode ser útil como ferramenta de apoio educacional.",
-    "q22": "Q22 (Aprendizado): Pode ajudar na inclusão de pessoas surdas na área contábil.",
-    "q23": "Q23 (TAM): O aplicativo é útil para o aprendizado de Libras.",
-    "q24": "Q24 (TAM): Melhora o acesso ao conhecimento sobre contabilidade em Libras.",
-    "q25": "Q25 (TAM): Eu recomendaria este aplicativo para outras pessoas.",
-    "q26": "Q26 (TAM): Eu utilizaria este aplicativo novamente no futuro.",
-    "q27": "Q27 (Geral): No geral, estou satisfeito com o aplicativo.",
-    "q28": "Q28 (Geral): O aplicativo atende às expectativas dos usuários.",
-    "q29": "Q29 (Geral): O aplicativo possui potencial para auxiliar no ensino de Libras.",
-    "q30": "Q30 (Bloco B — Professor): O aplicativo pode ser utilizado como recurso pedagógico.",
-    "q31": "Q31 (Bloco B — Professor): O conteúdo é adequado para uso em sala de aula.",
-    "q32": "Q32 (Bloco B — Professor): O aplicativo favorece a inclusão de estudantes surdos.",
-    "q33": "Q33 (Bloco B — Professor): Eu utilizaria o aplicativo em atividades educacionais.",
-    "q34": "Q34 (Bloco B — Professor): O aplicativo possui potencial educacional.",
-    "q35": "Q35 (Bloco C — Especialista em Libras): Os sinais apresentados são adequados.",
-    "q36": "Q36 (Bloco C — Especialista em Libras): A comunicação em Libras é clara.",
-    "q37": "Q37 (Bloco C — Especialista em Libras): Os vídeos apresentam boa qualidade linguística.",
-    "q38": "Q38 (Bloco C — Especialista em Libras): Os conceitos foram representados adequadamente em Libras.",
-    "q39": "Q39 (Bloco D — Contabilidade): Os conceitos contábeis apresentados estão corretos.",
-    "q40": "Q40 (Bloco D — Contabilidade): A terminologia utilizada é adequada.",
-    "q41": "Q41 (Bloco D — Contabilidade): O conteúdo possui relevância para a área contábil.",
-    "q42": "Q42 (Bloco D — Contabilidade): O aplicativo possui potencial para apoiar o ensino de contabilidade.",
+    "q4": "Q4 (Usabilidade): O aplicativo é fácil de usar.",
+    "q5": "Q5 (Usabilidade): Navegar pelo aplicativo é simples.",
+    "q6": "Q6 (Usabilidade): Eu aprendi a usar o aplicativo rapidamente.",
+    "q7": "Q7 (Usabilidade): Eu me senti confiante ao usar o aplicativo.",
+    "q8": "Q8 (Usabilidade): Foi difícil usar o aplicativo.",
+    "q9":  "Q9 (UX): O design do aplicativo é agradável.",
+    "q10": "Q10 (UX): As telas são bem organizadas.",
+    "q11": "Q11 (UX): O aplicativo é claro e fácil de entender.",
+    "q12": "Q12 (UX): O aplicativo responde rapidamente.",
+    "q13": "Q13 (Conteúdo): Os vídeos ajudam na compreensão do conteúdo.",
+    "q14": "Q14 (Conteúdo): Os textos são fáceis de entender.",
+    "q15": "Q15 (Conteúdo): O conteúdo apresentado é relevante.",
+    "q16": "Q16 (Utilidade): O aplicativo é útil para aprendizagem.",
+    "q17": "Q17 (Utilidade): Eu utilizaria o aplicativo novamente.",
+    "q18": "Q18 (Utilidade): Eu recomendaria o aplicativo para outras pessoas.",
+    "q19": "Q19 (Satisfação Geral): Estou satisfeito com o aplicativo.",
+    "q20": "Q20 (Bloco B — Professor): O aplicativo pode ser utilizado como recurso pedagógico.",
+    "q21": "Q21 (Bloco B — Professor): O conteúdo é adequado para uso em sala de aula.",
+    "q22": "Q22 (Bloco B — Professor): O aplicativo favorece a inclusão de estudantes surdos.",
+    "q23": "Q23 (Bloco B — Professor): Eu utilizaria o aplicativo em atividades educacionais.",
+    "q24": "Q24 (Bloco B — Professor): O aplicativo possui potencial educacional.",
+    "q25": "Q25 (Bloco C — Especialista em Libras): Os sinais apresentados são adequados.",
+    "q26": "Q26 (Bloco C — Especialista em Libras): A comunicação em Libras é clara.",
+    "q27": "Q27 (Bloco C — Especialista em Libras): Os vídeos apresentam boa qualidade linguística.",
+    "q28": "Q28 (Bloco C — Especialista em Libras): Os conceitos foram representados adequadamente em Libras.",
+    "q29": "Q29 (Bloco D — Contabilidade): Os conceitos contábeis apresentados estão corretos.",
+    "q30": "Q30 (Bloco D — Contabilidade): A terminologia utilizada é adequada.",
+    "q31": "Q31 (Bloco D — Contabilidade): O conteúdo possui relevância para a área contábil.",
+    "q32": "Q32 (Bloco D — Contabilidade): O aplicativo possui potencial para apoiar o ensino de contabilidade.",
 }
 
 # Colunas de identidade presentes no DataFrame bruto do banco

@@ -1,0 +1,143 @@
+QUESTIONÁRIO DE AVALIAÇÃO DO APLICATIVO
+
+==================================================
+PARTE I — CADASTRO DO PARTICIPANTE
+==================================================
+
+1. Idade:
+________________________________________
+
+2. Escolaridade:
+- Ensino Fundamental
+- Ensino Médio
+- Ensino Superior
+- Pós-graduação
+
+3. Perfil:
+- Pessoa surda
+- Professor
+- Intérprete de Libras
+- Estudante
+- Profissional da Contabilidade
+- Outro
+
+4. Você utiliza Libras?
+- Sim
+- Não
+
+5. Como você avalia seu conhecimento em Libras?
+- Básico
+- Intermediário
+- Avançado
+
+
+==================================================
+PARTE II — PERGUNTAS GERAIS
+==================================================
+
+Estas perguntas devem ser respondidas por todos os participantes.
+
+--------------------------------------------------
+A. USABILIDADE
+--------------------------------------------------
+
+1. O aplicativo é fácil de usar.
+2. Navegar pelo aplicativo é simples.
+3. Eu aprendi a usar o aplicativo rapidamente.
+4. Eu me senti confiante ao usar o aplicativo.
+5. Foi difícil usar o aplicativo.
+
+
+--------------------------------------------------
+B. EXPERIÊNCIA DO USUÁRIO (UX)
+--------------------------------------------------
+
+6. O design do aplicativo é agradável.
+7. As telas são bem organizadas.
+8. O aplicativo é claro e fácil de entender.
+9. O aplicativo responde rapidamente.
+
+
+--------------------------------------------------
+C. QUALIDADE DO CONTEÚDO
+--------------------------------------------------
+
+10. Os vídeos ajudam na compreensão do conteúdo.
+11. Os textos são fáceis de entender.
+12. O conteúdo apresentado é relevante.
+
+
+--------------------------------------------------
+D. UTILIDADE
+--------------------------------------------------
+
+13. O aplicativo é útil para aprendizagem.
+14. Eu utilizaria o aplicativo novamente.
+15. Eu recomendaria o aplicativo para outras pessoas.
+
+
+--------------------------------------------------
+E. SATISFAÇÃO GERAL
+--------------------------------------------------
+
+16. Estou satisfeito com o aplicativo.
+
+
+==================================================
+PARTE III — PERGUNTAS ESPECÍFICAS POR PERFIL
+==================================================
+
+--------------------------------------------------
+A. PROFESSORES
+--------------------------------------------------
+
+1. O aplicativo pode ser utilizado como recurso pedagógico.
+2. O conteúdo é adequado para uso em sala de aula.
+3. O aplicativo favorece a inclusão de estudantes surdos.
+4. Eu utilizaria o aplicativo em atividades educacionais.
+5. O aplicativo possui potencial educacional.
+
+
+--------------------------------------------------
+B. INTÉRPRETE DE LIBRAS
+--------------------------------------------------
+
+1. Os sinais apresentados são adequados.
+2. A comunicação em Libras é clara.
+3. Os vídeos apresentam boa qualidade linguística.
+4. Os conceitos foram representados adequadamente em Libras.
+
+
+--------------------------------------------------
+C. PROFISSIONAL DE CONTABILIDADE
+--------------------------------------------------
+
+1. Os conceitos contábeis apresentados estão corretos.
+2. A terminologia utilizada é adequada.
+3. O conteúdo possui relevância para a área contábil.
+4. O aplicativo possui potencial para apoiar o ensino de contabilidade.
+
+
+==================================================
+PARTE IV — PERGUNTAS ABERTAS
+==================================================
+
+1. O que você mais gostou no aplicativo?
+
+________________________________________
+________________________________________
+________________________________________
+
+
+2. O que pode ser melhorado?
+
+________________________________________
+________________________________________
+________________________________________
+
+
+3. Gostaria de deixar alguma sugestão adicional?
+
+________________________________________
+________________________________________
+________________________________________

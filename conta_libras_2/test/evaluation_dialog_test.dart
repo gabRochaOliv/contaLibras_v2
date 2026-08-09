@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:conta_libras_2/ui/widgets/evaluation_dialog.dart';
 
 Map<int, int> get _allCommonAnswers =>
-    Map.fromEntries(List.generate(26, (i) => MapEntry(4 + i, 5)));
+    Map.fromEntries(List.generate(16, (i) => MapEntry(4 + i, 5)));
 
 Widget _wrapInApp(Widget child) {
   return MaterialApp(
@@ -66,7 +66,7 @@ void main() {
       initialHasAcceptedTerms: true,
       initialPage: 5,
       initialAnswers: _allCommonAnswers,
-      submitHandler: (_) async => false,
+      submitHandler: (_, __) async => false,
     )));
     await tester.pump();
 
@@ -82,7 +82,7 @@ void main() {
       initialHasAcceptedTerms: true,
       initialPage: 5,
       initialAnswers: _allCommonAnswers,
-      submitHandler: (_) async => false,
+      submitHandler: (_, __) async => false,
     )));
     await tester.pump();
 
@@ -99,7 +99,7 @@ void main() {
       initialHasAcceptedTerms: true,
       initialPage: 5,
       initialAnswers: _allCommonAnswers,
-      submitHandler: (_) async => true,
+      submitHandler: (_, __) async => true,
     )));
     await tester.pump();
 

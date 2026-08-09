@@ -9,14 +9,16 @@ class EvaluationDialog extends StatefulWidget {
     super.key,
     this.initialPage = 0,
     this.initialAnswers = const {},
+    this.initialOpenAnswers = const {},
     this.initialHasAcceptedTerms = false,
     this.submitHandler,
   });
 
   final int initialPage;
   final Map<int, int> initialAnswers;
+  final Map<String, String> initialOpenAnswers;
   final bool initialHasAcceptedTerms;
-  final Future<bool> Function(Map<int, int>)? submitHandler;
+  final Future<bool> Function(Map<int, int>, Map<String, String>)? submitHandler;
 
   @override
   State<EvaluationDialog> createState() => _EvaluationDialogState();
@@ -27,111 +29,113 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   late int _currentPage;
   late bool _hasAcceptedTerms;
   late Map<int, int> _answers;
+  late Map<String, String> _openAnswers;
+  late Map<String, TextEditingController> _openControllers;
   bool _showError = false;
   bool _isSubmitting = false;
 
   static const List<Map<String, dynamic>> _sections = [
     {
-      'title': 'Usabilidade do Sistema (SUS)',
+      'title': 'Usabilidade',
       'icon': Icons.tune,
       'questions': [
-        {'id': 4,  'text': 'Eu gostaria de utilizar este aplicativo com frequência.'},
-        {'id': 5,  'text': 'O aplicativo é fácil de usar.'},
-        {'id': 6,  'text': 'As funcionalidades do aplicativo são bem integradas.'},
-        {'id': 7,  'text': 'A maioria das pessoas conseguiria aprender a usar este aplicativo rapidamente.'},
-        {'id': 8,  'text': 'Navegar pelo aplicativo é simples e intuitivo.'},
-        {'id': 9,  'text': 'Eu me senti confiante ao utilizar o aplicativo.'},
-        {'id': 10, 'text': 'Não encontrei dificuldades significativas ao usar o aplicativo.'},
+        {'id': 4, 'text': 'O aplicativo é fácil de usar.'},
+        {'id': 5, 'text': 'Navegar pelo aplicativo é simples.'},
+        {'id': 6, 'text': 'Eu aprendi a usar o aplicativo rapidamente.'},
+        {'id': 7, 'text': 'Eu me senti confiante ao usar o aplicativo.'},
+        {'id': 8, 'text': 'Foi difícil usar o aplicativo.'},
       ],
     },
     {
       'title': 'Experiência do Usuário (UX)',
       'icon': Icons.star_outline,
       'questions': [
-        {'id': 11, 'text': 'O design do aplicativo é agradável.'},
-        {'id': 12, 'text': 'A organização das telas facilita o uso do aplicativo.'},
-        {'id': 13, 'text': 'O aplicativo responde rapidamente às ações do usuário.'},
-        {'id': 14, 'text': 'O aplicativo é visualmente claro e compreensível.'},
+        {'id': 9,  'text': 'O design do aplicativo é agradável.'},
+        {'id': 10, 'text': 'As telas são bem organizadas.'},
+        {'id': 11, 'text': 'O aplicativo é claro e fácil de entender.'},
+        {'id': 12, 'text': 'O aplicativo responde rapidamente.'},
       ],
     },
     {
       'title': 'Qualidade do Conteúdo',
       'icon': Icons.library_books_outlined,
       'questions': [
-        {'id': 15, 'text': 'Os vídeos em Libras ajudam na compreensão dos termos apresentados.'},
-        {'id': 16, 'text': 'As descrições escritas são claras e fáceis de entender.'},
-        {'id': 17, 'text': 'O conteúdo apresentado é relevante para o aprendizado.'},
-        {'id': 18, 'text': 'O aplicativo apresenta informações confiáveis.'},
+        {'id': 13, 'text': 'Os vídeos ajudam na compreensão do conteúdo.'},
+        {'id': 14, 'text': 'Os textos são fáceis de entender.'},
+        {'id': 15, 'text': 'O conteúdo apresentado é relevante.'},
       ],
     },
     {
-      'title': 'Aprendizado',
-      'icon': Icons.school_outlined,
-      'questions': [
-        {'id': 19, 'text': 'O aplicativo contribuiu para meu aprendizado de Libras.'},
-        {'id': 20, 'text': 'O aplicativo facilitou a compreensão de termos contábeis em Libras.'},
-        {'id': 21, 'text': 'O aplicativo pode ser útil como ferramenta de apoio educacional.'},
-        {'id': 22, 'text': 'O aplicativo pode ajudar na inclusão de pessoas surdas na área contábil.'},
-      ],
-    },
-    {
-      'title': 'Aceitação da Tecnologia (TAM)',
+      'title': 'Utilidade',
       'icon': Icons.thumb_up_outlined,
       'questions': [
-        {'id': 23, 'text': 'O aplicativo é útil para o aprendizado de Libras.'},
-        {'id': 24, 'text': 'O aplicativo melhora o acesso ao conhecimento sobre contabilidade em Libras.'},
-        {'id': 25, 'text': 'Eu recomendaria este aplicativo para outras pessoas.'},
-        {'id': 26, 'text': 'Eu utilizaria este aplicativo novamente no futuro.'},
+        {'id': 16, 'text': 'O aplicativo é útil para aprendizagem.'},
+        {'id': 17, 'text': 'Eu utilizaria o aplicativo novamente.'},
+        {'id': 18, 'text': 'Eu recomendaria o aplicativo para outras pessoas.'},
       ],
     },
     {
-      'title': 'Avaliação Geral',
+      'title': 'Satisfação Geral',
       'icon': Icons.assessment_outlined,
       'questions': [
-        {'id': 27, 'text': 'No geral, estou satisfeito com o aplicativo.'},
-        {'id': 28, 'text': 'O aplicativo atende às expectativas dos usuários.'},
-        {'id': 29, 'text': 'O aplicativo possui potencial para auxiliar no ensino de Libras.'},
+        {'id': 19, 'text': 'Estou satisfeito com o aplicativo.'},
       ],
     },
   ];
 
   static const Map<String, List<Map<String, dynamic>>> _categoryQuestions = {
     'Professor': [
-      {'id': 30, 'text': 'O aplicativo pode ser utilizado como recurso pedagógico.'},
-      {'id': 31, 'text': 'O conteúdo é adequado para uso em sala de aula.'},
-      {'id': 32, 'text': 'O aplicativo favorece a inclusão de estudantes surdos.'},
-      {'id': 33, 'text': 'Eu utilizaria o aplicativo em atividades educacionais.'},
-      {'id': 34, 'text': 'O aplicativo possui potencial educacional.'},
+      {'id': 20, 'text': 'O aplicativo pode ser utilizado como recurso pedagógico.'},
+      {'id': 21, 'text': 'O conteúdo é adequado para uso em sala de aula.'},
+      {'id': 22, 'text': 'O aplicativo favorece a inclusão de estudantes surdos.'},
+      {'id': 23, 'text': 'Eu utilizaria o aplicativo em atividades educacionais.'},
+      {'id': 24, 'text': 'O aplicativo possui potencial educacional.'},
     ],
     'Intérprete de Libras': [
-      {'id': 35, 'text': 'Os sinais apresentados são adequados.'},
-      {'id': 36, 'text': 'A comunicação em Libras é clara.'},
-      {'id': 37, 'text': 'Os vídeos apresentam boa qualidade linguística.'},
-      {'id': 38, 'text': 'Os conceitos foram representados adequadamente em Libras.'},
+      {'id': 25, 'text': 'Os sinais apresentados são adequados.'},
+      {'id': 26, 'text': 'A comunicação em Libras é clara.'},
+      {'id': 27, 'text': 'Os vídeos apresentam boa qualidade linguística.'},
+      {'id': 28, 'text': 'Os conceitos foram representados adequadamente em Libras.'},
     ],
     'Profissional da Contabilidade': [
-      {'id': 39, 'text': 'Os conceitos contábeis apresentados estão corretos.'},
-      {'id': 40, 'text': 'A terminologia utilizada é adequada.'},
-      {'id': 41, 'text': 'O conteúdo possui relevância para a área contábil.'},
-      {'id': 42, 'text': 'O aplicativo possui potencial para apoiar o ensino de contabilidade.'},
+      {'id': 29, 'text': 'Os conceitos contábeis apresentados estão corretos.'},
+      {'id': 30, 'text': 'A terminologia utilizada é adequada.'},
+      {'id': 31, 'text': 'O conteúdo possui relevância para a área contábil.'},
+      {'id': 32, 'text': 'O aplicativo possui potencial para apoiar o ensino de contabilidade.'},
     ],
   };
+
+  static const List<Map<String, String>> _openQuestions = [
+    {'key': 'gostou', 'text': 'O que você mais gostou no aplicativo?'},
+    {'key': 'melhorar', 'text': 'O que pode ser melhorado?'},
+    {'key': 'sugestao', 'text': 'Gostaria de deixar alguma sugestão adicional?'},
+  ];
 
   bool get _hasCategorySection =>
       _categoryQuestions.containsKey(UserManager().userCategory);
 
-  int get _totalSections => _sections.length + (_hasCategorySection ? 1 : 0);
+  int get _totalSections =>
+      _sections.length + (_hasCategorySection ? 1 : 0) + 1;
+
+  int get _openQuestionsIndex => _totalSections - 1;
+
+  bool _isCategorySectionIndex(int sectionIndex) =>
+      _hasCategorySection && sectionIndex == _sections.length;
 
   List<Map<String, dynamic>> _getQuestionsForSection(int sectionIndex) {
     if (sectionIndex < _sections.length) {
       return List<Map<String, dynamic>>.from(
           _sections[sectionIndex]['questions'] as List);
     }
-    return List<Map<String, dynamic>>.from(
-        _categoryQuestions[UserManager().userCategory] ?? []);
+    if (_isCategorySectionIndex(sectionIndex)) {
+      return List<Map<String, dynamic>>.from(
+          _categoryQuestions[UserManager().userCategory] ?? []);
+    }
+    return const [];
   }
 
-  bool _isSectionComplete(List<Map<String, dynamic>> questions) {
+  bool _isSectionComplete(int sectionIndex, List<Map<String, dynamic>> questions) {
+    if (sectionIndex == _openQuestionsIndex) return true;
     return questions.every((q) => _answers.containsKey(q['id'] as int));
   }
 
@@ -141,12 +145,20 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
     _currentPage = widget.initialPage;
     _hasAcceptedTerms = widget.initialHasAcceptedTerms;
     _answers = Map.from(widget.initialAnswers);
+    _openAnswers = Map.from(widget.initialOpenAnswers);
+    _openControllers = {
+      for (final q in _openQuestions)
+        q['key']!: TextEditingController(text: _openAnswers[q['key']] ?? ''),
+    };
     _pageController = PageController(initialPage: widget.initialPage);
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    for (final c in _openControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -154,6 +166,10 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
     setState(() {
       _answers[questionId] = value;
     });
+  }
+
+  void _updateOpenAnswer(String key, String value) {
+    _openAnswers[key] = value;
   }
 
   void _goBack() {
@@ -182,9 +198,9 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
 
     bool success;
     if (widget.submitHandler != null) {
-      success = await widget.submitHandler!(_answers);
+      success = await widget.submitHandler!(_answers, _openAnswers);
     } else {
-      await FeedbackService().submit(_answers);
+      await FeedbackService().submit(_answers, openAnswers: _openAnswers);
       success = !FeedbackService().hasError;
     }
 
@@ -288,19 +304,23 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   }
 
   Widget _buildSectionPage(int sectionIndex) {
+    final isOpenQuestionsPage = sectionIndex == _openQuestionsIndex;
     final questions = _getQuestionsForSection(sectionIndex);
     final isLastSection = sectionIndex == _totalSections - 1;
-    final isSectionComplete = _isSectionComplete(questions);
+    final isSectionComplete = _isSectionComplete(sectionIndex, questions);
 
     String sectionTitle;
     IconData sectionIcon;
     if (sectionIndex < _sections.length) {
       sectionTitle = _sections[sectionIndex]['title'] as String;
       sectionIcon = _sections[sectionIndex]['icon'] as IconData;
-    } else {
+    } else if (_isCategorySectionIndex(sectionIndex)) {
       sectionTitle =
           'Perguntas para ${_categoryLabel(UserManager().userCategory)}';
       sectionIcon = Icons.person_outline;
+    } else {
+      sectionTitle = 'Perguntas Abertas (opcional)';
+      sectionIcon = Icons.chat_bubble_outline;
     }
 
     return Padding(
@@ -325,23 +345,53 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: questions.map((q) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          q['text'] as String,
-                          style: AppTextStyles.bodyLarge
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildLikertScale(q['id'] as int),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                children: isOpenQuestionsPage
+                    ? _openQuestions.map((q) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                q['text']!,
+                                style: AppTextStyles.bodyLarge
+                                    .copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _openControllers[q['key']],
+                                maxLines: 3,
+                                onChanged: (value) =>
+                                    _updateOpenAnswer(q['key']!, value),
+                                decoration: InputDecoration(
+                                  hintText: 'Resposta opcional',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  contentPadding: const EdgeInsets.all(12),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList()
+                    : questions.map((q) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                q['text'] as String,
+                                style: AppTextStyles.bodyLarge
+                                    .copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              _buildLikertScale(q['id'] as int),
+                            ],
+                          ),
+                        );
+                      }).toList(),
               ),
             ),
           ),

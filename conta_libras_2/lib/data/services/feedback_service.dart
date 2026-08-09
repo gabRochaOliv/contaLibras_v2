@@ -21,7 +21,11 @@ class FeedbackService extends ChangeNotifier {
   bool get hasError => _hasError;
   String? get errorMessage => _errorMessage;
 
-  Future<void> submit(Map<int, int> answers, {http.Client? httpClient}) async {
+  Future<void> submit(
+    Map<int, int> answers, {
+    Map<String, String> openAnswers = const {},
+    http.Client? httpClient,
+  }) async {
     _isLoading = true;
     _hasError = false;
     _errorMessage = null;
@@ -36,6 +40,9 @@ class FeedbackService extends ChangeNotifier {
         'escolaridade': UserManager().userEscolaridade,
         'usa_libras': UserManager().userUsaLibras,
         'conhecimento_libras': UserManager().userConhecimentoLibras,
+        'comentario_gostou': openAnswers['gostou'] ?? '',
+        'comentario_melhorar': openAnswers['melhorar'] ?? '',
+        'comentario_sugestao': openAnswers['sugestao'] ?? '',
         'respostas': answers.entries
             .map((e) => {'pergunta_id': e.key, 'valor': e.value})
             .toList(),

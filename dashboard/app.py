@@ -309,3 +309,42 @@ df_resp = (
 
 st.dataframe(df_resp, use_container_width=True, hide_index=True)
 st.caption(f"{len(df_resp)} respondente(s) exibido(s).")
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# Comentários (perguntas abertas — opcionais)
+# ---------------------------------------------------------------------------
+
+st.subheader("Comentários (Perguntas Abertas)")
+
+campos_comentarios = [
+    "id", "comentario_gostou", "comentario_melhorar", "comentario_sugestao",
+]
+df_comentarios = df_wide[["id", "nome", "categoria"]].merge(
+    df_raw_filtrado[campos_comentarios], on="id", how="left",
+)
+df_comentarios = df_comentarios[
+    df_comentarios["comentario_gostou"].fillna("").str.strip().ne("")
+    | df_comentarios["comentario_melhorar"].fillna("").str.strip().ne("")
+    | df_comentarios["comentario_sugestao"].fillna("").str.strip().ne("")
+]
+
+if df_comentarios.empty:
+    st.caption("Nenhum comentário deixado nos filtros selecionados.")
+else:
+    df_comentarios = (
+        df_comentarios
+        .rename(columns={
+            "nome": "Nome",
+            "categoria": "Categoria",
+            "comentario_gostou": "O que mais gostou",
+            "comentario_melhorar": "O que pode melhorar",
+            "comentario_sugestao": "Sugestão adicional",
+        })
+        [["Nome", "Categoria", "O que mais gostou", "O que pode melhorar", "Sugestão adicional"]]
+        .reset_index(drop=True)
+    )
+    st.dataframe(df_comentarios, use_container_width=True, hide_index=True)
+    st.caption(f"{len(df_comentarios)} respondente(s) com comentário.")

@@ -15,5 +15,8 @@ class FeedbackPayload(BaseModel):
     escolaridade: str
     usa_libras: bool
     conhecimento_libras: str
+    comentario_gostou: str = ""
+    comentario_melhorar: str = ""
+    comentario_sugestao: str = ""
     respostas: List[Resposta]
     timestamp: datetime
