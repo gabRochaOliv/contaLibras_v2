@@ -390,17 +390,15 @@ df_comentarios = df_comentarios[
 if df_comentarios.empty:
     st.caption("Nenhum comentário deixado nos filtros selecionados.")
 else:
-    df_comentarios = (
-        df_comentarios
-        .rename(columns={
-            "nome": "Nome",
-            "categoria": "Categoria",
-            "comentario_gostou": "O que mais gostou",
-            "comentario_melhorar": "O que pode melhorar",
-            "comentario_sugestao": "Sugestão adicional",
-        })
-        [["Nome", "Categoria", "O que mais gostou", "O que pode melhorar", "Sugestão adicional"]]
-        .reset_index(drop=True)
-    )
-    st.dataframe(df_comentarios, use_container_width=True, hide_index=True)
     st.caption(f"{len(df_comentarios)} respondente(s) com comentário.")
+    for _, linha_com in df_comentarios.iterrows():
+        with st.expander(f"{linha_com['nome']} — {linha_com['categoria']}"):
+            for rotulo, campo in [
+                ("O que mais gostou", "comentario_gostou"),
+                ("O que pode melhorar", "comentario_melhorar"),
+                ("Sugestão adicional", "comentario_sugestao"),
+            ]:
+                valor = linha_com.get(campo)
+                texto = valor.strip() if isinstance(valor, str) and valor.strip() else "_(não respondido)_"
+                st.markdown(f"**{rotulo}:**")
+                st.markdown(texto)
