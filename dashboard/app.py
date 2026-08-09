@@ -25,6 +25,7 @@ from charts import (
     chart_avaliacao_geral,
     chart_likert_horizontal,
     chart_faixa_etaria,
+    LIKERT_NOMES,
 )
 
 st.set_page_config(
@@ -114,6 +115,10 @@ data_max = df_raw["_data"].max()
 
 st.sidebar.title("ContaLibras")
 st.sidebar.caption("Dashboard de Feedback — Glossário de Contabilidade")
+if st.sidebar.button("🔄 Atualizar dados agora"):
+    fetch_feedbacks.clear()
+    st.rerun()
+st.sidebar.caption("Os dados ficam em cache por até 5 min — use o botão acima pra forçar a atualização.")
 st.sidebar.divider()
 st.sidebar.subheader("Filtros")
 
@@ -309,6 +314,57 @@ df_resp = (
 
 st.dataframe(df_resp, use_container_width=True, hide_index=True)
 st.caption(f"{len(df_resp)} respondente(s) exibido(s).")
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# Detalhe de um respondente — pergunta exata + resposta, na íntegra
+# ---------------------------------------------------------------------------
+
+st.subheader("Detalhe de um Respondente")
+st.caption(
+    "Mostra, pergunta por pergunta (texto exato do questionário), como uma pessoa específica respondeu."
+)
+
+df_wide_ordenado = df_wide.sort_values("criado_em", ascending=False)
+opcoes_respondente = {
+    (
+        f"{row.nome} — {row.categoria} — "
+        f"{pd.to_datetime(row.criado_em).strftime('%d/%m/%Y %H:%M')}"
+    ): row.id
+    for row in df_wide_ordenado.itertuples()
+}
+
+escolha = st.selectbox("Selecione um respondente", list(opcoes_respondente.keys()))
+respondente_id = opcoes_respondente[escolha]
+linha = df_wide[df_wide["id"] == respondente_id].iloc[0]
+linha_raw = df_raw_filtrado[df_raw_filtrado["id"] == respondente_id].iloc[0]
+
+perguntas_respondidas = sorted(
+    (q for q in q_cols if pd.notna(linha[q])),
+    key=lambda q: int(q[1:]),
+)
+
+secao_atual = None
+for q in perguntas_respondidas:
+    secao = SECOES_IHC.get(q, "Outras")
+    if secao != secao_atual:
+        st.markdown(f"**{secao}**")
+        secao_atual = secao
+    valor = int(linha[q])
+    texto = FULL_QUESTOES.get(q, q)
+    st.markdown(f"- {texto} → **{valor} — {LIKERT_NOMES[str(valor)]}**")
+
+st.markdown("**Perguntas Abertas**")
+_abertas = [
+    ("O que mais gostou no aplicativo?", linha_raw.get("comentario_gostou")),
+    ("O que pode ser melhorado?", linha_raw.get("comentario_melhorar")),
+    ("Sugestão adicional?", linha_raw.get("comentario_sugestao")),
+]
+for pergunta, resposta in _abertas:
+    resposta_fmt = resposta.strip() if isinstance(resposta, str) and resposta.strip() else "_(não respondido)_"
+    st.markdown(f"- **{pergunta}** {resposta_fmt}")
 
 st.divider()
 
