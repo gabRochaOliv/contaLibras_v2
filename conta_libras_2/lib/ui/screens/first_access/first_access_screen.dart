@@ -17,13 +17,29 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   String? _selectedCategory;
+  String? _selectedEscolaridade;
+  bool? _usaLibras;
+  String? _selectedConhecimentoLibras;
 
   final List<String> _categories = [
-    'Pessoa surda',
     'Professor',
     'Estudante',
     'Intérprete de Libras',
+    'Profissional da Contabilidade',
     'Outro'
+  ];
+
+  final List<String> _escolaridades = [
+    'Ensino Fundamental',
+    'Ensino Médio',
+    'Ensino Superior',
+    'Pós-graduação',
+  ];
+
+  final List<String> _niveisConhecimentoLibras = [
+    'Básico',
+    'Intermediário',
+    'Avançado',
   ];
 
   @override
@@ -39,6 +55,9 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
         _nameController.text.trim(),
         _selectedCategory ?? '',
         int.tryParse(_ageController.text.trim()) ?? 0,
+        escolaridade: _selectedEscolaridade ?? '',
+        usaLibras: _usaLibras ?? false,
+        conhecimentoLibras: _selectedConhecimentoLibras ?? '',
       );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -214,8 +233,129 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                               return null;
                             },
                           ),
+                          const SizedBox(height: 20),
+
+                          // Campo Escolaridade
+                          DropdownButtonFormField<String>(
+                            value: _selectedEscolaridade,
+                            dropdownColor: AppColors.surface,
+                            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+                            decoration: InputDecoration(
+                              labelText: 'Escolaridade',
+                              prefixIcon: const Icon(Icons.menu_book_outlined, color: AppColors.secondary),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: AppColors.divider),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            ),
+                            items: _escolaridades.map((escolaridade) {
+                              return DropdownMenuItem(
+                                value: escolaridade,
+                                child: Text(escolaridade),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedEscolaridade = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, selecione sua escolaridade';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Campo Uso de Libras
+                          DropdownButtonFormField<bool>(
+                            value: _usaLibras,
+                            dropdownColor: AppColors.surface,
+                            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+                            decoration: InputDecoration(
+                              labelText: 'Você utiliza Libras?',
+                              prefixIcon: const Icon(Icons.sign_language_outlined, color: AppColors.secondary),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: AppColors.divider),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            ),
+                            items: const [
+                              DropdownMenuItem(value: true, child: Text('Sim')),
+                              DropdownMenuItem(value: false, child: Text('Não')),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _usaLibras = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Por favor, informe se você utiliza Libras';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Campo Conhecimento em Libras
+                          DropdownButtonFormField<String>(
+                            value: _selectedConhecimentoLibras,
+                            dropdownColor: AppColors.surface,
+                            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+                            decoration: InputDecoration(
+                              labelText: 'Conhecimento em Libras',
+                              prefixIcon: const Icon(Icons.bar_chart_outlined, color: AppColors.secondary),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: AppColors.divider),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            ),
+                            items: _niveisConhecimentoLibras.map((nivel) {
+                              return DropdownMenuItem(
+                                value: nivel,
+                                child: Text(nivel),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedConhecimentoLibras = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, selecione seu nível de conhecimento em Libras';
+                              }
+                              return null;
+                            },
+                          ),
                           const SizedBox(height: 36),
-                          
+
                           // Botão Continuar
                           ElevatedButton(
                             onPressed: _submit,

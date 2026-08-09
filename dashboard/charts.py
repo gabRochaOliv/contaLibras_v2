@@ -14,11 +14,11 @@ from transforms import SECOES_IHC, LABELS_QUESTOES, FULL_QUESTOES
 # ---------------------------------------------------------------------------
 
 COLOR_MAP = {
-    "Pessoa surda": "#1f77b4",
-    "Professor":    "#ff7f0e",
-    "Estudante":    "#2ca02c",
-    "Intérprete":   "#d62728",
-    "Outro":        "#9467bd",
+    "Professor":                     "#ff7f0e",
+    "Estudante":                     "#2ca02c",
+    "Intérprete de Libras":          "#d62728",
+    "Profissional da Contabilidade": "#1f77b4",
+    "Outro":                         "#9467bd",
 }
 
 COLOR_SEQUENCE_SECOES = [

@@ -12,5 +12,8 @@ class FeedbackPayload(BaseModel):
     nome: str
     idade: int
     categoria: str
+    escolaridade: str
+    usa_libras: bool
+    conhecimento_libras: str
     respostas: List[Resposta]
     timestamp: datetime

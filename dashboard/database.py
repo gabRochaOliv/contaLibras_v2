@@ -28,7 +28,8 @@ def fetch_feedbacks() -> pd.DataFrame:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT id, nome, idade, categoria, respostas, criado_em
+                SELECT id, nome, idade, categoria, escolaridade, usa_libras,
+                       conhecimento_libras, respostas, criado_em
                 FROM feedbacks
                 ORDER BY criado_em DESC
                 """

@@ -2,8 +2,9 @@
 import pandas as pd
 
 # ---------------------------------------------------------------------------
-# Mapeamento de seções IHC (q4 a q41)
-# Verificado contra Feedback/questionario_IHC.md e 02-RESEARCH.md
+# Mapeamento de seções IHC (q4 a q42)
+# Parte II (geral, q4-q29) + Parte III por categoria (q30-q42): Bloco B
+# (Professor), Bloco C (Especialista em Libras) e Bloco D (Contabilidade).
 # ---------------------------------------------------------------------------
 SECOES_IHC = {
     # Usabilidade do Sistema (SUS) — q4 a q10
@@ -38,7 +39,7 @@ SECOES_IHC = {
     "q27": "Avaliação Geral",
     "q28": "Avaliação Geral",
     "q29": "Avaliação Geral",
-    # Perguntas por Categoria — q30 a q41 (esparsas — nem todo respondente responde)
+    # Perguntas por Categoria — q30 a q42 (esparsas — nem todo respondente responde)
     "q30": "Perguntas por Categoria",
     "q31": "Perguntas por Categoria",
     "q32": "Perguntas por Categoria",
@@ -51,11 +52,11 @@ SECOES_IHC = {
     "q39": "Perguntas por Categoria",
     "q40": "Perguntas por Categoria",
     "q41": "Perguntas por Categoria",
+    "q42": "Perguntas por Categoria",
 }
 
 # ---------------------------------------------------------------------------
-# Mapeamento de labels curtos por questão (q4 a q41)
-# Fonte: Feedback/questionario_IHC.md (q4-q29) + 02-RESEARCH.md (q30-q41)
+# Mapeamento de labels curtos por questão (q4 a q42)
 # ---------------------------------------------------------------------------
 LABELS_QUESTOES = {
     # Usabilidade (SUS) — rótulo curto para eixo X
@@ -90,19 +91,20 @@ LABELS_QUESTOES = {
     "q27": "Satisfação geral",
     "q28": "Atende expectativas",
     "q29": "Potencial de ensino",
-    # Perguntas por Categoria (q30-q41 — esparsas)
-    "q30": "Cat. específica 1a",
-    "q31": "Cat. específica 1b",
-    "q32": "Cat. específica 1c",
-    "q33": "Professor 1",
-    "q34": "Professor 2",
-    "q35": "Professor 3",
-    "q36": "Intérprete 1",
-    "q37": "Intérprete 2",
-    "q38": "Intérprete 3",
-    "q39": "Surdo/Outro 1",
-    "q40": "Surdo/Outro 2",
-    "q41": "Surdo/Outro 3",
+    # Perguntas por Categoria (q30-q42 — esparsas)
+    "q30": "Professor 1",
+    "q31": "Professor 2",
+    "q32": "Professor 3",
+    "q33": "Professor 4",
+    "q34": "Professor 5",
+    "q35": "Libras 1",
+    "q36": "Libras 2",
+    "q37": "Libras 3",
+    "q38": "Libras 4",
+    "q39": "Contabilidade 1",
+    "q40": "Contabilidade 2",
+    "q41": "Contabilidade 3",
+    "q42": "Contabilidade 4",
 }
 
 # Texto completo da pergunta — usado no hover dos gráficos
@@ -133,18 +135,19 @@ FULL_QUESTOES = {
     "q27": "Q27 (Geral): No geral, estou satisfeito com o aplicativo.",
     "q28": "Q28 (Geral): O aplicativo atende às expectativas dos usuários.",
     "q29": "Q29 (Geral): O aplicativo possui potencial para auxiliar no ensino de Libras.",
-    "q30": "Q30 (Categoria): Pergunta específica — Estudante/Intérprete/Outro (1).",
-    "q31": "Q31 (Categoria): Pergunta específica — Estudante/Intérprete/Outro (2).",
-    "q32": "Q32 (Categoria): Pergunta específica — Estudante/Intérprete/Outro (3).",
-    "q33": "Q33 (Categoria): Pergunta específica — Professor (1).",
-    "q34": "Q34 (Categoria): Pergunta específica — Professor (2).",
-    "q35": "Q35 (Categoria): Pergunta específica — Professor (3).",
-    "q36": "Q36 (Categoria): Pergunta específica — Intérprete (1).",
-    "q37": "Q37 (Categoria): Pergunta específica — Intérprete (2).",
-    "q38": "Q38 (Categoria): Pergunta específica — Intérprete (3).",
-    "q39": "Q39 (Categoria): Pergunta específica — Pessoa surda/Outro (1).",
-    "q40": "Q40 (Categoria): Pergunta específica — Pessoa surda/Outro (2).",
-    "q41": "Q41 (Categoria): Pergunta específica — Pessoa surda/Outro (3).",
+    "q30": "Q30 (Bloco B — Professor): O aplicativo pode ser utilizado como recurso pedagógico.",
+    "q31": "Q31 (Bloco B — Professor): O conteúdo é adequado para uso em sala de aula.",
+    "q32": "Q32 (Bloco B — Professor): O aplicativo favorece a inclusão de estudantes surdos.",
+    "q33": "Q33 (Bloco B — Professor): Eu utilizaria o aplicativo em atividades educacionais.",
+    "q34": "Q34 (Bloco B — Professor): O aplicativo possui potencial educacional.",
+    "q35": "Q35 (Bloco C — Especialista em Libras): Os sinais apresentados são adequados.",
+    "q36": "Q36 (Bloco C — Especialista em Libras): A comunicação em Libras é clara.",
+    "q37": "Q37 (Bloco C — Especialista em Libras): Os vídeos apresentam boa qualidade linguística.",
+    "q38": "Q38 (Bloco C — Especialista em Libras): Os conceitos foram representados adequadamente em Libras.",
+    "q39": "Q39 (Bloco D — Contabilidade): Os conceitos contábeis apresentados estão corretos.",
+    "q40": "Q40 (Bloco D — Contabilidade): A terminologia utilizada é adequada.",
+    "q41": "Q41 (Bloco D — Contabilidade): O conteúdo possui relevância para a área contábil.",
+    "q42": "Q42 (Bloco D — Contabilidade): O aplicativo possui potencial para apoiar o ensino de contabilidade.",
 }
 
 # Colunas de identidade presentes no DataFrame bruto do banco

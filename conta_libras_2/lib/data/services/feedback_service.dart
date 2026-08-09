@@ -33,6 +33,9 @@ class FeedbackService extends ChangeNotifier {
         'nome': UserManager().userName,
         'idade': UserManager().userAge,
         'categoria': UserManager().userCategory,
+        'escolaridade': UserManager().userEscolaridade,
+        'usa_libras': UserManager().userUsaLibras,
+        'conhecimento_libras': UserManager().userConhecimentoLibras,
         'respostas': answers.entries
             .map((e) => {'pergunta_id': e.key, 'valor': e.value})
             .toList(),

@@ -15,6 +15,9 @@ def valid_payload():
         "nome": "Ana",
         "idade": 22,
         "categoria": "Estudante",
+        "escolaridade": "Ensino Superior",
+        "usa_libras": False,
+        "conhecimento_libras": "Básico",
         "respostas": [
             {"pergunta_id": 4, "valor": 5},
             {"pergunta_id": 29, "valor": 4},

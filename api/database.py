@@ -25,10 +25,19 @@ def insert_feedback(payload):
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO feedbacks (nome, idade, categoria, respostas)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO feedbacks
+                    (nome, idade, categoria, escolaridade, usa_libras, conhecimento_libras, respostas)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
-                (payload.nome, payload.idade, payload.categoria, Json(respostas_json)),
+                (
+                    payload.nome,
+                    payload.idade,
+                    payload.categoria,
+                    payload.escolaridade,
+                    payload.usa_libras,
+                    payload.conhecimento_libras,
+                    Json(respostas_json),
+                ),
             )
         conn.commit()
     finally:

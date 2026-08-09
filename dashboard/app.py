@@ -5,6 +5,8 @@ Executar a partir da pasta dashboard/:
 """
 import hmac
 import os
+import sys
+import traceback
 
 import pandas as pd
 import streamlit as st
@@ -87,7 +89,9 @@ if not check_password():
 
 try:
     df_raw = fetch_feedbacks()
-except Exception:
+except Exception as e:
+    print(f"[fetch_feedbacks] falha ao conectar/consultar o banco: {e!r}", file=sys.stderr)
+    traceback.print_exc()
     st.error("Erro ao carregar os dados. Verifique a conexão com o banco e recarregue a página.")
     st.stop()
 
@@ -114,7 +118,8 @@ st.sidebar.divider()
 st.sidebar.subheader("Filtros")
 
 categorias_disponiveis = [
-    "Todos", "Pessoa surda", "Professor", "Estudante", "Intérprete", "Outro",
+    "Todos", "Professor", "Estudante", "Intérprete de Libras",
+    "Profissional da Contabilidade", "Outro",
 ]
 categoria_selecionada = st.sidebar.selectbox("Categoria de Usuário", categorias_disponiveis)
 
@@ -278,9 +283,13 @@ st.divider()
 
 st.subheader("Respondentes")
 
-df_resp = df_wide[["nome", "idade", "categoria", "criado_em"]].copy()
+campos_demograficos = ["id", "escolaridade", "usa_libras", "conhecimento_libras"]
+df_resp = df_wide[["id", "nome", "idade", "categoria", "criado_em"]].merge(
+    df_raw_filtrado[campos_demograficos], on="id", how="left",
+)
 df_resp["faixa_etaria"] = df_resp["idade"].apply(calcular_faixa_etaria)
 df_resp["criado_em"] = pd.to_datetime(df_resp["criado_em"]).dt.strftime("%d/%m/%Y")
+df_resp["usa_libras"] = df_resp["usa_libras"].map({True: "Sim", False: "Não"})
 df_resp = (
     df_resp
     .rename(columns={
@@ -288,9 +297,13 @@ df_resp = (
         "idade": "Idade",
         "faixa_etaria": "Faixa Etária",
         "categoria": "Categoria",
+        "escolaridade": "Escolaridade",
+        "usa_libras": "Usa Libras",
+        "conhecimento_libras": "Conhecimento em Libras",
         "criado_em": "Data",
     })
-    [["Nome", "Idade", "Faixa Etária", "Categoria", "Data"]]
+    [["Nome", "Idade", "Faixa Etária", "Categoria", "Escolaridade",
+      "Usa Libras", "Conhecimento em Libras", "Data"]]
     .reset_index(drop=True)
 )
 

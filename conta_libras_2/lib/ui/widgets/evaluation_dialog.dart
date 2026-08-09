@@ -96,25 +96,24 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   ];
 
   static const Map<String, List<Map<String, dynamic>>> _categoryQuestions = {
-    'Estudante': [
-      {'id': 30, 'text': 'O aplicativo é útil como complemento aos estudos na área contábil.'},
-      {'id': 31, 'text': 'Utilizaria o aplicativo para estudar termos contábeis em Libras.'},
-      {'id': 32, 'text': 'O aplicativo facilitaria minha comunicação com colegas surdos.'},
-    ],
     'Professor': [
-      {'id': 33, 'text': 'Utilizaria o aplicativo como recurso pedagógico em sala de aula.'},
-      {'id': 34, 'text': 'O conteúdo está adequado para uso em contexto educacional formal.'},
-      {'id': 35, 'text': 'O aplicativo pode contribuir para a inclusão de alunos surdos.'},
-    ],
-    'Pessoa surda': [
-      {'id': 36, 'text': 'Os sinais apresentados correspondem ao que conheço de Libras.'},
-      {'id': 37, 'text': 'O aplicativo facilita minha compreensão de termos contábeis.'},
-      {'id': 38, 'text': 'O aplicativo poderia me ajudar no mercado de trabalho na área contábil.'},
+      {'id': 30, 'text': 'O aplicativo pode ser utilizado como recurso pedagógico.'},
+      {'id': 31, 'text': 'O conteúdo é adequado para uso em sala de aula.'},
+      {'id': 32, 'text': 'O aplicativo favorece a inclusão de estudantes surdos.'},
+      {'id': 33, 'text': 'Eu utilizaria o aplicativo em atividades educacionais.'},
+      {'id': 34, 'text': 'O aplicativo possui potencial educacional.'},
     ],
     'Intérprete de Libras': [
-      {'id': 39, 'text': 'Os sinais apresentados são adequados para uso em contexto profissional.'},
-      {'id': 40, 'text': 'O aplicativo pode ser útil para atualização do vocabulário técnico.'},
-      {'id': 41, 'text': 'Recomendaria o uso deste aplicativo aos alunos que atendo.'},
+      {'id': 35, 'text': 'Os sinais apresentados são adequados.'},
+      {'id': 36, 'text': 'A comunicação em Libras é clara.'},
+      {'id': 37, 'text': 'Os vídeos apresentam boa qualidade linguística.'},
+      {'id': 38, 'text': 'Os conceitos foram representados adequadamente em Libras.'},
+    ],
+    'Profissional da Contabilidade': [
+      {'id': 39, 'text': 'Os conceitos contábeis apresentados estão corretos.'},
+      {'id': 40, 'text': 'A terminologia utilizada é adequada.'},
+      {'id': 41, 'text': 'O conteúdo possui relevância para a área contábil.'},
+      {'id': 42, 'text': 'O aplicativo possui potencial para apoiar o ensino de contabilidade.'},
     ],
   };
 
@@ -405,10 +404,9 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
 
   String _categoryLabel(String category) {
     const labels = {
-      'Estudante': 'Estudantes',
       'Professor': 'Professores',
-      'Pessoa surda': 'Pessoas Surdas',
       'Intérprete de Libras': 'Intérpretes de Libras',
+      'Profissional da Contabilidade': 'Profissionais da Contabilidade',
     };
     return labels[category] ?? category;
   }
