@@ -25,6 +25,7 @@ from charts import (
     chart_avaliacao_geral,
     chart_likert_horizontal,
     chart_faixa_etaria,
+    chart_pizza_pergunta,
     LIKERT_NOMES,
 )
 
@@ -268,6 +269,31 @@ if secoes_com_dados:
     )
 else:
     st.info("Nenhuma questão Likert disponível para o filtro selecionado.")
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
+# Distribuição por pergunta (pizza) — todos os respondentes
+# ---------------------------------------------------------------------------
+
+st.subheader("Distribuição de Respostas por Pergunta (Pizza)")
+st.caption("Escolha uma pergunta e veja como todos os respondentes filtrados responderam a ela.")
+
+if q_cols:
+    opcoes_pergunta = sorted(q_cols, key=lambda q: int(q[1:]))
+    pergunta_selecionada = st.selectbox(
+        "Pergunta",
+        opcoes_pergunta,
+        format_func=lambda q: f"{q.upper()} — {LABELS_QUESTOES.get(q, q)}",
+    )
+    st.plotly_chart(
+        chart_pizza_pergunta(df_wide, pergunta_selecionada),
+        use_container_width=True,
+    )
+    st.caption(FULL_QUESTOES.get(pergunta_selecionada, ""))
+else:
+    st.info("Nenhuma questão disponível para o filtro selecionado.")
 
 st.divider()
 

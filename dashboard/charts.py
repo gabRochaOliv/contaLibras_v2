@@ -218,6 +218,41 @@ def chart_faixa_etaria(df_wide: pd.DataFrame):
     return fig
 
 
+def chart_pizza_pergunta(df_wide: pd.DataFrame, questao: str):
+    """Pizza com a distribuição de respostas (1-5) de UMA pergunta, entre todos os respondentes."""
+    label = LABELS_QUESTOES.get(questao, questao)
+
+    if questao not in df_wide.columns:
+        fig = go.Figure()
+        fig.update_layout(title=f"{questao} — sem respostas", height=380)
+        return fig
+
+    serie = df_wide[questao].dropna()
+    if serie.empty:
+        fig = go.Figure()
+        fig.update_layout(title=f"{questao} — sem respostas", height=380)
+        return fig
+
+    contagem = serie.value_counts().reindex([1, 2, 3, 4, 5], fill_value=0)
+    valores_presentes = [n for n in range(1, 6) if contagem[n] > 0]
+
+    fig = go.Figure(go.Pie(
+        labels=[f"{n} — {LIKERT_NOMES[str(n)]}" for n in valores_presentes],
+        values=[int(contagem[n]) for n in valores_presentes],
+        marker_colors=[LIKERT_CORES[str(n)] for n in valores_presentes],
+        textinfo="percent+value",
+        hovertemplate="%{label}: %{value} resposta(s) (%{percent})<extra></extra>",
+        sort=False,
+    ))
+    fig.update_layout(
+        title=f"{questao.upper()} — {label}",
+        height=380,
+        margin=dict(t=60, b=20, l=10, r=10),
+        legend=dict(orientation="v", yanchor="middle", y=0.5, x=1.02, font_size=11),
+    )
+    return fig
+
+
 # ---------------------------------------------------------------------------
 # Gráficos existentes — mantidos para retrocompatibilidade com testes
 # ---------------------------------------------------------------------------
