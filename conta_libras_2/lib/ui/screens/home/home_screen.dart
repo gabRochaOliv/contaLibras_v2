@@ -7,6 +7,7 @@ import '../../../data/managers/progress_manager.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 import '../../widgets/evaluation_dialog.dart';
+import '../../widgets/looping_asset_video.dart';
 
 import '../../../data/models/term_model.dart';
 
@@ -43,9 +44,9 @@ class HomeScreen extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/images/acenando-removebg-preview.png',
-                  height: 140,
+                const LoopingAssetVideo(
+                  assetPath: 'assets/images/acenandoVideo.mp4',
+                  size: 140,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -98,12 +99,16 @@ class HomeScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Termos Explorados',
-                            style: AppTextStyles.heading3.copyWith(
-                              color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary
+                          Flexible(
+                            child: Text(
+                              'Termos Explorados',
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.heading3.copyWith(
+                                color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Icon(Icons.emoji_events_rounded, color: Colors.amber.shade600, size: 28),
                         ],
                       ),

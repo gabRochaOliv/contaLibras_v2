@@ -197,6 +197,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                           // Campo Categoria
                           DropdownButtonFormField<String>(
                             value: _selectedCategory,
+                            isExpanded: true,
                             dropdownColor: AppColors.surface,
                             style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
                             decoration: InputDecoration(
@@ -218,7 +219,11 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                             items: _categories.map((category) {
                               return DropdownMenuItem(
                                 value: category,
-                                child: Text(category),
+                                child: Text(
+                                  category,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               );
                             }).toList(),
                             onChanged: (value) {
@@ -238,6 +243,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                           // Campo Escolaridade
                           DropdownButtonFormField<String>(
                             value: _selectedEscolaridade,
+                            isExpanded: true,
                             dropdownColor: AppColors.surface,
                             style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
                             decoration: InputDecoration(
@@ -259,7 +265,11 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                             items: _escolaridades.map((escolaridade) {
                               return DropdownMenuItem(
                                 value: escolaridade,
-                                child: Text(escolaridade),
+                                child: Text(
+                                  escolaridade,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               );
                             }).toList(),
                             onChanged: (value) {
@@ -279,6 +289,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                           // Campo Uso de Libras
                           DropdownButtonFormField<bool>(
                             value: _usaLibras,
+                            isExpanded: true,
                             dropdownColor: AppColors.surface,
                             style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
                             decoration: InputDecoration(
@@ -318,6 +329,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                           // Campo Conhecimento em Libras
                           DropdownButtonFormField<String>(
                             value: _selectedConhecimentoLibras,
+                            isExpanded: true,
                             dropdownColor: AppColors.surface,
                             style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
                             decoration: InputDecoration(
@@ -339,7 +351,11 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                             items: _niveisConhecimentoLibras.map((nivel) {
                               return DropdownMenuItem(
                                 value: nivel,
-                                child: Text(nivel),
+                                child: Text(
+                                  nivel,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               );
                             }).toList(),
                             onChanged: (value) {

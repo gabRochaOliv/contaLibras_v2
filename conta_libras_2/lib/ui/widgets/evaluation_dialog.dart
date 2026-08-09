@@ -3,6 +3,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/services/feedback_service.dart';
 import '../../data/managers/user_manager.dart';
+import 'evaluation_success_dialog.dart';
 
 class EvaluationDialog extends StatefulWidget {
   const EvaluationDialog({
@@ -212,17 +213,12 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
         _showError = true;
       });
     } else {
-      final messenger = ScaffoldMessenger.of(context);
-      Navigator.of(context).pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            'Obrigado pela sua avaliação e contribuição à pesquisa!',
-            style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
-          ),
-          backgroundColor: AppColors.primary,
-          behavior: SnackBarBehavior.floating,
-        ),
+      final navigator = Navigator.of(context);
+      navigator.pop();
+      showDialog(
+        context: navigator.context,
+        barrierDismissible: true,
+        builder: (_) => const EvaluationSuccessDialog(),
       );
     }
   }
@@ -347,8 +343,14 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: isOpenQuestionsPage
                     ? _openQuestions.map((q) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 20.0),
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16.0),
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.divider),
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -357,7 +359,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                                 style: AppTextStyles.bodyLarge
                                     .copyWith(fontWeight: FontWeight.bold),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 12),
                               TextField(
                                 controller: _openControllers[q['key']],
                                 maxLines: 3,
@@ -376,8 +378,14 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                         );
                       }).toList()
                     : questions.map((q) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 24.0),
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16.0),
+                          padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.divider),
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -386,7 +394,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                                 style: AppTextStyles.bodyLarge
                                     .copyWith(fontWeight: FontWeight.bold),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 22),
                               _buildLikertScale(q['id'] as int),
                             ],
                           ),
@@ -462,66 +470,77 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   }
 
   Widget _buildLikertScale(int questionIndex) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(5, (index) {
-            final value = index + 1;
-            final isSelected = _answers[questionIndex] == value;
-            return Semantics(
-              label: 'Opção $value de 5',
-              child: GestureDetector(
-                onTap: () => _selectAnswer(questionIndex, value),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary : AppColors.surface,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? AppColors.primary : AppColors.divider,
-                      width: 2,
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: AppColors.primary.withOpacity(0.3),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                            ),
-                          ]
-                        : null,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    value.toString(),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Shrink the circles on narrow screens so 5 of them always fit
+        // instead of overflowing the row.
+        final circleSize = (constraints.maxWidth / 5 - 8).clamp(34.0, 50.0);
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Discordo\nTotalmente',
-                textAlign: TextAlign.left,
-                style: AppTextStyles.label.copyWith(fontSize: 10)),
-            Text('Concordo\nTotalmente',
-                textAlign: TextAlign.right,
-                style: AppTextStyles.label.copyWith(fontSize: 10)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(5, (index) {
+                final value = index + 1;
+                final isSelected = _answers[questionIndex] == value;
+                return Semantics(
+                  label: 'Opção $value de 5',
+                  child: GestureDetector(
+                    onTap: () => _selectAnswer(questionIndex, value),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: circleSize,
+                      height: circleSize,
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColors.primary : AppColors.surface,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected ? AppColors.primary : AppColors.divider,
+                          width: 2,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  spreadRadius: 2,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        value.toString(),
+                        style: TextStyle(
+                          fontSize: circleSize < 42 ? 15 : 18,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text('Discordo\nTotalmente',
+                      textAlign: TextAlign.left,
+                      style: AppTextStyles.label.copyWith(fontSize: 10)),
+                ),
+                Flexible(
+                  child: Text('Concordo\nTotalmente',
+                      textAlign: TextAlign.right,
+                      style: AppTextStyles.label.copyWith(fontSize: 10)),
+                ),
+              ],
+            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -629,19 +648,25 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isCompact = screenSize.width < 680;
+    final dialogWidth = isCompact ? screenSize.width * 0.94 : 640.0;
+    final dialogHeight = screenSize.height * (isCompact ? 0.92 : 0.9);
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 0,
       backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isCompact ? 12 : 24,
+        vertical: 24,
+      ),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: _hasAcceptedTerms
-            ? MediaQuery.of(context).size.height * 0.85
-            : MediaQuery.of(context).size.height * 0.8,
-        width: 500,
-        constraints:
-            BoxConstraints(maxHeight: _hasAcceptedTerms ? 700 : 650),
+        height: dialogHeight,
+        width: dialogWidth,
+        constraints: const BoxConstraints(maxHeight: 860, maxWidth: 640),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
