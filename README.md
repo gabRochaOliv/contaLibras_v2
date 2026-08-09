@@ -4,10 +4,16 @@
 
 O **ContaLibras** é uma aplicação desenvolvida com **Flutter** que foi iniciada em 2024 como parte de um projeto acadêmico em **Ciência da Computação** e agora serve como base para o **Trabalho de Conclusão de Curso (TCC)**.
 
-## 🌐 Acesse a aplicação
+## 🌐 Acesso das aplicações
 
-A aplicação está disponível em produção:  
+ContaLibras:  
+
 **[🔗 https://conta-libras.vercel.app/](https://conta-libras.vercel.app/)**
+
+Dashboard de análise de Dados:
+
+**[🔗 https://dashboard-contalibras.streamlit.app/]( https://dashboard-contalibras.streamlit.app/)**
+
 
 ## 🚀 Como executar localmente
 
