@@ -5,5 +5,5 @@ class AppConstants {
 
   static String get apiBaseUrl => kDebugMode
       ? 'http://localhost:8000'
-      : 'https://contalibrasv2-production.up.railway.app';
+      : 'https://conta-libras.vercel.app/api/main';
 }

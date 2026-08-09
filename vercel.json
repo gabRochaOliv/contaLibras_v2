@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/api/main"
+    },
+    {
       "source": "/((?!.*\\.).*)",
       "destination": "/conta_libras_2/build/web/index.html"
     },

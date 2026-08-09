@@ -46078,7 +46078,7 @@ i=$.i_()
 h=t.N
 l=A.ay(["nome",i.a,"idade",i.c,"categoria",i.b,"escolaridade",i.d,"usa_libras",i.e,"conhecimento_libras",i.f,"respostas",a.gel().fR(0,new A.a2n(),t._P).eu(0),"timestamp",new A.fg(Date.now(),!1).art()],h,t.K)
 s=6
-return A.S(m.tn("POST",A.h8("https://contalibrasv2-production.up.railway.app/feedback",0,null),A.ay(["Content-Type","application/json; charset=UTF-8"],h,h),B.dg.V0(l,null),null),$async$wF)
+return A.S(m.tn("POST",A.h8("https://conta-libras.vercel.app/api/main/feedback",0,null),A.ay(["Content-Type","application/json; charset=UTF-8"],h,h),B.dg.V0(l,null),null),$async$wF)
 case 6:k=c
 if(k.b<200||k.b>=300){i=A.cy("HTTP "+k.b)
 throw A.d(i)}o.push(5)
