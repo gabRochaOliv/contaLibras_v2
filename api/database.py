@@ -1,44 +1,32 @@
 import os
-import psycopg2
-from psycopg2.extras import Json
+import requests
 from dotenv import load_dotenv
-from urllib.parse import urlparse
 
 load_dotenv()
 
 
-def get_connection():
-    url = urlparse(os.environ["DATABASE_URL"])
-    return psycopg2.connect(
-        host=url.hostname,
-        port=url.port,
-        database=url.path.lstrip("/"),
-        user=url.username,
-        password=url.password,
-    )
-
-
 def insert_feedback(payload):
     respostas_json = [r.model_dump() for r in payload.respostas]
-    conn = get_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                INSERT INTO feedbacks
-                    (nome, idade, categoria, escolaridade, usa_libras, conhecimento_libras, respostas)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    payload.nome,
-                    payload.idade,
-                    payload.categoria,
-                    payload.escolaridade,
-                    payload.usa_libras,
-                    payload.conhecimento_libras,
-                    Json(respostas_json),
-                ),
-            )
-        conn.commit()
-    finally:
-        conn.close()
+    supabase_url = os.environ["SUPABASE_URL"]
+    supabase_key = os.environ["SUPABASE_ANON_KEY"]
+
+    response = requests.post(
+        f"{supabase_url}/rest/v1/feedbacks",
+        headers={
+            "apikey": supabase_key,
+            "Authorization": f"Bearer {supabase_key}",
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal",
+        },
+        json={
+            "nome": payload.nome,
+            "idade": payload.idade,
+            "categoria": payload.categoria,
+            "escolaridade": payload.escolaridade,
+            "usa_libras": payload.usa_libras,
+            "conhecimento_libras": payload.conhecimento_libras,
+            "respostas": respostas_json,
+        },
+        timeout=10,
+    )
+    response.raise_for_status()

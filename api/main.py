@@ -19,11 +19,13 @@ app.add_middleware(
 
 
 @app.get("/health")
+@app.get("/api/main/health")
 def health():
     return {"status": "ok"}
 
 
 @app.post("/feedback", status_code=201)
+@app.post("/api/main/feedback", status_code=201)
 def post_feedback(payload: FeedbackPayload):
     try:
         insert_feedback(payload)

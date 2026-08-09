@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/main.py": {
+      "excludeFiles": "{conta_libras_2,dashboard,Feedback,.planning}/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
