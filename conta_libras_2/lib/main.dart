@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
+import 'core/app_messenger.dart';
 import 'ui/screens/splash/splash_screen.dart';
 import 'data/managers/theme_manager.dart';
 
@@ -17,6 +18,7 @@ class ContaLibrasApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           title: 'ContaLibras',
+          scaffoldMessengerKey: appMessengerKey,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeManager().themeMode,

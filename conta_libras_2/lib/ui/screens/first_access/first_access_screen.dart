@@ -5,6 +5,7 @@ import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../data/services/profile_storage_service.dart';
+import '../../../core/app_messenger.dart';
 import '../main/main_screen.dart';
 
 class FirstAccessScreen extends StatefulWidget {
@@ -79,8 +80,9 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
       try {
         await _storage.saveProfile(profile);
         await _storage.setActiveProfileId(profile.id);
-      } catch (_) {
-        // Sem cache local desta vez; a sessão atual continua funcionando.
+      } catch (e) {
+        debugPrint('[ProfileStorage] falha ao salvar perfil: $e');
+        showAppMessage('Não foi possível salvar seu perfil neste navegador (erro: $e)');
       }
     }
   }

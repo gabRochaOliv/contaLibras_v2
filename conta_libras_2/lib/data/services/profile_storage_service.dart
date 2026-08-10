@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_profile.dart';
@@ -20,7 +21,8 @@ class ProfileStorageService {
       return raw
           .map((item) => UserProfile.fromJson(jsonDecode(item) as Map<String, dynamic>))
           .toList();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[ProfileStorage] falha ao carregar perfis: $e');
       return [];
     }
   }
@@ -67,7 +69,8 @@ class ProfileStorageService {
     try {
       final prefs = await _prefs();
       return prefs.getString(_activeProfileIdKey);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[ProfileStorage] falha ao ler perfil ativo: $e');
       return null;
     }
   }
