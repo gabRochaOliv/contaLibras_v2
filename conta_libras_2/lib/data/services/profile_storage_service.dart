@@ -7,17 +7,26 @@ import '../models/user_profile.dart';
 class ProfileStorageService {
   static const _profilesKey = 'contalibras_profiles';
   static const _activeProfileIdKey = 'contalibras_active_profile_id';
+  static const _timeout = Duration(seconds: 4);
+
+  Future<SharedPreferences> _prefs() {
+    return SharedPreferences.getInstance().timeout(_timeout);
+  }
 
   Future<List<UserProfile>> loadProfiles() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getStringList(_profilesKey) ?? [];
-    return raw
-        .map((item) => UserProfile.fromJson(jsonDecode(item) as Map<String, dynamic>))
-        .toList();
+    try {
+      final prefs = await _prefs();
+      final raw = prefs.getStringList(_profilesKey) ?? [];
+      return raw
+          .map((item) => UserProfile.fromJson(jsonDecode(item) as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return [];
+    }
   }
 
   Future<void> saveProfile(UserProfile profile) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs();
     final profiles = await loadProfiles();
     final index = profiles.indexWhere((p) => p.id == profile.id);
     if (index >= 0) {
@@ -32,7 +41,7 @@ class ProfileStorageService {
   }
 
   Future<void> deleteProfile(String id) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs();
     final profiles = await loadProfiles();
     profiles.removeWhere((p) => p.id == id);
     await prefs.setStringList(
@@ -45,17 +54,21 @@ class ProfileStorageService {
   }
 
   Future<void> setActiveProfileId(String id) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs();
     await prefs.setString(_activeProfileIdKey, id);
   }
 
   Future<void> clearActiveProfileId() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs();
     await prefs.remove(_activeProfileIdKey);
   }
 
   Future<String?> getActiveProfileId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_activeProfileIdKey);
+    try {
+      final prefs = await _prefs();
+      return prefs.getString(_activeProfileIdKey);
+    } catch (_) {
+      return null;
+    }
   }
 }

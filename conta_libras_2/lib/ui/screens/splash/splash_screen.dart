@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/managers/user_manager.dart';
+import '../../../data/models/user_profile.dart';
 import '../../../data/services/profile_storage_service.dart';
 import '../first_access/first_access_screen.dart';
 import '../main/main_screen.dart';
@@ -13,6 +14,13 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
+class _SplashState {
+  const _SplashState(this.activeId, this.profiles);
+
+  final String? activeId;
+  final List<UserProfile> profiles;
+}
+
 class _SplashScreenState extends State<SplashScreen> {
   final _storage = ProfileStorageService();
 
@@ -22,35 +30,40 @@ class _SplashScreenState extends State<SplashScreen> {
     _decideNextScreen();
   }
 
+  Future<_SplashState> _loadState() async {
+    try {
+      final activeId = await _storage.getActiveProfileId();
+      final profiles = await _storage.loadProfiles();
+      return _SplashState(activeId, profiles);
+    } catch (_) {
+      // Se o armazenamento local falhar por qualquer motivo, segue para o
+      // cadastro em vez de deixar a splash girando para sempre.
+      return const _SplashState(null, []);
+    }
+  }
+
   Future<void> _decideNextScreen() async {
-    final activeIdFuture = _storage.getActiveProfileId();
-    final profilesFuture = _storage.loadProfiles();
-    final results = await Future.wait([
-      activeIdFuture,
-      profilesFuture,
-      Future.delayed(const Duration(seconds: 3)),
+    final results = await Future.wait<Object?>([
+      _loadState(),
+      Future<void>.delayed(const Duration(seconds: 3)),
     ]);
     if (!mounted) return;
 
-    final activeId = results[0] as String?;
-    final profiles = results[1] as List;
+    final state = results[0] as _SplashState;
 
-    Widget next;
-    if (activeId != null) {
-      final match = profiles.where((p) => p.id == activeId);
+    Widget next = const FirstAccessScreen();
+    if (state.activeId != null) {
+      final match = state.profiles.where((p) => p.id == state.activeId);
       if (match.isNotEmpty) {
         UserManager().loadFromProfile(match.first);
         next = const MainScreen();
-      } else {
-        next = profiles.isEmpty ? const FirstAccessScreen() : const ProfileSelectionScreen();
+      } else if (state.profiles.isNotEmpty) {
+        next = const ProfileSelectionScreen();
       }
-    } else if (profiles.isNotEmpty) {
+    } else if (state.profiles.isNotEmpty) {
       next = const ProfileSelectionScreen();
-    } else {
-      next = const FirstAccessScreen();
     }
 
-    if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => next),
