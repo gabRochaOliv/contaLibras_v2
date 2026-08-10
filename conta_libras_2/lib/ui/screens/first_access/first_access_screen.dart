@@ -3,6 +3,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
+import '../../../data/models/user_profile.dart';
+import '../../../data/services/profile_storage_service.dart';
 import '../main/main_screen.dart';
 
 class FirstAccessScreen extends StatefulWidget {
@@ -49,18 +51,28 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
     super.dispose();
   }
 
-  void _submit() {
+  final _storage = ProfileStorageService();
+
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      UserManager().setUserData(
-        _nameController.text.trim(),
-        _selectedCategory ?? '',
-        int.tryParse(_ageController.text.trim()) ?? 0,
+      final profile = UserProfile(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        name: _nameController.text.trim(),
+        category: _selectedCategory ?? '',
+        age: int.tryParse(_ageController.text.trim()) ?? 0,
         escolaridade: _selectedEscolaridade ?? '',
         usaLibras: _usaLibras ?? false,
         conhecimentoLibras: _selectedConhecimentoLibras ?? '',
       );
-      Navigator.of(context).pushReplacement(
+
+      await _storage.saveProfile(profile);
+      await _storage.setActiveProfileId(profile.id);
+      UserManager().loadFromProfile(profile);
+
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainScreen()),
+        (route) => false,
       );
     }
   }

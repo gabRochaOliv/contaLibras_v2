@@ -3,9 +3,43 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
+import '../../../data/services/profile_storage_service.dart';
+import '../profile_selection/profile_selection_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _logout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sair'),
+        content: const Text(
+          'Deseja sair deste perfil? Seus dados continuam salvos neste dispositivo.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Sair', style: TextStyle(color: AppColors.accent)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    await ProfileStorageService().clearActiveProfileId();
+    UserManager().clear();
+
+    if (!context.mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const ProfileSelectionScreen()),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +120,15 @@ class ProfileScreen extends StatelessWidget {
                 title: Text('Sobre o App', style: AppTextStyles.bodyLarge),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () {},
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.logout_rounded, color: AppColors.accent),
+                title: Text(
+                  'Sair',
+                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.accent),
+                ),
+                onTap: () => _logout(context),
               ),
         ],
       ),

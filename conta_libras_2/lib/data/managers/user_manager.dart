@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/user_profile.dart';
+
 class UserManager extends ChangeNotifier {
   static final UserManager _instance = UserManager._internal();
 
@@ -9,6 +11,7 @@ class UserManager extends ChangeNotifier {
 
   UserManager._internal();
 
+  String _userId = '';
   String _userName = 'Estudante';
   String _userCategory = 'Estudante de Contábeis';
   int _userAge = 0;
@@ -16,6 +19,7 @@ class UserManager extends ChangeNotifier {
   bool _userUsaLibras = false;
   String _userConhecimentoLibras = '';
 
+  String get userId => _userId;
   String get userName => _userName;
   String get userCategory => _userCategory;
   int get userAge => _userAge;
@@ -24,6 +28,7 @@ class UserManager extends ChangeNotifier {
   String get userConhecimentoLibras => _userConhecimentoLibras;
 
   void setUserData(
+    String id,
     String name,
     String category,
     int age, {
@@ -31,12 +36,46 @@ class UserManager extends ChangeNotifier {
     bool usaLibras = false,
     String conhecimentoLibras = '',
   }) {
+    _userId = id;
     _userName = name;
     _userCategory = category.isNotEmpty ? category : 'Estudante de Contábeis';
     _userAge = age;
     _userEscolaridade = escolaridade;
     _userUsaLibras = usaLibras;
     _userConhecimentoLibras = conhecimentoLibras;
+    notifyListeners();
+  }
+
+  void loadFromProfile(UserProfile profile) {
+    setUserData(
+      profile.id,
+      profile.name,
+      profile.category,
+      profile.age,
+      escolaridade: profile.escolaridade,
+      usaLibras: profile.usaLibras,
+      conhecimentoLibras: profile.conhecimentoLibras,
+    );
+  }
+
+  UserProfile toProfile() => UserProfile(
+        id: _userId,
+        name: _userName,
+        category: _userCategory,
+        age: _userAge,
+        escolaridade: _userEscolaridade,
+        usaLibras: _userUsaLibras,
+        conhecimentoLibras: _userConhecimentoLibras,
+      );
+
+  void clear() {
+    _userId = '';
+    _userName = 'Estudante';
+    _userCategory = 'Estudante de Contábeis';
+    _userAge = 0;
+    _userEscolaridade = '';
+    _userUsaLibras = false;
+    _userConhecimentoLibras = '';
     notifyListeners();
   }
 }
