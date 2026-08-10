@@ -3,9 +3,7 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {".vercel/project.json": "2e4ac77df10a1eb5fd1ac043828a3779",
-".vercel/README.txt": "2b13c79d37d6ed82a3255b83b6815034",
-"assets/AssetManifest.bin": "cd92c969e6b5df695d5bc25f48ccc87b",
+const RESOURCES = {"assets/AssetManifest.bin": "cd92c969e6b5df695d5bc25f48ccc87b",
 "assets/AssetManifest.bin.json": "5bfe2d9b7390f2f19cac0dbc2ef52cfc",
 "assets/AssetManifest.json": "ade0f5ce993c00253fe830dc264c0751",
 "assets/assets/images/acenando-removebg-preview.png": "1d1146022b08f2fae36ed56e1c393ad8",
@@ -57,11 +55,10 @@ const RESOURCES = {".vercel/project.json": "2e4ac77df10a1eb5fd1ac043828a3779",
 "icons/Icon-512.png": "9031074ec8e55d0891d414554d8ecbfc",
 "icons/Icon-maskable-192.png": "9031074ec8e55d0891d414554d8ecbfc",
 "icons/Icon-maskable-512.png": "9031074ec8e55d0891d414554d8ecbfc",
-"index.html": "393fe2d29b19687c7100b4a18cc3820b",
-"/": "393fe2d29b19687c7100b4a18cc3820b",
-"main.dart.js": "eae043a1caee40fa4efae96ea42a1b83",
+"index.html": "8047c89735a168923378ed32d3a17f46",
+"/": "8047c89735a168923378ed32d3a17f46",
+"main.dart.js": "ec4558079eac74a3b8f9157c224c7bbb",
 "manifest.json": "11880fb1a59b88afe7d07c7313f685ae",
-"vercel.json": "04931cd94cdf833a2260b605140b985f",
 "version.json": "9e798cb13f517e71bc1ef74d6f2ffb2a"};
 // The application shell files that are downloaded before a service worker can
 // start.
