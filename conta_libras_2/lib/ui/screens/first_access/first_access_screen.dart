@@ -65,8 +65,6 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
         conhecimentoLibras: _selectedConhecimentoLibras ?? '',
       );
 
-      await _storage.saveProfile(profile);
-      await _storage.setActiveProfileId(profile.id);
       UserManager().loadFromProfile(profile);
 
       if (!mounted) return;
@@ -74,6 +72,16 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
         MaterialPageRoute(builder: (_) => const MainScreen()),
         (route) => false,
       );
+
+      // Salvar localmente é um "melhor esforço": se o armazenamento do
+      // navegador falhar ou travar, o usuário já está navegando e não
+      // fica preso esperando o clique responder.
+      try {
+        await _storage.saveProfile(profile);
+        await _storage.setActiveProfileId(profile.id);
+      } catch (_) {
+        // Sem cache local desta vez; a sessão atual continua funcionando.
+      }
     }
   }
 

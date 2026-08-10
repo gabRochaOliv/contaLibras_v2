@@ -31,7 +31,6 @@ class ProfileScreen extends StatelessWidget {
     );
     if (confirmed != true) return;
 
-    await ProfileStorageService().clearActiveProfileId();
     UserManager().clear();
 
     if (!context.mounted) return;
@@ -39,6 +38,12 @@ class ProfileScreen extends StatelessWidget {
       MaterialPageRoute(builder: (_) => const ProfileSelectionScreen()),
       (route) => false,
     );
+
+    try {
+      await ProfileStorageService().clearActiveProfileId();
+    } catch (_) {
+      // Sessão local já foi encerrada mesmo que a persistência falhe.
+    }
   }
 
   @override

@@ -36,17 +36,30 @@ class _ProfileSelectionScreenState extends State<ProfileSelectionScreen> {
   }
 
   Future<void> _selectProfile(UserProfile profile) async {
-    await _storage.setActiveProfileId(profile.id);
     UserManager().loadFromProfile(profile);
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const MainScreen()),
       (route) => false,
     );
+
+    try {
+      await _storage.setActiveProfileId(profile.id);
+    } catch (_) {
+      // Sessão atual segue normalmente mesmo sem conseguir persistir.
+    }
   }
 
   Future<void> _deleteProfile(UserProfile profile) async {
-    await _storage.deleteProfile(profile.id);
+    try {
+      await _storage.deleteProfile(profile.id);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível remover o perfil. Tente novamente.')),
+        );
+      }
+    }
     _loadProfiles();
   }
 
