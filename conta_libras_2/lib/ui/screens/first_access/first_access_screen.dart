@@ -16,7 +16,13 @@ class FirstAccessScreen extends StatefulWidget {
 }
 
 class _FirstAccessScreenState extends State<FirstAccessScreen> {
-  final _formKey = GlobalKey<FormState>();
+  static const int _totalSteps = 2;
+
+  final List<GlobalKey<FormState>> _formKeys =
+      List.generate(_totalSteps, (_) => GlobalKey<FormState>());
+
+  int _currentStep = 0;
+
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   String? _selectedCategory;
@@ -54,43 +60,263 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
 
   final _storage = ProfileStorageService();
 
+  void _goToNextStep() {
+    final isValid = _formKeys[_currentStep].currentState!.validate();
+    if (!isValid) return;
+
+    if (_currentStep < _totalSteps - 1) {
+      setState(() => _currentStep++);
+    } else {
+      _submit();
+    }
+  }
+
+  void _goToPreviousStep() {
+    if (_currentStep == 0) return;
+    setState(() => _currentStep--);
+  }
+
   Future<void> _submit() async {
-    if (_formKey.currentState!.validate()) {
-      final profile = UserProfile(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _nameController.text.trim(),
-        category: _selectedCategory ?? '',
-        age: int.tryParse(_ageController.text.trim()) ?? 0,
-        escolaridade: _selectedEscolaridade ?? '',
-        usaLibras: _usaLibras ?? false,
-        conhecimentoLibras: _selectedConhecimentoLibras ?? '',
-      );
+    final profile = UserProfile(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: _nameController.text.trim(),
+      category: _selectedCategory ?? '',
+      age: int.tryParse(_ageController.text.trim()) ?? 0,
+      escolaridade: _selectedEscolaridade ?? '',
+      usaLibras: _usaLibras ?? false,
+      conhecimentoLibras: _selectedConhecimentoLibras ?? '',
+    );
 
-      UserManager().loadFromProfile(profile);
+    UserManager().loadFromProfile(profile);
 
-      if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-        (route) => false,
-      );
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+      (route) => false,
+    );
 
-      // Salvar localmente é um "melhor esforço": se o armazenamento do
-      // navegador falhar ou travar, o usuário já está navegando e não
-      // fica preso esperando o clique responder.
-      try {
-        await _storage.saveProfile(profile);
-        await _storage.setActiveProfileId(profile.id);
-      } catch (e) {
-        debugPrint('[ProfileStorage] falha ao salvar perfil: $e');
-        showAppMessage('Não foi possível salvar seu perfil neste navegador (erro: $e)');
-      }
+    // Salvar localmente é um "melhor esforço": se o armazenamento do
+    // navegador falhar ou travar, o usuário já está navegando e não
+    // fica preso esperando o clique responder.
+    try {
+      await _storage.saveProfile(profile);
+      await _storage.setActiveProfileId(profile.id);
+    } catch (e) {
+      debugPrint('[ProfileStorage] falha ao salvar perfil: $e');
+      showAppMessage('Não foi possível salvar seu perfil neste navegador (erro: $e)');
+    }
+  }
+
+  InputDecoration _fieldDecoration({required String label, required IconData icon}) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: AppColors.secondary),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: AppColors.divider),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    );
+  }
+
+  String get _stepTitle {
+    switch (_currentStep) {
+      case 0:
+        return 'Vamos te conhecer';
+      default:
+        return 'Sua relação com a Libras';
+    }
+  }
+
+  String get _stepSubtitle {
+    switch (_currentStep) {
+      case 0:
+        return 'Conte um pouco sobre você.';
+      default:
+        return 'Isso nos ajuda a personalizar seu aprendizado.';
+    }
+  }
+
+  Widget _buildProgressIndicator() {
+    return Row(
+      children: List.generate(_totalSteps, (index) {
+        final isActive = index <= _currentStep;
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: index == _totalSteps - 1 ? 0 : 8),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              height: 6,
+              decoration: BoxDecoration(
+                color: isActive ? AppColors.primary : AppColors.divider,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildPersonalInfoStep() {
+    return Form(
+      key: _formKeys[0],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            controller: _nameController,
+            style: TextStyle(color: AppColors.textPrimary),
+            decoration: _fieldDecoration(label: 'Apelido ou nome', icon: Icons.person_outline_rounded),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Por favor, insira seu nome';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            controller: _ageController,
+            keyboardType: TextInputType.number,
+            style: TextStyle(color: AppColors.textPrimary),
+            decoration: _fieldDecoration(label: 'Idade', icon: Icons.cake_outlined),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Por favor, insira sua idade';
+              }
+              if (int.tryParse(value) == null) {
+                return 'Por favor, insira uma idade válida';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 20),
+          DropdownButtonFormField<String>(
+            value: _selectedCategory,
+            isExpanded: true,
+            dropdownColor: AppColors.surface,
+            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+            decoration: _fieldDecoration(label: 'Categoria/perfil do usuário', icon: Icons.school_outlined),
+            items: _categories.map((category) {
+              return DropdownMenuItem(
+                value: category,
+                child: Text(category, overflow: TextOverflow.ellipsis, maxLines: 1),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() => _selectedCategory = value);
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, selecione seu perfil';
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLibrasStep() {
+    return Form(
+      key: _formKeys[1],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DropdownButtonFormField<String>(
+            value: _selectedEscolaridade,
+            isExpanded: true,
+            dropdownColor: AppColors.surface,
+            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+            decoration: _fieldDecoration(label: 'Escolaridade', icon: Icons.menu_book_outlined),
+            items: _escolaridades.map((escolaridade) {
+              return DropdownMenuItem(
+                value: escolaridade,
+                child: Text(escolaridade, overflow: TextOverflow.ellipsis, maxLines: 1),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() => _selectedEscolaridade = value);
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, selecione sua escolaridade';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 20),
+          DropdownButtonFormField<bool>(
+            value: _usaLibras,
+            isExpanded: true,
+            dropdownColor: AppColors.surface,
+            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+            decoration: _fieldDecoration(label: 'Você utiliza Libras?', icon: Icons.sign_language_outlined),
+            items: const [
+              DropdownMenuItem(value: true, child: Text('Sim')),
+              DropdownMenuItem(value: false, child: Text('Não')),
+            ],
+            onChanged: (value) {
+              setState(() => _usaLibras = value);
+            },
+            validator: (value) {
+              if (value == null) {
+                return 'Por favor, informe se você utiliza Libras';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 20),
+          DropdownButtonFormField<String>(
+            value: _selectedConhecimentoLibras,
+            isExpanded: true,
+            dropdownColor: AppColors.surface,
+            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+            decoration: _fieldDecoration(label: 'Conhecimento em Libras', icon: Icons.bar_chart_outlined),
+            items: _niveisConhecimentoLibras.map((nivel) {
+              return DropdownMenuItem(
+                value: nivel,
+                child: Text(nivel, overflow: TextOverflow.ellipsis, maxLines: 1),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() => _selectedConhecimentoLibras = value);
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, selecione seu nível de conhecimento em Libras';
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurrentStep() {
+    switch (_currentStep) {
+      case 0:
+        return _buildPersonalInfoStep();
+      default:
+        return _buildLibrasStep();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ThemeManager().isDarkMode;
-    
+    final isLastStep = _currentStep == _totalSteps - 1;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -110,7 +336,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Card de Cadastro
                   Container(
                     padding: const EdgeInsets.all(32.0),
@@ -119,8 +345,8 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: isDarkMode 
-                              ? Colors.black.withOpacity(0.3) 
+                          color: isDarkMode
+                              ? Colors.black.withOpacity(0.3)
                               : Colors.black.withOpacity(0.04),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
@@ -131,292 +357,97 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                         width: 1,
                       ),
                     ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'Seja bem-vindo(a)!',
-                            style: AppTextStyles.heading2.copyWith(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildProgressIndicator(),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Etapa ${_currentStep + 1} de $_totalSteps',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Preencha seus dados para personalizar sua experiência no app.',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                            textAlign: TextAlign.center,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          _stepTitle,
+                          style: AppTextStyles.heading2.copyWith(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(height: 32),
-                          
-                          // Campo Nome
-                          TextFormField(
-                            controller: _nameController,
-                            style: TextStyle(color: AppColors.textPrimary),
-                            decoration: InputDecoration(
-                              labelText: 'Apelido ou nome',
-                              prefixIcon: const Icon(Icons.person_outline_rounded, color: AppColors.secondary),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: AppColors.divider),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Por favor, insira seu nome';
-                              }
-                              return null;
-                            },
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _stepSubtitle,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
                           ),
-                          const SizedBox(height: 20),
-                          
-                          // Campo Idade
-                          TextFormField(
-                            controller: _ageController,
-                            keyboardType: TextInputType.number,
-                            style: TextStyle(color: AppColors.textPrimary),
-                            decoration: InputDecoration(
-                              labelText: 'Idade',
-                              prefixIcon: const Icon(Icons.cake_outlined, color: AppColors.secondary),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: AppColors.divider),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Por favor, insira sua idade';
-                              }
-                              if (int.tryParse(value) == null) {
-                                return 'Por favor, insira uma idade válida';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          
-                          // Campo Categoria
-                          DropdownButtonFormField<String>(
-                            value: _selectedCategory,
-                            isExpanded: true,
-                            dropdownColor: AppColors.surface,
-                            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
-                            decoration: InputDecoration(
-                              labelText: 'Categoria/perfil do usuário',
-                              prefixIcon: const Icon(Icons.school_outlined, color: AppColors.secondary),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: AppColors.divider),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            ),
-                            items: _categories.map((category) {
-                              return DropdownMenuItem(
-                                value: category,
-                                child: Text(
-                                  category,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCategory = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Por favor, selecione seu perfil';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 32),
 
-                          // Campo Escolaridade
-                          DropdownButtonFormField<String>(
-                            value: _selectedEscolaridade,
-                            isExpanded: true,
-                            dropdownColor: AppColors.surface,
-                            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
-                            decoration: InputDecoration(
-                              labelText: 'Escolaridade',
-                              prefixIcon: const Icon(Icons.menu_book_outlined, color: AppColors.secondary),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: AppColors.divider),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            ),
-                            items: _escolaridades.map((escolaridade) {
-                              return DropdownMenuItem(
-                                value: escolaridade,
-                                child: Text(
-                                  escolaridade,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedEscolaridade = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Por favor, selecione sua escolaridade';
-                              }
-                              return null;
-                            },
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          child: Container(
+                            key: ValueKey(_currentStep),
+                            child: _buildCurrentStep(),
                           ),
-                          const SizedBox(height: 20),
+                        ),
+                        const SizedBox(height: 36),
 
-                          // Campo Uso de Libras
-                          DropdownButtonFormField<bool>(
-                            value: _usaLibras,
-                            isExpanded: true,
-                            dropdownColor: AppColors.surface,
-                            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
-                            decoration: InputDecoration(
-                              labelText: 'Você utiliza Libras?',
-                              prefixIcon: const Icon(Icons.sign_language_outlined, color: AppColors.secondary),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
+                        Row(
+                          children: [
+                            if (_currentStep > 0) ...[
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: _goToPreviousStep,
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 18),
+                                    side: BorderSide(color: AppColors.divider),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Voltar',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: AppColors.divider),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            ),
-                            items: const [
-                              DropdownMenuItem(value: true, child: Text('Sim')),
-                              DropdownMenuItem(value: false, child: Text('Não')),
+                              const SizedBox(width: 12),
                             ],
-                            onChanged: (value) {
-                              setState(() {
-                                _usaLibras = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Por favor, informe se você utiliza Libras';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
-
-                          // Campo Conhecimento em Libras
-                          DropdownButtonFormField<String>(
-                            value: _selectedConhecimentoLibras,
-                            isExpanded: true,
-                            dropdownColor: AppColors.surface,
-                            style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
-                            decoration: InputDecoration(
-                              labelText: 'Conhecimento em Libras',
-                              prefixIcon: const Icon(Icons.bar_chart_outlined, color: AppColors.secondary),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: AppColors.divider),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            ),
-                            items: _niveisConhecimentoLibras.map((nivel) {
-                              return DropdownMenuItem(
-                                value: nivel,
-                                child: Text(
-                                  nivel,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _goToNextStep,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  padding: const EdgeInsets.symmetric(vertical: 18),
+                                  elevation: 2,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                 ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedConhecimentoLibras = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Por favor, selecione seu nível de conhecimento em Libras';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 36),
-
-                          // Botão Continuar
-                          ElevatedButton(
-                            onPressed: _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                child: Text(
+                                  isLastStep ? 'Começar a Aprender' : 'Continuar',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
                               ),
                             ),
-                            child: const Text(
-                              'Começar a Aprender',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
