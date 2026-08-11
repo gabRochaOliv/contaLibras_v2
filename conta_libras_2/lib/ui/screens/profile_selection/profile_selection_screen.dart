@@ -56,7 +56,9 @@ class _ProfileSelectionScreenState extends State<ProfileSelectionScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Não foi possível remover o perfil. Tente novamente.')),
+          const SnackBar(
+              content:
+                  Text('Não foi possível remover o perfil. Tente novamente.')),
         );
       }
     }
@@ -77,80 +79,91 @@ class _ProfileSelectionScreenState extends State<ProfileSelectionScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Image.asset(
-                    'assets/images/logoContaLibras.png',
-                    height: 100,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                    'Quem é você?',
-                    style: AppTextStyles.heading2.copyWith(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Selecione seu perfil para continuar',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  if (_loading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else ...[
-                    for (final profile in _profiles) ...[
-                      _ProfileTile(
-                        profile: profile,
-                        isDarkMode: isDarkMode,
-                        onTap: () => _selectProfile(profile),
-                        onDelete: () => _deleteProfile(profile),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 380;
+            final outerPadding = isNarrow ? 16.0 : 24.0;
+
+            return Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                    horizontal: outerPadding, vertical: 32.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Image.asset(
+                        'assets/images/logoContaLibras.png',
+                        height: isNarrow ? 80 : 100,
+                        fit: BoxFit.contain,
                       ),
-                      const SizedBox(height: 12),
-                    ],
-                    InkWell(
-                      onTap: _createNewProfile,
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
+                      const SizedBox(height: 32),
+                      Text(
+                        'Quem é você?',
+                        style: AppTextStyles.heading2.copyWith(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Selecione seu perfil para continuar',
+                        style: AppTextStyles.bodyMedium
+                            .copyWith(color: AppColors.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+                      if (_loading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else ...[
+                        for (final profile in _profiles) ...[
+                          _ProfileTile(
+                            profile: profile,
+                            isDarkMode: isDarkMode,
+                            onTap: () => _selectProfile(profile),
+                            onDelete: () => _deleteProfile(profile),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        InkWell(
+                          onTap: _createNewProfile,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.primary, width: 1.5),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.add_rounded, color: AppColors.primary),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Novo perfil',
-                              style: AppTextStyles.bodyLarge.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                  color: AppColors.primary, width: 1.5),
                             ),
-                          ],
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.add_rounded,
+                                    color: AppColors.primary),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Novo perfil',
+                                  style: AppTextStyles.bodyLarge.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                ],
+                      ],
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -183,7 +196,9 @@ class _ProfileTile extends StatelessWidget {
           border: Border.all(color: AppColors.divider),
           boxShadow: [
             BoxShadow(
-              color: isDarkMode ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.04),
+              color: isDarkMode
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -203,19 +218,22 @@ class _ProfileTile extends StatelessWidget {
                 children: [
                   Text(
                     profile.name,
-                    style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+                    style: AppTextStyles.bodyLarge
+                        .copyWith(fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     profile.category,
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodyMedium
+                        .copyWith(color: AppColors.textSecondary),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline_rounded, color: AppColors.accent),
+              icon: const Icon(Icons.delete_outline_rounded,
+                  color: AppColors.accent),
               tooltip: 'Remover perfil',
               onPressed: () => _confirmDelete(context),
             ),
@@ -230,7 +248,8 @@ class _ProfileTile extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Remover perfil'),
-        content: Text('Deseja remover o perfil "${profile.name}" deste dispositivo?'),
+        content: Text(
+            'Deseja remover o perfil "${profile.name}" deste dispositivo?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -241,7 +260,8 @@ class _ProfileTile extends StatelessWidget {
               Navigator.pop(ctx);
               onDelete();
             },
-            child: const Text('Remover', style: TextStyle(color: AppColors.accent)),
+            child: const Text('Remover',
+                style: TextStyle(color: AppColors.accent)),
           ),
         ],
       ),

@@ -103,11 +103,13 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
       await _storage.setActiveProfileId(profile.id);
     } catch (e) {
       debugPrint('[ProfileStorage] falha ao salvar perfil: $e');
-      showAppMessage('Não foi possível salvar seu perfil neste navegador (erro: $e)');
+      showAppMessage(
+          'Não foi possível salvar seu perfil neste navegador (erro: $e)');
     }
   }
 
-  InputDecoration _fieldDecoration({required String label, required IconData icon}) {
+  InputDecoration _fieldDecoration(
+      {required String label, required IconData icon}) {
     return InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon, color: AppColors.secondary),
@@ -174,7 +176,8 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
           TextFormField(
             controller: _nameController,
             style: TextStyle(color: AppColors.textPrimary),
-            decoration: _fieldDecoration(label: 'Apelido ou nome', icon: Icons.person_outline_rounded),
+            decoration: _fieldDecoration(
+                label: 'Apelido ou nome', icon: Icons.person_outline_rounded),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Por favor, insira seu nome';
@@ -187,7 +190,8 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
             controller: _ageController,
             keyboardType: TextInputType.number,
             style: TextStyle(color: AppColors.textPrimary),
-            decoration: _fieldDecoration(label: 'Idade', icon: Icons.cake_outlined),
+            decoration:
+                _fieldDecoration(label: 'Idade', icon: Icons.cake_outlined),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Por favor, insira sua idade';
@@ -204,11 +208,14 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
             isExpanded: true,
             dropdownColor: AppColors.surface,
             style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
-            decoration: _fieldDecoration(label: 'Categoria/perfil do usuário', icon: Icons.school_outlined),
+            decoration: _fieldDecoration(
+                label: 'Categoria/perfil do usuário',
+                icon: Icons.school_outlined),
             items: _categories.map((category) {
               return DropdownMenuItem(
                 value: category,
-                child: Text(category, overflow: TextOverflow.ellipsis, maxLines: 1),
+                child: Text(category,
+                    overflow: TextOverflow.ellipsis, maxLines: 1),
               );
             }).toList(),
             onChanged: (value) {
@@ -237,11 +244,13 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
             isExpanded: true,
             dropdownColor: AppColors.surface,
             style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
-            decoration: _fieldDecoration(label: 'Escolaridade', icon: Icons.menu_book_outlined),
+            decoration: _fieldDecoration(
+                label: 'Escolaridade', icon: Icons.menu_book_outlined),
             items: _escolaridades.map((escolaridade) {
               return DropdownMenuItem(
                 value: escolaridade,
-                child: Text(escolaridade, overflow: TextOverflow.ellipsis, maxLines: 1),
+                child: Text(escolaridade,
+                    overflow: TextOverflow.ellipsis, maxLines: 1),
               );
             }).toList(),
             onChanged: (value) {
@@ -260,7 +269,9 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
             isExpanded: true,
             dropdownColor: AppColors.surface,
             style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
-            decoration: _fieldDecoration(label: 'Você utiliza Libras?', icon: Icons.sign_language_outlined),
+            decoration: _fieldDecoration(
+                label: 'Você utiliza Libras?',
+                icon: Icons.sign_language_outlined),
             items: const [
               DropdownMenuItem(value: true, child: Text('Sim')),
               DropdownMenuItem(value: false, child: Text('Não')),
@@ -281,11 +292,14 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
             isExpanded: true,
             dropdownColor: AppColors.surface,
             style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
-            decoration: _fieldDecoration(label: 'Conhecimento em Libras', icon: Icons.bar_chart_outlined),
+            decoration: _fieldDecoration(
+                label: 'Conhecimento em Libras',
+                icon: Icons.bar_chart_outlined),
             items: _niveisConhecimentoLibras.map((nivel) {
               return DropdownMenuItem(
                 value: nivel,
-                child: Text(nivel, overflow: TextOverflow.ellipsis, maxLines: 1),
+                child:
+                    Text(nivel, overflow: TextOverflow.ellipsis, maxLines: 1),
               );
             }).toList(),
             onChanged: (value) {
@@ -320,140 +334,153 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Logo do App
-                  Image.asset(
-                    'assets/images/logoContaLibras.png',
-                    height: 100,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 32),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 380;
+            final outerPadding = isNarrow ? 16.0 : 24.0;
+            final cardPadding = isNarrow ? 20.0 : 32.0;
 
-                  // Card de Cadastro
-                  Container(
-                    padding: const EdgeInsets.all(32.0),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDarkMode
-                              ? Colors.black.withOpacity(0.3)
-                              : Colors.black.withOpacity(0.04),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: AppColors.divider,
-                        width: 1,
+            return Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                    horizontal: outerPadding, vertical: 32.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Logo do App
+                      Image.asset(
+                        'assets/images/logoContaLibras.png',
+                        height: isNarrow ? 80 : 100,
+                        fit: BoxFit.contain,
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildProgressIndicator(),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Etapa ${_currentStep + 1} de $_totalSteps',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          _stepTitle,
-                          style: AppTextStyles.heading2.copyWith(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _stepSubtitle,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 250),
-                          child: Container(
-                            key: ValueKey(_currentStep),
-                            child: _buildCurrentStep(),
+                      // Card de Cadastro
+                      Container(
+                        padding: EdgeInsets.all(cardPadding),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDarkMode
+                                  ? Colors.black.withOpacity(0.3)
+                                  : Colors.black.withOpacity(0.04),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                          border: Border.all(
+                            color: AppColors.divider,
+                            width: 1,
                           ),
                         ),
-                        const SizedBox(height: 36),
-
-                        Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (_currentStep > 0) ...[
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: _goToPreviousStep,
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 18),
-                                    side: BorderSide(color: AppColors.divider),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                            _buildProgressIndicator(),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Etapa ${_currentStep + 1} de $_totalSteps',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textSecondary,
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              _stepTitle,
+                              style: AppTextStyles.heading2.copyWith(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              _stepSubtitle,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 250),
+                              child: Container(
+                                key: ValueKey(_currentStep),
+                                child: _buildCurrentStep(),
+                              ),
+                            ),
+                            const SizedBox(height: 36),
+                            Row(
+                              children: [
+                                if (_currentStep > 0) ...[
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: _goToPreviousStep,
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 18),
+                                        side: BorderSide(
+                                            color: AppColors.divider),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Voltar',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  child: Text(
-                                    'Voltar',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textPrimary,
+                                  const SizedBox(width: 12),
+                                ],
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: _goToNextStep,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 18),
+                                      elevation: 2,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      isLastStep
+                                          ? 'Começar a Aprender'
+                                          : 'Continuar',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                            ],
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: _goToNextStep,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: 18),
-                                  elevation: 2,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                child: Text(
-                                  isLastStep ? 'Começar a Aprender' : 'Continuar',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );

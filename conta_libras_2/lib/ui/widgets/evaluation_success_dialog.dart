@@ -58,12 +58,15 @@ class _EvaluationSuccessDialogState extends State<EvaluationSuccessDialog>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dialogWidth = (screenWidth - 64).clamp(0.0, 360.0);
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 32),
       child: Container(
-        width: 360,
+        width: dialogWidth,
         padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,

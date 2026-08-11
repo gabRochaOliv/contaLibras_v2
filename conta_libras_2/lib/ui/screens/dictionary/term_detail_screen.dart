@@ -6,6 +6,7 @@ import '../../../data/models/term_model.dart';
 import '../../../data/managers/favorites_manager.dart';
 import '../../../data/managers/progress_manager.dart';
 import '../../../data/managers/theme_manager.dart';
+
 class TermDetailScreen extends StatefulWidget {
   final TermModel term;
   final VoidCallback? onBackPressed;
@@ -16,7 +17,8 @@ class TermDetailScreen extends StatefulWidget {
   State<TermDetailScreen> createState() => _TermDetailScreenState();
 }
 
-class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerProviderStateMixin {
+class _TermDetailScreenState extends State<TermDetailScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   VideoPlayerController? _videoController;
   bool _isFullScreen = false;
@@ -47,7 +49,8 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
         ..initialize().then((_) {
           if (mounted) {
             _videoController!.setVolume(0); // Garante que o vídeo comece mudo
-            _videoController!.setLooping(true); // Faz o vídeo repetir automaticamente
+            _videoController!
+                .setLooping(true); // Faz o vídeo repetir automaticamente
             setState(() {
               _videoLoading = false;
             });
@@ -78,7 +81,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
 
   void _toggleFullScreen() async {
     final bool wasPlaying = _videoController!.value.isPlaying;
-    
+
     if (wasPlaying) {
       await _videoController!.pause();
     }
@@ -154,7 +157,8 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.fullscreen_exit_rounded, color: Colors.white, size: 36),
+                      icon: const Icon(Icons.fullscreen_exit_rounded,
+                          color: Colors.white, size: 36),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -171,7 +175,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
       if (endedPlaying) {
         await _videoController!.pause();
       }
-      
+
       if (mounted) {
         setState(() {
           _isFullScreen = false;
@@ -204,7 +208,8 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             const SizedBox(height: 24),
             Text(
               'Carregando vídeo, aguarde...',
-              style: AppTextStyles.heading3.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.heading3
+                  .copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -212,16 +217,20 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
       );
     }
 
-    if (_videoError || _videoController == null || !_videoController!.value.isInitialized) {
+    if (_videoError ||
+        _videoController == null ||
+        !_videoController!.value.isInitialized) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.videocam_off_rounded, size: 80, color: AppColors.textSecondary),
+            Icon(Icons.videocam_off_rounded,
+                size: 80, color: AppColors.textSecondary),
             const SizedBox(height: 16),
             Text(
               'Vídeo indisponível',
-              style: AppTextStyles.heading3.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.heading3
+                  .copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -231,17 +240,19 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
 
     if (_isFullScreen) {
       return Center(
-         child: Column(
-           mainAxisAlignment: MainAxisAlignment.center,
-           children: [
-             Icon(Icons.fullscreen_rounded, size: 48, color: AppColors.textSecondary),
-             const SizedBox(height: 16),
-             Text(
-               'Reproduzindo em tela cheia...',
-               style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
-             )
-           ],
-         ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.fullscreen_rounded,
+                size: 48, color: AppColors.textSecondary),
+            const SizedBox(height: 16),
+            Text(
+              'Reproduzindo em tela cheia...',
+              style: AppTextStyles.bodyLarge
+                  .copyWith(color: AppColors.textSecondary),
+            )
+          ],
+        ),
       );
     }
 
@@ -253,7 +264,10 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.divider),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4)),
             ],
           ),
           clipBehavior: Clip.antiAlias,
@@ -299,7 +313,8 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
                     top: 8,
                     right: 8,
                     child: IconButton(
-                      icon: const Icon(Icons.fullscreen_rounded, color: Colors.white, size: 30),
+                      icon: const Icon(Icons.fullscreen_rounded,
+                          color: Colors.white, size: 30),
                       onPressed: _toggleFullScreen,
                     ),
                   ),
@@ -361,7 +376,9 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
               runSpacing: 8,
               children: widget.term.relatedTerms.map((term) {
                 return Chip(
-                  label: Text(term, style: AppTextStyles.label.copyWith(color: AppColors.primary)),
+                  label: Text(term,
+                      style: AppTextStyles.label
+                          .copyWith(color: AppColors.primary)),
                   backgroundColor: AppColors.secondary.withOpacity(0.1),
                   side: BorderSide.none,
                 );
@@ -413,11 +430,11 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
 
   Widget _buildRichText(String text, TextStyle baseStyle) {
     if (text.isEmpty) return const SizedBox.shrink();
-    
+
     final List<TextSpan> spans = [];
     final pattern = RegExp(r'\*\*(.*?)\*\*');
     int lastMatchEnd = 0;
-    
+
     for (final match in pattern.allMatches(text)) {
       if (match.start > lastMatchEnd) {
         spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start)));
@@ -431,7 +448,7 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
     if (lastMatchEnd < text.length) {
       spans.add(TextSpan(text: text.substring(lastMatchEnd)));
     }
-    
+
     return RichText(
       text: TextSpan(
         style: baseStyle,
@@ -446,11 +463,13 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.image_not_supported_rounded, size: 80, color: AppColors.textSecondary),
+            Icon(Icons.image_not_supported_rounded,
+                size: 80, color: AppColors.textSecondary),
             const SizedBox(height: 16),
             Text(
               'Imagens não disponíveis',
-              style: AppTextStyles.heading3.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.heading3
+                  .copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -466,7 +485,9 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
             Text(
               'Linguagem Brasileira de Sinais',
               style: AppTextStyles.heading2.copyWith(
-                color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary,
+                color: ThemeManager().isDarkMode
+                    ? Colors.white
+                    : AppColors.primary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -478,7 +499,10 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.divider),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4)),
                   ],
                 ),
                 clipBehavior: Clip.antiAlias,
@@ -496,7 +520,8 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
           if (widget.term.imageRvUrl.isNotEmpty) ...[
             Text(
               'Representação Visual',
-              style: AppTextStyles.heading2.copyWith(color: AppColors.secondary),
+              style:
+                  AppTextStyles.heading2.copyWith(color: AppColors.secondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -507,7 +532,10 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.divider),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4)),
                   ],
                 ),
                 clipBehavior: Clip.antiAlias,
@@ -532,119 +560,147 @@ class _TermDetailScreenState extends State<TermDetailScreen> with SingleTickerPr
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth > 800;
         return Scaffold(
-          appBar: isDesktop ? null : AppBar(
-            toolbarHeight: 80,
-            title: Image.asset('assets/images/logoContaLibras.png', height: 60),
-            centerTitle: true,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: AppColors.primary, size: 28),
-              onPressed: () {
-                if (widget.onBackPressed != null) {
-                  widget.onBackPressed!();
-                } else {
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-            actions: [
-              AnimatedBuilder(
-                animation: FavoritesManager(),
-                builder: (context, child) {
-                  final isFav = FavoritesManager().isFavorite(widget.term.id);
-                  return IconButton(
-                    icon: Icon(
-                      isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                      color: isFav
-                          ? (ThemeManager().isDarkMode ? Colors.white : AppColors.primary)
-                          : AppColors.textSecondary,
-                      size: 32,
-                    ),
+          appBar: isDesktop
+              ? null
+              : AppBar(
+                  toolbarHeight: 80,
+                  title: Image.asset('assets/images/logoContaLibras.png',
+                      height: 60),
+                  centerTitle: true,
+                  elevation: 0,
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded,
+                        color: AppColors.primary, size: 28),
                     onPressed: () {
-                      FavoritesManager().toggleFavorite(widget.term);
+                      if (widget.onBackPressed != null) {
+                        widget.onBackPressed!();
+                      } else {
+                        Navigator.of(context).pop();
+                      }
                     },
-                  );
-                },
-              ),
-              const SizedBox(width: 16),
-            ],
-          ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 800),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-          Container(
-            color: AppColors.surface,
-            padding: const EdgeInsets.only(top: 8.0, bottom: 16.0, left: 16.0, right: 16.0),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 48.0),
-                  child: Text(
-                    widget.term.title,
-                    style: AppTextStyles.heading1,
-                    textAlign: TextAlign.center,
                   ),
-                ),
-                if (isDesktop)
-                  Positioned(
-                    right: 8,
-                    child: AnimatedBuilder(
+                  actions: [
+                    AnimatedBuilder(
                       animation: FavoritesManager(),
                       builder: (context, child) {
-                        final isFav = FavoritesManager().isFavorite(widget.term.id);
+                        final isFav =
+                            FavoritesManager().isFavorite(widget.term.id);
                         return IconButton(
                           icon: Icon(
-                            isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                            isFav
+                                ? Icons.bookmark_rounded
+                                : Icons.bookmark_border_rounded,
                             color: isFav
-                                ? (ThemeManager().isDarkMode ? Colors.white : AppColors.primary)
+                                ? (ThemeManager().isDarkMode
+                                    ? Colors.white
+                                    : AppColors.primary)
                                 : AppColors.textSecondary,
-                            size: 28,
+                            size: 32,
                           ),
-                          tooltip: isFav ? 'Remover dos favoritos' : 'Favoritar termo',
                           onPressed: () {
                             FavoritesManager().toggleFavorite(widget.term);
                           },
                         );
                       },
                     ),
+                    const SizedBox(width: 16),
+                  ],
+                ),
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    color: AppColors.surface,
+                    padding: const EdgeInsets.only(
+                        top: 8.0, bottom: 16.0, left: 16.0, right: 16.0),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: isDesktop ? 48.0 : 16.0),
+                          child: Text(
+                            widget.term.title,
+                            style: AppTextStyles.heading1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        if (isDesktop)
+                          Positioned(
+                            right: 8,
+                            child: AnimatedBuilder(
+                              animation: FavoritesManager(),
+                              builder: (context, child) {
+                                final isFav = FavoritesManager()
+                                    .isFavorite(widget.term.id);
+                                return IconButton(
+                                  icon: Icon(
+                                    isFav
+                                        ? Icons.bookmark_rounded
+                                        : Icons.bookmark_border_rounded,
+                                    color: isFav
+                                        ? (ThemeManager().isDarkMode
+                                            ? Colors.white
+                                            : AppColors.primary)
+                                        : AppColors.textSecondary,
+                                    size: 28,
+                                  ),
+                                  tooltip: isFav
+                                      ? 'Remover dos favoritos'
+                                      : 'Favoritar termo',
+                                  onPressed: () {
+                                    FavoritesManager()
+                                        .toggleFavorite(widget.term);
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-              ],
+                  Container(
+                    color: AppColors.surface,
+                    child: TabBar(
+                      controller: _tabController,
+                      labelColor: ThemeManager().isDarkMode
+                          ? Colors.white
+                          : AppColors.primary,
+                      unselectedLabelColor: AppColors.textSecondary,
+                      indicatorColor: AppColors.accent,
+                      indicatorWeight: 3,
+                      labelStyle: AppTextStyles.label
+                          .copyWith(fontWeight: FontWeight.bold),
+                      tabs: const [
+                        Tab(
+                            icon: Icon(Icons.play_circle_fill_rounded),
+                            text: 'Vídeo'),
+                        Tab(
+                            icon: Icon(Icons.description_rounded),
+                            text: 'Conteúdo'),
+                        Tab(
+                            icon: Icon(Icons.animation_rounded),
+                            text: 'Visual'),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _KeepAliveTab(child: _buildVideoTab()),
+                        _KeepAliveTab(child: _buildContentTab()),
+                        _KeepAliveTab(child: _buildAnimationTab()),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          Container(
-            color: AppColors.surface,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: ThemeManager().isDarkMode ? Colors.white : AppColors.primary,
-              unselectedLabelColor: AppColors.textSecondary,
-              indicatorColor: AppColors.accent,
-              indicatorWeight: 3,
-              labelStyle: AppTextStyles.label.copyWith(fontWeight: FontWeight.bold),
-              tabs: const [
-                Tab(icon: Icon(Icons.play_circle_fill_rounded), text: 'Vídeo'),
-                Tab(icon: Icon(Icons.description_rounded), text: 'Conteúdo'),
-                Tab(icon: Icon(Icons.animation_rounded), text: 'Visual'),
-              ],
-            ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _KeepAliveTab(child: _buildVideoTab()),
-                _KeepAliveTab(child: _buildContentTab()),
-                _KeepAliveTab(child: _buildAnimationTab()),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-    ),
         );
       },
     );
@@ -659,7 +715,8 @@ class _KeepAliveTab extends StatefulWidget {
   State<_KeepAliveTab> createState() => _KeepAliveTabState();
 }
 
-class _KeepAliveTabState extends State<_KeepAliveTab> with AutomaticKeepAliveClientMixin {
+class _KeepAliveTabState extends State<_KeepAliveTab>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 

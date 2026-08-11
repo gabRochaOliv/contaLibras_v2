@@ -40,8 +40,11 @@ class AppTheme {
         selectedLabelStyle: AppTextStyles.label.copyWith(
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
+          fontSize: 11,
         ),
-        unselectedLabelStyle: AppTextStyles.label,
+        unselectedLabelStyle: AppTextStyles.label.copyWith(fontSize: 11),
+        selectedIconTheme: const IconThemeData(size: 22),
+        unselectedIconTheme: const IconThemeData(size: 22),
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
@@ -70,12 +73,15 @@ class AppTheme {
         error: AppColors.accent,
       ),
       scaffoldBackgroundColor: const Color(0xFF121212),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
+      textTheme:
+          GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
         displayLarge: AppTextStyles.heading1.copyWith(color: Colors.white),
         headlineMedium: AppTextStyles.heading2.copyWith(color: Colors.white),
         titleLarge: AppTextStyles.heading3.copyWith(color: Colors.white),
-        bodyLarge: AppTextStyles.bodyLarge.copyWith(color: Colors.grey.shade300),
-        bodyMedium: AppTextStyles.bodyMedium.copyWith(color: Colors.grey.shade400),
+        bodyLarge:
+            AppTextStyles.bodyLarge.copyWith(color: Colors.grey.shade300),
+        bodyMedium:
+            AppTextStyles.bodyMedium.copyWith(color: Colors.grey.shade400),
         labelSmall: AppTextStyles.label.copyWith(color: Colors.grey.shade500),
       ),
       appBarTheme: AppBarTheme(
@@ -92,8 +98,11 @@ class AppTheme {
         selectedLabelStyle: AppTextStyles.label.copyWith(
           color: AppColors.secondary,
           fontWeight: FontWeight.bold,
+          fontSize: 11,
         ),
-        unselectedLabelStyle: AppTextStyles.label,
+        unselectedLabelStyle: AppTextStyles.label.copyWith(fontSize: 11),
+        selectedIconTheme: const IconThemeData(size: 22),
+        unselectedIconTheme: const IconThemeData(size: 22),
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
