@@ -418,7 +418,6 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                             ),
                             const SizedBox(height: 36),
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 if (_currentStep > 0) ...[
                                   Expanded(
