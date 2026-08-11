@@ -418,9 +418,11 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                             ),
                             const SizedBox(height: 36),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 if (_currentStep > 0) ...[
                                   Expanded(
+                                    flex: 2,
                                     child: OutlinedButton(
                                       onPressed: _goToPreviousStep,
                                       style: OutlinedButton.styleFrom(
@@ -433,12 +435,16 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                                               BorderRadius.circular(16),
                                         ),
                                       ),
-                                      child: Text(
-                                        'Voltar',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.textPrimary,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          'Voltar',
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textPrimary,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -446,6 +452,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                                   const SizedBox(width: 12),
                                 ],
                                 Expanded(
+                                  flex: 3,
                                   child: ElevatedButton(
                                     onPressed: _goToNextStep,
                                     style: ElevatedButton.styleFrom(
@@ -457,15 +464,19 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
-                                    child: Text(
-                                      isLastStep
-                                          ? 'Começar a Aprender'
-                                          : 'Continuar',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        letterSpacing: 0.5,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        isLastStep
+                                            ? 'Começar a Aprender'
+                                            : 'Continuar',
+                                        maxLines: 1,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 0.5,
+                                        ),
                                       ),
                                     ),
                                   ),
