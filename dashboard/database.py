@@ -33,6 +33,24 @@ def delete_feedbacks(ids: list[int]) -> None:
         conn.close()
 
 
+def delete_cadastros(ids: list[str]) -> None:
+    """Remove cadastros do banco pelos ids (UUID) informados.
+
+    Um cadastro que já tem feedback vinculado (cadastro_id) não pode ser
+    apagado por causa da FK — deixa a exceção subir pra chamada avisar o
+    usuário em vez de apagar o feedback junto silenciosamente.
+    """
+    if not ids:
+        return
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM cadastros WHERE id = ANY(%s::uuid[])", (ids,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 @st.cache_data(ttl="5m")
 def fetch_feedbacks() -> pd.DataFrame:
     """Busca todos os feedbacks do banco com cache de 5 minutos."""

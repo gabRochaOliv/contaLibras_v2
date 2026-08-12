@@ -11,7 +11,7 @@ import traceback
 import pandas as pd
 import streamlit as st
 
-from database import fetch_feedbacks, delete_feedbacks, fetch_cadastros
+from database import fetch_feedbacks, delete_feedbacks, fetch_cadastros, delete_cadastros
 from transforms import (
     pivot_respostas,
     SECOES_IHC,
@@ -279,6 +279,46 @@ else:
                 "criado_em": "Cadastrado em",
             })[["Nome", "Categoria", "Cadastrado em"]]
             st.dataframe(df_sem_resposta_fmt, use_container_width=True, hide_index=True)
+
+with st.expander("🗑️ Excluir cadastros"):
+    st.caption(
+        "Selecione cadastros para remover permanentemente do banco de dados "
+        "(considera todos os cadastros, ignorando os filtros acima). Essa ação não pode ser desfeita. "
+        "Um cadastro que já tem uma resposta de questionário vinculada não pode ser excluído "
+        "sem excluir antes o feedback correspondente."
+    )
+    opcoes_exclusao_cad = {
+        (
+            f"{row.nome} — {row.categoria} — "
+            f"{pd.to_datetime(row.criado_em).strftime('%d/%m/%Y %H:%M')}"
+        ): row.id
+        for row in df_cadastros_raw.sort_values("criado_em", ascending=False).itertuples()
+    } if len(df_cadastros_raw) > 0 else {}
+
+    if not opcoes_exclusao_cad:
+        st.caption("Nenhum cadastro para excluir.")
+    else:
+        selecionados_cad = st.multiselect(
+            "Cadastros a excluir", list(opcoes_exclusao_cad.keys()), key="cadastros_a_excluir"
+        )
+
+        if selecionados_cad:
+            ids_selecionados_cad = [opcoes_exclusao_cad[s] for s in selecionados_cad]
+            confirmar_cad = st.checkbox(
+                f"Confirmo a exclusão permanente de {len(ids_selecionados_cad)} cadastro(s).",
+                key="confirmar_exclusao_cadastros",
+            )
+            if st.button("Excluir cadastros selecionados", type="primary", disabled=not confirmar_cad):
+                try:
+                    delete_cadastros(ids_selecionados_cad)
+                    fetch_cadastros.clear()
+                    st.success("Cadastro(s) excluído(s) com sucesso.")
+                    st.rerun()
+                except Exception as e:
+                    st.error(
+                        "Não foi possível excluir. Um dos cadastros selecionados provavelmente já "
+                        f"tem uma resposta de questionário vinculada. Detalhe: {e}"
+                    )
 
 st.divider()
 
