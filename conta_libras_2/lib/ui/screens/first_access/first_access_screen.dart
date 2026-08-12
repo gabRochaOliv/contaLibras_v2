@@ -417,48 +417,46 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                               ),
                             ),
                             const SizedBox(height: 36),
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                if (_currentStep > 0) ...[
-                                  Expanded(
-                                    flex: 2,
-                                    child: OutlinedButton(
-                                      onPressed: _goToPreviousStep,
-                                      style: OutlinedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 18),
-                                        side: BorderSide(
-                                            color: AppColors.divider),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                      ),
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          'Voltar',
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
+                                ElevatedButton(
+                                  onPressed: _goToNextStep,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 18, horizontal: 8),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      isLastStep
+                                          ? 'Começar a Aprender'
+                                          : 'Continuar',
+                                      maxLines: 1,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                ],
-                                Expanded(
-                                  flex: 3,
-                                  child: ElevatedButton(
-                                    onPressed: _goToNextStep,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary,
+                                ),
+                                if (_currentStep > 0) ...[
+                                  const SizedBox(height: 12),
+                                  OutlinedButton(
+                                    onPressed: _goToPreviousStep,
+                                    style: OutlinedButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(
-                                          vertical: 18),
-                                      elevation: 2,
+                                          vertical: 18, horizontal: 8),
+                                      side:
+                                          BorderSide(color: AppColors.divider),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),
@@ -466,20 +464,18 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                                     child: FittedBox(
                                       fit: BoxFit.scaleDown,
                                       child: Text(
-                                        isLastStep
-                                            ? 'Começar a Aprender'
-                                            : 'Continuar',
+                                        'Voltar',
                                         maxLines: 1,
-                                        style: const TextStyle(
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          letterSpacing: 0.5,
+                                          color: AppColors.textPrimary,
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                           ],
