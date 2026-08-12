@@ -43,8 +43,29 @@ def fetch_feedbacks() -> pd.DataFrame:
                 """
                 SELECT id, nome, idade, categoria, escolaridade, usa_libras,
                        conhecimento_libras, comentario_gostou, comentario_melhorar,
-                       comentario_sugestao, respostas, criado_em
+                       comentario_sugestao, respostas, criado_em, cadastro_id
                 FROM feedbacks
+                ORDER BY criado_em DESC
+                """
+            )
+            cols = [desc[0] for desc in cur.description]
+            rows = cur.fetchall()
+        return pd.DataFrame(rows, columns=cols)
+    finally:
+        conn.close()
+
+
+@st.cache_data(ttl="5m")
+def fetch_cadastros() -> pd.DataFrame:
+    """Busca todos os cadastros (first access) do banco, respondido ou não."""
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, nome, idade, categoria, escolaridade, usa_libras,
+                       conhecimento_libras, criado_em
+                FROM cadastros
                 ORDER BY criado_em DESC
                 """
             )

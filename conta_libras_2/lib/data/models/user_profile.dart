@@ -6,6 +6,7 @@ class UserProfile {
   final String escolaridade;
   final bool usaLibras;
   final String conhecimentoLibras;
+  final int? cadastroId;
 
   const UserProfile({
     required this.id,
@@ -15,7 +16,19 @@ class UserProfile {
     this.escolaridade = '',
     this.usaLibras = false,
     this.conhecimentoLibras = '',
+    this.cadastroId,
   });
+
+  UserProfile copyWith({int? cadastroId}) => UserProfile(
+        id: id,
+        name: name,
+        category: category,
+        age: age,
+        escolaridade: escolaridade,
+        usaLibras: usaLibras,
+        conhecimentoLibras: conhecimentoLibras,
+        cadastroId: cadastroId ?? this.cadastroId,
+      );
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -25,6 +38,7 @@ class UserProfile {
         'escolaridade': escolaridade,
         'usaLibras': usaLibras,
         'conhecimentoLibras': conhecimentoLibras,
+        'cadastroId': cadastroId,
       };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
@@ -35,5 +49,6 @@ class UserProfile {
         escolaridade: json['escolaridade'] as String? ?? '',
         usaLibras: json['usaLibras'] as bool? ?? false,
         conhecimentoLibras: json['conhecimentoLibras'] as String? ?? '',
+        cadastroId: json['cadastroId'] as int?,
       );
 }

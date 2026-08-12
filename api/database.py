@@ -5,6 +5,32 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def insert_cadastro(payload) -> int:
+    supabase_url = os.environ["SUPABASE_URL"]
+    supabase_key = os.environ["SUPABASE_ANON_KEY"]
+
+    response = requests.post(
+        f"{supabase_url}/rest/v1/cadastros",
+        headers={
+            "apikey": supabase_key,
+            "Authorization": f"Bearer {supabase_key}",
+            "Content-Type": "application/json",
+            "Prefer": "return=representation",
+        },
+        json={
+            "nome": payload.nome,
+            "idade": payload.idade,
+            "categoria": payload.categoria,
+            "escolaridade": payload.escolaridade,
+            "usa_libras": payload.usa_libras,
+            "conhecimento_libras": payload.conhecimento_libras,
+        },
+        timeout=10,
+    )
+    response.raise_for_status()
+    return response.json()[0]["id"]
+
+
 def insert_feedback(payload):
     respostas_json = [r.model_dump() for r in payload.respostas]
     supabase_url = os.environ["SUPABASE_URL"]
@@ -29,6 +55,7 @@ def insert_feedback(payload):
             "comentario_melhorar": payload.comentario_melhorar,
             "comentario_sugestao": payload.comentario_sugestao,
             "respostas": respostas_json,
+            "cadastro_id": payload.cadastro_id,
         },
         timeout=10,
     )

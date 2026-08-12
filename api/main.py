@@ -5,8 +5,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import FeedbackPayload
-from database import insert_feedback
+from models import FeedbackPayload, CadastroPayload
+from database import insert_feedback, insert_cadastro
 
 app = FastAPI(title="ContaLibras Feedback API")
 
@@ -23,6 +23,16 @@ app.add_middleware(
 @app.get("/api/main/health")
 def health():
     return {"status": "ok"}
+
+
+@app.post("/cadastro", status_code=201)
+@app.post("/api/main/cadastro", status_code=201)
+def post_cadastro(payload: CadastroPayload):
+    try:
+        cadastro_id = insert_cadastro(payload)
+        return {"id": cadastro_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/feedback", status_code=201)

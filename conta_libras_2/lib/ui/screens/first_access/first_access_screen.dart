@@ -5,6 +5,7 @@ import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../data/services/profile_storage_service.dart';
+import '../../../data/services/cadastro_service.dart';
 import '../../../core/app_messenger.dart';
 import '../main/main_screen.dart';
 
@@ -59,6 +60,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
   }
 
   final _storage = ProfileStorageService();
+  final _cadastroService = CadastroService();
 
   void _goToNextStep() {
     final isValid = _formKeys[_currentStep].currentState!.validate();
@@ -105,6 +107,19 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
       debugPrint('[ProfileStorage] falha ao salvar perfil: $e');
       showAppMessage(
           'Não foi possível salvar seu perfil neste navegador (erro: $e)');
+    }
+
+    // Registra o cadastro no backend (melhor esforço) pra aparecer no
+    // dashboard mesmo que o usuário nunca chegue a responder o
+    // questionário de avaliação depois.
+    final cadastroId = await _cadastroService.register(profile);
+    if (cadastroId != null) {
+      UserManager().setCadastroId(cadastroId);
+      try {
+        await _storage.saveProfile(profile.copyWith(cadastroId: cadastroId));
+      } catch (e) {
+        debugPrint('[ProfileStorage] falha ao salvar cadastroId: $e');
+      }
     }
   }
 

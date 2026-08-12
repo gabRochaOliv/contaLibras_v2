@@ -11,7 +11,7 @@ import traceback
 import pandas as pd
 import streamlit as st
 
-from database import fetch_feedbacks, delete_feedbacks
+from database import fetch_feedbacks, delete_feedbacks, fetch_cadastros
 from transforms import (
     pivot_respostas,
     SECOES_IHC,
@@ -26,6 +26,7 @@ from charts import (
     chart_likert_horizontal,
     chart_faixa_etaria,
     chart_pizza_pergunta,
+    chart_conclusao_cadastro,
     LIKERT_NOMES,
 )
 
@@ -97,17 +98,40 @@ except Exception as e:
     st.error("Erro ao carregar os dados. Verifique a conexão com o banco e recarregue a página.")
     st.stop()
 
-if len(df_raw) == 0:
-    st.info("Nenhuma resposta coletada ainda. Os gráficos serão exibidos quando houver dados.")
+try:
+    df_cadastros_raw = fetch_cadastros()
+except Exception as e:
+    print(f"[fetch_cadastros] falha ao conectar/consultar o banco: {e!r}", file=sys.stderr)
+    traceback.print_exc()
+    df_cadastros_raw = pd.DataFrame(columns=[
+        "id", "nome", "idade", "categoria", "escolaridade",
+        "usa_libras", "conhecimento_libras", "criado_em",
+    ])
+    st.sidebar.warning("Não foi possível carregar os dados de cadastro.")
+
+if len(df_raw) == 0 and len(df_cadastros_raw) == 0:
+    st.info("Nenhum dado coletado ainda. Os gráficos serão exibidos quando houver dados.")
     st.stop()
 
-df_raw["_data"] = (
-    pd.to_datetime(df_raw["criado_em"])
-    .dt.tz_convert("America/Sao_Paulo")
-    .dt.date
-)
-data_min = df_raw["_data"].min()
-data_max = df_raw["_data"].max()
+if len(df_raw) > 0:
+    df_raw["_data"] = (
+        pd.to_datetime(df_raw["criado_em"])
+        .dt.tz_convert("America/Sao_Paulo")
+        .dt.date
+    )
+if len(df_cadastros_raw) > 0:
+    df_cadastros_raw["_data"] = (
+        pd.to_datetime(df_cadastros_raw["criado_em"])
+        .dt.tz_convert("America/Sao_Paulo")
+        .dt.date
+    )
+
+datas_disponiveis = pd.concat([
+    df_raw["_data"] if len(df_raw) > 0 else pd.Series(dtype="object"),
+    df_cadastros_raw["_data"] if len(df_cadastros_raw) > 0 else pd.Series(dtype="object"),
+])
+data_min = datas_disponiveis.min()
+data_max = datas_disponiveis.max()
 
 
 # ---------------------------------------------------------------------------
@@ -158,30 +182,33 @@ def _to_csv(df: pd.DataFrame) -> bytes:
 # Aplicar filtros
 # ---------------------------------------------------------------------------
 
-mask = (df_raw["_data"] >= data_inicio) & (df_raw["_data"] <= data_fim)
-df_raw_filtrado = df_raw[mask].copy()
+if len(df_raw) > 0:
+    mask = (df_raw["_data"] >= data_inicio) & (df_raw["_data"] <= data_fim)
+    df_raw_filtrado = df_raw[mask].copy()
+    if categoria_selecionada != "Todos":
+        df_raw_filtrado = df_raw_filtrado[df_raw_filtrado["categoria"] == categoria_selecionada]
+else:
+    df_raw_filtrado = df_raw
 
-if categoria_selecionada != "Todos":
-    df_raw_filtrado = df_raw_filtrado[df_raw_filtrado["categoria"] == categoria_selecionada]
+if len(df_cadastros_raw) > 0:
+    mask_cad = (df_cadastros_raw["_data"] >= data_inicio) & (df_cadastros_raw["_data"] <= data_fim)
+    df_cadastros_filtrado = df_cadastros_raw[mask_cad].copy()
+    if categoria_selecionada != "Todos":
+        df_cadastros_filtrado = df_cadastros_filtrado[df_cadastros_filtrado["categoria"] == categoria_selecionada]
+else:
+    df_cadastros_filtrado = df_cadastros_raw
 
 df_wide = pivot_respostas(df_raw_filtrado)
-
-if len(df_wide) == 0:
-    st.warning(
-        "Nenhuma resposta encontrada para os filtros selecionados. "
-        "Ajuste a categoria ou o período e tente novamente."
-    )
-    st.stop()
-
 q_cols = [c for c in df_wide.columns if c.startswith("q")]
 
 # Botão de export só aparece quando há dados
-st.sidebar.download_button(
-    label="Baixar CSV",
-    data=_to_csv(df_wide),
-    file_name="feedbacks_contalibras.csv",
-    mime="text/csv",
-)
+if len(df_wide) > 0:
+    st.sidebar.download_button(
+        label="Baixar CSV",
+        data=_to_csv(df_wide),
+        file_name="feedbacks_contalibras.csv",
+        mime="text/csv",
+    )
 
 st.sidebar.caption(f"{len(df_wide)} resposta(s) nos filtros selecionados.")
 
@@ -196,6 +223,69 @@ st.caption(
     f"· {len(df_wide)} resposta(s)"
 )
 st.divider()
+
+
+# ---------------------------------------------------------------------------
+# Cadastros x Questionário Respondido
+# ---------------------------------------------------------------------------
+
+st.subheader("Cadastros x Questionário Respondido")
+st.caption(
+    "Quem se cadastrou no app (tela de primeiro acesso) dentro do período/categoria "
+    "selecionados, tenha ou não respondido o questionário de avaliação depois."
+)
+
+if len(df_cadastros_filtrado) == 0:
+    st.info("Nenhum cadastro encontrado para os filtros selecionados.")
+else:
+    ids_com_resposta = set(
+        df_raw_filtrado["cadastro_id"].dropna().astype(int)
+    ) if "cadastro_id" in df_raw_filtrado.columns and len(df_raw_filtrado) > 0 else set()
+
+    total_cadastros = len(df_cadastros_filtrado)
+    total_responderam = df_cadastros_filtrado["id"].isin(ids_com_resposta).sum()
+    total_nao_responderam = total_cadastros - total_responderam
+    taxa_conclusao = total_responderam / total_cadastros * 100 if total_cadastros > 0 else 0.0
+
+    kpi_c1, kpi_c2, kpi_c3 = st.columns(3)
+    kpi_c1.metric("Total de Cadastros", total_cadastros)
+    kpi_c2.metric("Responderam o Questionário", int(total_responderam))
+    kpi_c3.metric("Taxa de Conclusão", f"{taxa_conclusao:.0f}%")
+
+    col_chart, col_tabela = st.columns([1, 2])
+    with col_chart:
+        st.plotly_chart(
+            chart_conclusao_cadastro(total_cadastros, int(total_responderam)),
+            use_container_width=True,
+        )
+    with col_tabela:
+        df_sem_resposta = df_cadastros_filtrado[
+            ~df_cadastros_filtrado["id"].isin(ids_com_resposta)
+        ].sort_values("criado_em", ascending=False)
+
+        st.markdown(f"**Cadastrados que não responderam ({total_nao_responderam})**")
+        if df_sem_resposta.empty:
+            st.caption("Todo mundo que se cadastrou também respondeu o questionário. 🎉")
+        else:
+            df_sem_resposta_fmt = df_sem_resposta.copy()
+            df_sem_resposta_fmt["criado_em"] = (
+                pd.to_datetime(df_sem_resposta_fmt["criado_em"]).dt.strftime("%d/%m/%Y %H:%M")
+            )
+            df_sem_resposta_fmt = df_sem_resposta_fmt.rename(columns={
+                "nome": "Nome",
+                "categoria": "Categoria",
+                "criado_em": "Cadastrado em",
+            })[["Nome", "Categoria", "Cadastrado em"]]
+            st.dataframe(df_sem_resposta_fmt, use_container_width=True, hide_index=True)
+
+st.divider()
+
+if len(df_wide) == 0:
+    st.warning(
+        "Nenhuma resposta ao questionário encontrada para os filtros selecionados. "
+        "Ajuste a categoria ou o período e tente novamente."
+    )
+    st.stop()
 
 
 # ---------------------------------------------------------------------------

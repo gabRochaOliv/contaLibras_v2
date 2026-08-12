@@ -253,6 +253,38 @@ def chart_pizza_pergunta(df_wide: pd.DataFrame, questao: str):
     return fig
 
 
+def chart_conclusao_cadastro(total_cadastros: int, total_responderam: int):
+    """Donut: cadastrados que responderam o questionário vs. os que não responderam."""
+    if total_cadastros == 0:
+        fig = go.Figure()
+        fig.update_layout(title="Sem cadastros", height=300)
+        return fig
+
+    nao_responderam = total_cadastros - total_responderam
+    taxa = total_responderam / total_cadastros * 100
+
+    fig = go.Figure(go.Pie(
+        labels=["Responderam", "Não responderam"],
+        values=[total_responderam, nao_responderam],
+        hole=0.55,
+        marker_colors=["#2ca02c", "#d62728"],
+        textinfo="value+percent",
+        hovertemplate="%{label}: %{value} (%{percent})<extra></extra>",
+        sort=False,
+    ))
+    fig.update_layout(
+        title="Cadastros x Questionário Respondido",
+        height=300,
+        margin=dict(t=50, b=20, l=10, r=10),
+        annotations=[
+            dict(text=f"<b>{taxa:.0f}%</b>", x=0.5, y=0.58, showarrow=False, font_size=20),
+            dict(text="concluíram", x=0.5, y=0.42, showarrow=False, font_size=11, font_color="gray"),
+        ],
+        legend=dict(orientation="v", yanchor="middle", y=0.5, x=1.01, font_size=10),
+    )
+    return fig
+
+
 # ---------------------------------------------------------------------------
 # Gráficos existentes — mantidos para retrocompatibilidade com testes
 # ---------------------------------------------------------------------------

@@ -18,6 +18,7 @@ class UserManager extends ChangeNotifier {
   String _userEscolaridade = '';
   bool _userUsaLibras = false;
   String _userConhecimentoLibras = '';
+  int? _cadastroId;
 
   String get userId => _userId;
   String get userName => _userName;
@@ -26,6 +27,7 @@ class UserManager extends ChangeNotifier {
   String get userEscolaridade => _userEscolaridade;
   bool get userUsaLibras => _userUsaLibras;
   String get userConhecimentoLibras => _userConhecimentoLibras;
+  int? get cadastroId => _cadastroId;
 
   void setUserData(
     String id,
@@ -35,6 +37,7 @@ class UserManager extends ChangeNotifier {
     String escolaridade = '',
     bool usaLibras = false,
     String conhecimentoLibras = '',
+    int? cadastroId,
   }) {
     _userId = id;
     _userName = name;
@@ -43,6 +46,7 @@ class UserManager extends ChangeNotifier {
     _userEscolaridade = escolaridade;
     _userUsaLibras = usaLibras;
     _userConhecimentoLibras = conhecimentoLibras;
+    _cadastroId = cadastroId;
     notifyListeners();
   }
 
@@ -55,7 +59,13 @@ class UserManager extends ChangeNotifier {
       escolaridade: profile.escolaridade,
       usaLibras: profile.usaLibras,
       conhecimentoLibras: profile.conhecimentoLibras,
+      cadastroId: profile.cadastroId,
     );
+  }
+
+  void setCadastroId(int id) {
+    _cadastroId = id;
+    notifyListeners();
   }
 
   UserProfile toProfile() => UserProfile(
@@ -66,6 +76,7 @@ class UserManager extends ChangeNotifier {
         escolaridade: _userEscolaridade,
         usaLibras: _userUsaLibras,
         conhecimentoLibras: _userConhecimentoLibras,
+        cadastroId: _cadastroId,
       );
 
   void clear() {
@@ -76,6 +87,7 @@ class UserManager extends ChangeNotifier {
     _userEscolaridade = '';
     _userUsaLibras = false;
     _userConhecimentoLibras = '';
+    _cadastroId = null;
     notifyListeners();
   }
 }

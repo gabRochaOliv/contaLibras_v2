@@ -47,6 +47,7 @@ class FeedbackService extends ChangeNotifier {
             .map((e) => {'pergunta_id': e.key, 'valor': e.value})
             .toList(),
         'timestamp': DateTime.now().toIso8601String(),
+        'cadastro_id': UserManager().cadastroId,
       };
 
       final response = await client.post(
