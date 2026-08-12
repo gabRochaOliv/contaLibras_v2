@@ -11,7 +11,7 @@ import traceback
 import pandas as pd
 import streamlit as st
 
-from database import fetch_feedbacks
+from database import fetch_feedbacks, delete_feedbacks
 from transforms import (
     pivot_respostas,
     SECOES_IHC,
@@ -340,6 +340,31 @@ df_resp = (
 
 st.dataframe(df_resp, use_container_width=True, hide_index=True)
 st.caption(f"{len(df_resp)} respondente(s) exibido(s).")
+
+with st.expander("🗑️ Excluir registros"):
+    st.caption(
+        "Selecione respondentes para remover permanentemente do banco de dados "
+        "(considera todos os registros, ignorando os filtros acima). Essa ação não pode ser desfeita."
+    )
+    opcoes_exclusao = {
+        (
+            f"#{row.id} — {row.nome} — {row.categoria} — "
+            f"{pd.to_datetime(row.criado_em).strftime('%d/%m/%Y %H:%M')}"
+        ): row.id
+        for row in df_raw.sort_values("criado_em", ascending=False).itertuples()
+    }
+    selecionados = st.multiselect("Registros a excluir", list(opcoes_exclusao.keys()))
+
+    if selecionados:
+        ids_selecionados = [opcoes_exclusao[s] for s in selecionados]
+        confirmar = st.checkbox(
+            f"Confirmo a exclusão permanente de {len(ids_selecionados)} registro(s)."
+        )
+        if st.button("Excluir selecionados", type="primary", disabled=not confirmar):
+            delete_feedbacks(ids_selecionados)
+            fetch_feedbacks.clear()
+            st.success("Registro(s) excluído(s) com sucesso.")
+            st.rerun()
 
 st.divider()
 

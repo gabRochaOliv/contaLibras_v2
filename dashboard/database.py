@@ -20,6 +20,19 @@ def get_connection():
     )
 
 
+def delete_feedbacks(ids: list[int]) -> None:
+    """Remove feedbacks do banco pelos ids informados."""
+    if not ids:
+        return
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM feedbacks WHERE id = ANY(%s)", (ids,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 @st.cache_data(ttl="5m")
 def fetch_feedbacks() -> pd.DataFrame:
     """Busca todos os feedbacks do banco com cache de 5 minutos."""
