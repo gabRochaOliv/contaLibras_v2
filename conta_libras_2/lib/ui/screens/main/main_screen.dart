@@ -16,13 +16,17 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  static const int _dictionaryTabIndex = 1;
+
   int _currentIndex = 0;
   String _userName = 'Estudante';
   TermModel? _selectedTerm;
+  final Set<String> _recentlyViewedTermIds = {};
 
   void _onTermSelected(TermModel term) {
     setState(() {
       _selectedTerm = term;
+      _recentlyViewedTermIds.add(term.id);
     });
   }
 
@@ -32,9 +36,23 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _changeTab(int index) {
+    setState(() {
+      _currentIndex = index;
+      _selectedTerm = null;
+      // Sair do Dicionário pra outra aba reseta o destaque de "recém-visto".
+      if (index != _dictionaryTabIndex) {
+        _recentlyViewedTermIds.clear();
+      }
+    });
+  }
+
   List<Widget> get _screens => [
     HomeScreen(userName: _userName, onTermSelected: _onTermSelected),
-    DictionaryScreen(onTermSelected: _onTermSelected),
+    DictionaryScreen(
+      onTermSelected: _onTermSelected,
+      recentlyViewedTermIds: _recentlyViewedTermIds,
+    ),
     FavoritesScreen(onTermSelected: _onTermSelected),
     const ProfileScreen(),
   ];
@@ -193,10 +211,7 @@ class _MainScreenState extends State<MainScreen> {
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             currentIndex: _currentIndex,
-            onTap: (index) => setState(() {
-              _currentIndex = index;
-              _selectedTerm = null;
-            }),
+            onTap: _changeTab,
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_rounded),
@@ -224,10 +239,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildDesktopNavItem(int index, String title, IconData icon) {
     final isSelected = _currentIndex == index && _selectedTerm == null;
     return InkWell(
-      onTap: () => setState(() {
-        _currentIndex = index;
-        _selectedTerm = null;
-      }),
+      onTap: () => _changeTab(index),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

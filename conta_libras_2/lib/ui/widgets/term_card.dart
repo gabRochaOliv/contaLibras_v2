@@ -5,16 +5,20 @@ import '../../../data/models/term_model.dart';
 class TermCard extends StatelessWidget {
   final TermModel term;
   final VoidCallback onTap;
+  final bool isRecentlyViewed;
 
   const TermCard({
     super.key,
     required this.term,
     required this.onTap,
+    this.isRecentlyViewed = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = isRecentlyViewed ? AppColors.textSecondary : AppColors.secondary;
     return Card(
+      color: isRecentlyViewed ? AppColors.divider.withOpacity(0.3) : null,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -26,12 +30,12 @@ class TermCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.1),
+                  color: iconColor.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.menu_book_rounded,
-                  color: AppColors.secondary,
+                  color: iconColor,
                 ),
               ),
               const SizedBox(width: 16),
@@ -41,7 +45,9 @@ class TermCard extends StatelessWidget {
                   children: [
                     Text(
                       term.title,
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: isRecentlyViewed ? AppColors.textSecondary : null,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(

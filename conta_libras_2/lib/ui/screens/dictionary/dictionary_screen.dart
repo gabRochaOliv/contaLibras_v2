@@ -7,7 +7,12 @@ import 'term_detail_screen.dart';
 
 class DictionaryScreen extends StatefulWidget {
   final void Function(TermModel)? onTermSelected;
-  const DictionaryScreen({super.key, this.onTermSelected});
+  final Set<String> recentlyViewedTermIds;
+  const DictionaryScreen({
+    super.key,
+    this.onTermSelected,
+    this.recentlyViewedTermIds = const {},
+  });
 
   @override
   State<DictionaryScreen> createState() => _DictionaryScreenState();
@@ -77,6 +82,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 return TermCard(
                   term: term,
                   onTap: () => _openTerm(context, term),
+                  isRecentlyViewed: widget.recentlyViewedTermIds.contains(term.id),
                 );
               },
             ),
