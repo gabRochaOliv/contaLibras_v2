@@ -238,12 +238,14 @@ st.caption(
 if len(df_cadastros_filtrado) == 0:
     st.info("Nenhum cadastro encontrado para os filtros selecionados.")
 else:
+    # cadastro_id/id são UUID — comparamos como string pra não depender de
+    # como o driver decide representar o tipo uuid em cada coluna.
     ids_com_resposta = set(
-        df_raw_filtrado["cadastro_id"].dropna().astype(int)
+        df_raw_filtrado["cadastro_id"].dropna().astype(str)
     ) if "cadastro_id" in df_raw_filtrado.columns and len(df_raw_filtrado) > 0 else set()
 
     total_cadastros = len(df_cadastros_filtrado)
-    total_responderam = df_cadastros_filtrado["id"].isin(ids_com_resposta).sum()
+    total_responderam = df_cadastros_filtrado["id"].astype(str).isin(ids_com_resposta).sum()
     total_nao_responderam = total_cadastros - total_responderam
     taxa_conclusao = total_responderam / total_cadastros * 100 if total_cadastros > 0 else 0.0
 
@@ -260,7 +262,7 @@ else:
         )
     with col_tabela:
         df_sem_resposta = df_cadastros_filtrado[
-            ~df_cadastros_filtrado["id"].isin(ids_com_resposta)
+            ~df_cadastros_filtrado["id"].astype(str).isin(ids_com_resposta)
         ].sort_values("criado_em", ascending=False)
 
         st.markdown(f"**Cadastrados que não responderam ({total_nao_responderam})**")

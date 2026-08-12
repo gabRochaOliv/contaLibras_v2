@@ -6,7 +6,7 @@ class UserProfile {
   final String escolaridade;
   final bool usaLibras;
   final String conhecimentoLibras;
-  final int? cadastroId;
+  final String? cadastroId;
 
   const UserProfile({
     required this.id,
@@ -19,7 +19,7 @@ class UserProfile {
     this.cadastroId,
   });
 
-  UserProfile copyWith({int? cadastroId}) => UserProfile(
+  UserProfile copyWith({String? cadastroId}) => UserProfile(
         id: id,
         name: name,
         category: category,
@@ -49,6 +49,6 @@ class UserProfile {
         escolaridade: json['escolaridade'] as String? ?? '',
         usaLibras: json['usaLibras'] as bool? ?? false,
         conhecimentoLibras: json['conhecimentoLibras'] as String? ?? '',
-        cadastroId: json['cadastroId'] as int?,
+        cadastroId: json['cadastroId'] as String?,
       );
 }

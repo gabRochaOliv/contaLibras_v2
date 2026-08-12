@@ -9,7 +9,7 @@ import '../../core/constants.dart';
 /// questionário depois. É melhor esforço: falha de rede não deve travar
 /// nem interromper o fluxo do usuário.
 class CadastroService {
-  Future<int?> register(UserProfile profile, {http.Client? httpClient}) async {
+  Future<String?> register(UserProfile profile, {http.Client? httpClient}) async {
     final client = httpClient ?? http.Client();
     try {
       final payload = {
@@ -32,7 +32,7 @@ class CadastroService {
       }
 
       final body = jsonDecode(response.body) as Map<String, dynamic>;
-      return body['id'] as int?;
+      return body['id'] as String?;
     } catch (e) {
       debugPrint('[CadastroService] falha ao registrar cadastro: $e');
       return null;

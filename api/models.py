@@ -29,4 +29,4 @@ class FeedbackPayload(BaseModel):
     comentario_sugestao: str = ""
     respostas: List[Resposta]
     timestamp: datetime
-    cadastro_id: Optional[int] = None
+    cadastro_id: Optional[str] = None

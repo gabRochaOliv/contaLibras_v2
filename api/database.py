@@ -1,13 +1,18 @@
 import os
+import uuid
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-def insert_cadastro(payload) -> int:
+def insert_cadastro(payload) -> str:
+    """Gera o id no cliente (UUID) pra nao precisar de RETURNING/SELECT no
+    Supabase — a tabela `cadastros` tem RLS com politica de INSERT apenas
+    pra `anon`, entao a API ja sabe o id sem precisar ler a linha de volta."""
     supabase_url = os.environ["SUPABASE_URL"]
     supabase_key = os.environ["SUPABASE_ANON_KEY"]
+    cadastro_id = str(uuid.uuid4())
 
     response = requests.post(
         f"{supabase_url}/rest/v1/cadastros",
@@ -15,9 +20,10 @@ def insert_cadastro(payload) -> int:
             "apikey": supabase_key,
             "Authorization": f"Bearer {supabase_key}",
             "Content-Type": "application/json",
-            "Prefer": "return=representation",
+            "Prefer": "return=minimal",
         },
         json={
+            "id": cadastro_id,
             "nome": payload.nome,
             "idade": payload.idade,
             "categoria": payload.categoria,
@@ -28,7 +34,7 @@ def insert_cadastro(payload) -> int:
         timeout=10,
     )
     response.raise_for_status()
-    return response.json()[0]["id"]
+    return cadastro_id
 
 
 def insert_feedback(payload):

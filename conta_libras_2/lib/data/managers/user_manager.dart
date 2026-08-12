@@ -18,7 +18,7 @@ class UserManager extends ChangeNotifier {
   String _userEscolaridade = '';
   bool _userUsaLibras = false;
   String _userConhecimentoLibras = '';
-  int? _cadastroId;
+  String? _cadastroId;
 
   String get userId => _userId;
   String get userName => _userName;
@@ -27,7 +27,7 @@ class UserManager extends ChangeNotifier {
   String get userEscolaridade => _userEscolaridade;
   bool get userUsaLibras => _userUsaLibras;
   String get userConhecimentoLibras => _userConhecimentoLibras;
-  int? get cadastroId => _cadastroId;
+  String? get cadastroId => _cadastroId;
 
   void setUserData(
     String id,
@@ -37,7 +37,7 @@ class UserManager extends ChangeNotifier {
     String escolaridade = '',
     bool usaLibras = false,
     String conhecimentoLibras = '',
-    int? cadastroId,
+    String? cadastroId,
   }) {
     _userId = id;
     _userName = name;
@@ -63,7 +63,7 @@ class UserManager extends ChangeNotifier {
     );
   }
 
-  void setCadastroId(int id) {
+  void setCadastroId(String id) {
     _cadastroId = id;
     notifyListeners();
   }
