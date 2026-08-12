@@ -139,18 +139,26 @@ class _MainScreenState extends State<MainScreen> {
                 Expanded(
                   child: Container(
                     color: AppColors.background,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: _selectedTerm != null
-                          ? TermDetailScreen(
-                              key: ValueKey(_selectedTerm!.id),
-                              term: _selectedTerm!,
-                            )
-                          : IndexedStack(
-                              key: const ValueKey('main_stack'),
-                              index: _currentIndex,
-                              children: _screens,
-                            ),
+                    child: Stack(
+                      children: [
+                        // Sempre montado: preserva o estado (e a posição de
+                        // rolagem) das telas internas ao alternar com o
+                        // detalhe do termo.
+                        IndexedStack(
+                          key: const ValueKey('main_stack'),
+                          index: _currentIndex,
+                          children: _screens,
+                        ),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          child: _selectedTerm != null
+                              ? TermDetailScreen(
+                                  key: ValueKey(_selectedTerm!.id),
+                                  term: _selectedTerm!,
+                                )
+                              : const SizedBox.shrink(key: ValueKey('empty')),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -161,19 +169,26 @@ class _MainScreenState extends State<MainScreen> {
 
         // Mobile: navegação mantendo o BottomNavigationBar visível
         return Scaffold(
-          body: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            child: _selectedTerm != null
-                ? TermDetailScreen(
-                    key: ValueKey(_selectedTerm!.id),
-                    term: _selectedTerm!,
-                    onBackPressed: _clearSelectedTerm,
-                  )
-                : IndexedStack(
-                    key: const ValueKey('main_stack'),
-                    index: _currentIndex,
-                    children: _screens,
-                  ),
+          body: Stack(
+            children: [
+              // Sempre montado: preserva o estado (e a posição de rolagem)
+              // das telas internas ao alternar com o detalhe do termo.
+              IndexedStack(
+                key: const ValueKey('main_stack'),
+                index: _currentIndex,
+                children: _screens,
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: _selectedTerm != null
+                    ? TermDetailScreen(
+                        key: ValueKey(_selectedTerm!.id),
+                        term: _selectedTerm!,
+                        onBackPressed: _clearSelectedTerm,
+                      )
+                    : const SizedBox.shrink(key: ValueKey('empty')),
+              ),
+            ],
           ),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
