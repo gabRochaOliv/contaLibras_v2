@@ -142,6 +142,7 @@ st.sidebar.title("ContaLibras")
 st.sidebar.caption("Dashboard de Feedback — Glossário de Contabilidade")
 if st.sidebar.button("🔄 Atualizar dados agora"):
     fetch_feedbacks.clear()
+    fetch_cadastros.clear()
     st.rerun()
 st.sidebar.caption("Os dados ficam em cache por até 5 min — use o botão acima pra forçar a atualização.")
 st.sidebar.divider()
