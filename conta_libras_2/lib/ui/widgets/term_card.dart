@@ -54,10 +54,10 @@ class TermCard extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         padding: const EdgeInsets.all(2),
-                        child: const Icon(
+                        child: Icon(
                           Icons.check_circle_rounded,
                           size: 16,
-                          color: AppColors.secondary,
+                          color: Colors.amber.shade700,
                         ),
                       ),
                     ),
