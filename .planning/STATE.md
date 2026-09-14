@@ -33,6 +33,15 @@
 - to_csv_bytes() com @st.cache_data sem TTL — cache invalida quando df_wide (argumento) muda
 - railway.json em vez de Procfile — pattern correto para novos serviços Railway
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260914-rs5 | Corrigir video de saudacao (LoopingAssetVideo) quebrado no navegador embutido do WhatsApp/Android: desabilitar controles nativos e adicionar fallback para imagem estatica | 2026-09-14 | 34251b2 | [260914-rs5-corrigir-video-de-saudacao-loopingassetv](./quick/260914-rs5-corrigir-video-de-saudacao-loopingassetv/) |
+
 ## Resume
 - Milestone 1 concluído — sistema de coleta + dashboard operacional
 - Próximo: coleta de dados reais com usuários (fase de campo do TCC)
+- Pendente: verificação manual do fix do vídeo de saudação (260914-rs5) em Chrome e no WebView do WhatsApp/Android após o próximo deploy
+
+Last activity: 2026-09-14 - Completed quick task 260914-rs5: Corrigir video de saudacao quebrado no WebView do WhatsApp
