@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../data/managers/progress_manager.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 import '../../../data/services/profile_storage_service.dart';
@@ -32,6 +33,7 @@ class ProfileScreen extends StatelessWidget {
     if (confirmed != true) return;
 
     UserManager().clear();
+    ProgressManager().clear();
 
     if (!context.mounted) return;
     Navigator.of(context).pushAndRemoveUntil(

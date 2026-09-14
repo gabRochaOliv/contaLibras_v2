@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/managers/progress_manager.dart';
 import '../../../data/mock/mock_dictionary_repository.dart';
 import '../../../data/models/term_model.dart';
 import '../../widgets/term_card.dart';
@@ -74,15 +75,21 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 16),
-              itemCount: _filteredTerms.length,
-              itemBuilder: (context, index) {
-                final term = _filteredTerms[index];
-                return TermCard(
-                  term: term,
-                  onTap: () => _openTerm(context, term),
-                  isRecentlyViewed: widget.recentlyViewedTermIds.contains(term.id),
+            child: AnimatedBuilder(
+              animation: ProgressManager(),
+              builder: (context, child) {
+                return ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  itemCount: _filteredTerms.length,
+                  itemBuilder: (context, index) {
+                    final term = _filteredTerms[index];
+                    return TermCard(
+                      term: term,
+                      onTap: () => _openTerm(context, term),
+                      isRecentlyViewed: widget.recentlyViewedTermIds.contains(term.id),
+                      isPreviouslyViewed: ProgressManager().isViewed(term.id),
+                    );
+                  },
                 );
               },
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/managers/progress_manager.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../data/services/profile_storage_service.dart';
@@ -56,6 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
       final match = state.profiles.where((p) => p.id == state.activeId);
       if (match.isNotEmpty) {
         UserManager().loadFromProfile(match.first);
+        await ProgressManager().loadForUser(match.first.id);
         next = const MainScreen();
       } else if (state.profiles.isNotEmpty) {
         next = const ProfileSelectionScreen();
@@ -64,6 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
       next = const ProfileSelectionScreen();
     }
 
+    if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => next),
