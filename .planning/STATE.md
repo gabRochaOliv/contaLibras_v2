@@ -38,7 +38,7 @@
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260914-rs5 | Corrigir video de saudacao (LoopingAssetVideo) quebrado no navegador embutido do WhatsApp/Android: desabilitar controles nativos e adicionar fallback para imagem estatica | 2026-09-14 | 34251b2 | [260914-rs5-corrigir-video-de-saudacao-loopingassetv](./quick/260914-rs5-corrigir-video-de-saudacao-loopingassetv/) |
-| 260914-s0w | Corrigir persistencia de progresso de Termos Explorados e marcacao de termos acessados (cinza) no Dicionario apos sair e voltar ao app | 2026-09-14 | 8e2b6a1 | [260914-s0w-corrigir-persistencia-de-progresso-de-te](./quick/260914-s0w-corrigir-persistencia-de-progresso-de-te/) |
+| 260914-s0w | Corrigir persistencia de progresso de Termos Explorados e marcacao de termos acessados (cinza) no Dicionario apos sair e voltar ao app | 2026-09-14 | 40bc81f | [260914-s0w-corrigir-persistencia-de-progresso-de-te](./quick/260914-s0w-corrigir-persistencia-de-progresso-de-te/) |
 
 ## Resume
 - Milestone 1 concluído — sistema de coleta + dashboard operacional
