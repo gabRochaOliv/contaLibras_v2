@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../data/managers/progress_manager.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 import '../../../data/models/user_profile.dart';
@@ -37,6 +38,7 @@ class _ProfileSelectionScreenState extends State<ProfileSelectionScreen> {
 
   Future<void> _selectProfile(UserProfile profile) async {
     UserManager().loadFromProfile(profile);
+    await ProgressManager().loadForUser(profile.id);
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const MainScreen()),
