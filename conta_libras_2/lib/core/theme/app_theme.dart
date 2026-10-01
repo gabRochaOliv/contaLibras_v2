@@ -6,115 +6,117 @@ import 'app_text_styles.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        background: AppColors.background,
-        surface: AppColors.surface,
-        error: AppColors.accent,
-      ),
-      scaffoldBackgroundColor: AppColors.background,
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: AppTextStyles.heading1,
-        headlineMedium: AppTextStyles.heading2,
-        titleLarge: AppTextStyles.heading3,
-        bodyLarge: AppTextStyles.bodyLarge,
-        bodyMedium: AppTextStyles.bodyMedium,
-        labelSmall: AppTextStyles.label,
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: AppTextStyles.heading2,
-      ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        selectedLabelStyle: AppTextStyles.label.copyWith(
-          color: AppColors.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 11,
-        ),
-        unselectedLabelStyle: AppTextStyles.label.copyWith(fontSize: 11),
-        selectedIconTheme: const IconThemeData(size: 22),
-        unselectedIconTheme: const IconThemeData(size: 22),
-        type: BottomNavigationBarType.fixed,
-        elevation: 8,
-      ),
-      cardTheme: CardTheme(
-        color: AppColors.surface,
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.05),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      ),
-    );
-  }
+  static ThemeData get lightTheme => _build(AppPalette.light, Brightness.light);
 
-  static ThemeData get darkTheme {
+  static ThemeData get darkTheme => _build(AppPalette.dark, Brightness.dark);
+
+  // Os dois temas saem da mesma função e usam a paleta explícita de cada
+  // modo, para nunca herdarem cores do modo que está ativo no momento.
+  static ThemeData _build(AppPalette p, Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+
+    final colorScheme = ColorScheme.fromSeed(
+      brightness: brightness,
+      seedColor: AppColors.primary,
+      // No escuro, `primary` é usado pelos componentes padrão do Material
+      // (Switch, TextButton, cursor, foco) como cor de primeiro plano, então
+      // precisa ser a variante clara legível sobre fundo escuro.
+      primary: p.primaryFg,
+      onPrimary: isDark ? const Color(0xFF10243A) : Colors.white,
+      secondary: p.secondaryFg,
+      error: p.accentFg,
+      surface: p.surface,
+      onSurface: p.textPrimary,
+      onSurfaceVariant: p.textSecondary,
+      outline: p.border,
+      outlineVariant: p.divider,
+    );
+
+    TextStyle withColor(TextStyle s, Color c) => s.copyWith(color: c);
+
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        brightness: Brightness.dark,
-        seedColor: AppColors.primary,
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        background: const Color(0xFF121212),
-        surface: const Color(0xFF1E1E1E),
-        error: AppColors.accent,
-      ),
-      scaffoldBackgroundColor: const Color(0xFF121212),
-      textTheme:
-          GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
-        displayLarge: AppTextStyles.heading1.copyWith(color: Colors.white),
-        headlineMedium: AppTextStyles.heading2.copyWith(color: Colors.white),
-        titleLarge: AppTextStyles.heading3.copyWith(color: Colors.white),
-        bodyLarge:
-            AppTextStyles.bodyLarge.copyWith(color: Colors.grey.shade300),
-        bodyMedium:
-            AppTextStyles.bodyMedium.copyWith(color: Colors.grey.shade400),
-        labelSmall: AppTextStyles.label.copyWith(color: Colors.grey.shade500),
+      brightness: brightness,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: p.background,
+      canvasColor: p.background,
+      cardColor: p.surface,
+      dividerColor: p.divider,
+      dividerTheme: DividerThemeData(color: p.divider),
+      iconTheme: IconThemeData(color: p.textSecondary),
+      textTheme: GoogleFonts.interTextTheme(
+        isDark ? ThemeData.dark().textTheme : ThemeData.light().textTheme,
+      ).copyWith(
+        displayLarge: withColor(AppTextStyles.heading1, p.textPrimary),
+        headlineMedium: withColor(AppTextStyles.heading2, p.textPrimary),
+        titleLarge: withColor(AppTextStyles.heading3, p.textPrimary),
+        bodyLarge: withColor(AppTextStyles.bodyLarge, p.textPrimary),
+        bodyMedium: withColor(AppTextStyles.bodyMedium, p.textSecondary),
+        labelSmall: withColor(AppTextStyles.label, p.textSecondary),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFF121212),
+        backgroundColor: p.background,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: AppTextStyles.heading2.copyWith(color: Colors.white),
+        iconTheme: IconThemeData(color: p.textPrimary),
+        titleTextStyle: withColor(AppTextStyles.heading2, p.textPrimary),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: const Color(0xFF1E1E1E),
-        selectedItemColor: AppColors.secondary,
-        unselectedItemColor: Colors.grey.shade600,
+        backgroundColor: p.surface,
+        selectedItemColor: p.primaryFg,
+        unselectedItemColor: p.textSecondary,
         selectedLabelStyle: AppTextStyles.label.copyWith(
-          color: AppColors.secondary,
+          color: p.primaryFg,
           fontWeight: FontWeight.bold,
           fontSize: 11,
         ),
-        unselectedLabelStyle: AppTextStyles.label.copyWith(fontSize: 11),
+        unselectedLabelStyle:
+            AppTextStyles.label.copyWith(color: p.textSecondary, fontSize: 11),
         selectedIconTheme: const IconThemeData(size: 22),
         unselectedIconTheme: const IconThemeData(size: 22),
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
       cardTheme: CardTheme(
-        color: const Color(0xFF1E1E1E),
+        color: p.surface,
+        surfaceTintColor: Colors.transparent,
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.5),
+        shadowColor: Colors.black.withOpacity(isDark ? 0.5 : 0.05),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       ),
+      dialogTheme: DialogTheme(
+        backgroundColor: p.surface,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: withColor(AppTextStyles.heading3, p.textPrimary),
+        contentTextStyle: withColor(AppTextStyles.bodyMedium, p.textPrimary),
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: p.primaryFg,
+        textColor: p.textPrimary,
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: MaterialStateProperty.resolveWith((states) =>
+            states.contains(MaterialState.selected)
+                ? Colors.white
+                : p.textSecondary),
+        trackColor: MaterialStateProperty.resolveWith((states) =>
+            states.contains(MaterialState.selected) ? p.action : p.divider),
+        trackOutlineColor: MaterialStateProperty.resolveWith((states) =>
+            states.contains(MaterialState.selected)
+                ? Colors.transparent
+                : p.border),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: TextStyle(color: p.textSecondary),
+        labelStyle: TextStyle(color: p.textSecondary),
+        prefixIconColor: p.textSecondary,
+      ),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: p.primaryFg),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: p.primaryFg),
     );
   }
 }
