@@ -129,17 +129,18 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
       {required String label, required IconData icon}) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: AppColors.secondary),
+      prefixIcon: Icon(icon, color: AppColors.secondaryFg),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: AppColors.divider),
+        // Contorno de campo editável precisa de >= 3:1 (WCAG 1.4.11).
+        borderSide: BorderSide(color: AppColors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        borderSide: BorderSide(color: AppColors.primaryFg, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
@@ -174,7 +175,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
               duration: const Duration(milliseconds: 250),
               height: 6,
               decoration: BoxDecoration(
-                color: isActive ? AppColors.primary : AppColors.divider,
+                color: isActive ? AppColors.primaryFg : AppColors.divider,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -440,7 +441,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                                 ElevatedButton(
                                   onPressed: _goToNextStep,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
+                                    backgroundColor: AppColors.action,
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 18, horizontal: 8),
                                     elevation: 2,
@@ -472,8 +473,7 @@ class _FirstAccessScreenState extends State<FirstAccessScreen> {
                                     style: OutlinedButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 18, horizontal: 8),
-                                      side:
-                                          BorderSide(color: AppColors.divider),
+                                      side: BorderSide(color: AppColors.border),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),

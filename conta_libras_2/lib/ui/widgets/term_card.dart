@@ -18,10 +18,11 @@ class TermCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = isRecentlyViewed ? AppColors.textSecondary : AppColors.secondary;
+    final iconColor =
+        isRecentlyViewed ? AppColors.textSecondary : AppColors.secondaryFg;
     final showVisitedBadge = isPreviouslyViewed && !isRecentlyViewed;
     return Card(
-      color: isRecentlyViewed ? AppColors.divider.withOpacity(0.3) : null,
+      color: isRecentlyViewed ? AppColors.divider.withOpacity(0.5) : null,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -57,7 +58,7 @@ class TermCard extends StatelessWidget {
                         child: Icon(
                           Icons.check_circle_rounded,
                           size: 16,
-                          color: Colors.amber.shade700,
+                          color: AppColors.highlight,
                         ),
                       ),
                     ),
@@ -71,7 +72,9 @@ class TermCard extends StatelessWidget {
                     Text(
                       term.title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: isRecentlyViewed ? AppColors.textSecondary : null,
+                            color: isRecentlyViewed
+                                ? AppColors.textSecondary
+                                : null,
                           ),
                     ),
                     const SizedBox(height: 4),

@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../widgets/developer_footer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/managers/progress_manager.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 import '../../../data/services/profile_storage_service.dart';
+import '../about/about_screen.dart';
 import '../profile_selection/profile_selection_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({super.key, this.onOpenAbout});
+
+  /// Abre o "Sobre o App" dentro da MainScreen (mantendo a navegação).
+  /// Sem ele, a tela é empilhada no Navigator.
+  final VoidCallback? onOpenAbout;
 
   Future<void> _logout(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -25,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sair', style: TextStyle(color: AppColors.accent)),
+            child: Text('Sair', style: TextStyle(color: AppColors.accentFg)),
           ),
         ],
       ),
@@ -69,10 +75,11 @@ class ProfileScreen extends StatelessWidget {
                   final user = UserManager();
                   return Column(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 50,
-                        backgroundColor: AppColors.primary,
-                        child: Icon(Icons.person, size: 50, color: Colors.white),
+                        backgroundColor: AppColors.action,
+                        child: const Icon(Icons.person,
+                            size: 50, color: Colors.white),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -83,7 +90,8 @@ class ProfileScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         user.userCategory,
-                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                        style: AppTextStyles.bodyMedium
+                            .copyWith(color: AppColors.textSecondary),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -96,51 +104,43 @@ class ProfileScreen extends StatelessWidget {
                 builder: (context, child) {
                   return SwitchListTile(
                     title: Text('Modo Escuro', style: AppTextStyles.bodyLarge),
-                    secondary: Icon(
-                      Icons.dark_mode_rounded, 
-                      color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary
-                    ),
+                    secondary: Icon(Icons.dark_mode_rounded,
+                        color: AppColors.primaryFg),
                     value: ThemeManager().isDarkMode,
                     onChanged: (value) {
                       ThemeManager().toggleTheme();
                     },
-                    activeColor: AppColors.primary,
                   );
                 },
               ),
               const Divider(),
               ListTile(
-                leading: Icon(
-                  Icons.settings_rounded, 
-                  color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary
-                ),
-                title: Text('Configurações', style: AppTextStyles.bodyLarge),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () {},
-              ),
-              const Divider(),
-              ListTile(
-                leading: Icon(
-                  Icons.info_outline_rounded, 
-                  color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary
-                ),
+                leading: Icon(Icons.info_outline_rounded,
+                    color: AppColors.primaryFg),
                 title: Text('Sobre o App', style: AppTextStyles.bodyLarge),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () {},
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: AppColors.textSecondary),
+                onTap: onOpenAbout ??
+                    () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const AboutScreen()),
+                        ),
               ),
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.logout_rounded, color: AppColors.accent),
+                leading: Icon(Icons.logout_rounded, color: AppColors.accentFg),
                 title: Text(
                   'Sair',
-                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.accent),
+                  style: AppTextStyles.bodyLarge
+                      .copyWith(color: AppColors.accentFg),
                 ),
                 onTap: () => _logout(context),
               ),
-        ],
+              const DeveloperFooter(),
+            ],
+          ),
+        ),
       ),
-    ),
-    ),
     );
   }
 }

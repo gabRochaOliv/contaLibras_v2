@@ -140,18 +140,18 @@ class _ProfileSelectionScreenState extends State<ProfileSelectionScreen> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                  color: AppColors.primary, width: 1.5),
+                                  color: AppColors.primaryFg, width: 1.5),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.add_rounded,
-                                    color: AppColors.primary),
+                                Icon(Icons.add_rounded,
+                                    color: AppColors.primaryFg),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Novo perfil',
                                   style: AppTextStyles.bodyLarge.copyWith(
-                                    color: AppColors.primary,
+                                    color: AppColors.primaryFg,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -208,10 +208,10 @@ class _ProfileTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 24,
-              backgroundColor: AppColors.primary,
-              child: Icon(Icons.person, color: Colors.white),
+              backgroundColor: AppColors.action,
+              child: const Icon(Icons.person, color: Colors.white),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -234,8 +234,8 @@ class _ProfileTile extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline_rounded,
-                  color: AppColors.accent),
+              icon:
+                  Icon(Icons.delete_outline_rounded, color: AppColors.accentFg),
               tooltip: 'Remover perfil',
               onPressed: () => _confirmDelete(context),
             ),
@@ -262,8 +262,7 @@ class _ProfileTile extends StatelessWidget {
               Navigator.pop(ctx);
               onDelete();
             },
-            child: const Text('Remover',
-                style: TextStyle(color: AppColors.accent)),
+            child: Text('Remover', style: TextStyle(color: AppColors.accentFg)),
           ),
         ],
       ),

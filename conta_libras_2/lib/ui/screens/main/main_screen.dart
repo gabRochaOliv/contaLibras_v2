@@ -4,6 +4,8 @@ import '../dictionary/dictionary_screen.dart';
 import '../favorites/favorites_screen.dart';
 import '../profile/profile_screen.dart';
 import '../dictionary/term_detail_screen.dart';
+import '../about/about_screen.dart';
+import '../about/how_to_use_screen.dart';
 import '../../../data/managers/user_manager.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/term_model.dart';
@@ -15,31 +17,61 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
+/// Páginas informativas abertas dentro da MainScreen, mantendo a sidebar
+/// (desktop) e a barra inferior (mobile) visíveis.
+enum _InfoPage { about, howToUse }
+
 class _MainScreenState extends State<MainScreen> {
   static const int _dictionaryTabIndex = 1;
 
   int _currentIndex = 0;
   String _userName = 'Estudante';
   TermModel? _selectedTerm;
+  _InfoPage? _infoPage;
   final Set<String> _recentlyViewedTermIds = {};
+
+  // A Início sempre reaparece no topo; as outras abas preservam a rolagem.
+  final ScrollController _homeScrollController = ScrollController();
+
+  void _resetHomeScroll() {
+    if (_homeScrollController.hasClients) _homeScrollController.jumpTo(0);
+  }
 
   void _onTermSelected(TermModel term) {
     setState(() {
       _selectedTerm = term;
+      _infoPage = null;
       _recentlyViewedTermIds.add(term.id);
     });
   }
 
   void _clearSelectedTerm() {
+    if (_currentIndex == 0) _resetHomeScroll();
     setState(() {
       _selectedTerm = null;
     });
   }
 
+  void _openInfoPage(_InfoPage page) {
+    setState(() {
+      _infoPage = page;
+      _selectedTerm = null;
+    });
+  }
+
+  void _closeInfoPage() {
+    if (_currentIndex == 0) _resetHomeScroll();
+    setState(() {
+      _infoPage = null;
+    });
+  }
+
   void _changeTab(int index) {
+    if (index == 0) _resetHomeScroll();
     setState(() {
       _currentIndex = index;
       _selectedTerm = null;
+      _infoPage = null;
       // Sair do Dicionário pra outra aba reseta o destaque de "recém-visto".
       if (index != _dictionaryTabIndex) {
         _recentlyViewedTermIds.clear();
@@ -48,19 +80,47 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> get _screens => [
-    HomeScreen(userName: _userName, onTermSelected: _onTermSelected),
-    DictionaryScreen(
-      onTermSelected: _onTermSelected,
-      recentlyViewedTermIds: _recentlyViewedTermIds,
-    ),
-    FavoritesScreen(onTermSelected: _onTermSelected),
-    const ProfileScreen(),
-  ];
+        HomeScreen(
+          scrollController: _homeScrollController,
+          userName: _userName,
+          onTermSelected: _onTermSelected,
+          onOpenHowToUse: () => _openInfoPage(_InfoPage.howToUse),
+        ),
+        DictionaryScreen(
+          onTermSelected: _onTermSelected,
+          recentlyViewedTermIds: _recentlyViewedTermIds,
+        ),
+        FavoritesScreen(onTermSelected: _onTermSelected),
+        ProfileScreen(onOpenAbout: () => _openInfoPage(_InfoPage.about)),
+      ];
+
+  Widget _buildInfoPageLayer() {
+    switch (_infoPage) {
+      case _InfoPage.about:
+        return AboutScreen(
+          key: const ValueKey('about'),
+          onBack: _closeInfoPage,
+        );
+      case _InfoPage.howToUse:
+        return HowToUseScreen(
+          key: const ValueKey('how_to_use'),
+          onBack: _closeInfoPage,
+        );
+      case null:
+        return const SizedBox.shrink(key: ValueKey('no_info_page'));
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _userName = UserManager().userName;
+  }
+
+  @override
+  void dispose() {
+    _homeScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -88,37 +148,43 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       // Logo no topo da barra lateral (maior)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 28.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 28.0),
                         child: Image.asset(
                           'assets/images/logoContaLibras.png',
                           height: 70,
                           fit: BoxFit.contain,
                         ),
                       ),
-                      
+
                       // Botão de Voltar se houver termo selecionado
                       if (_selectedTerm != null)
                         Padding(
-                          padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 20.0),
+                          padding: const EdgeInsets.only(
+                              left: 16.0, right: 16.0, bottom: 20.0),
                           child: InkWell(
                             onTap: _clearSelectedTerm,
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                                border: Border.all(
+                                    color:
+                                        AppColors.primaryFg.withOpacity(0.5)),
                                 borderRadius: BorderRadius.circular(12),
-                                color: AppColors.primary.withOpacity(0.05),
+                                color: AppColors.primaryFg.withOpacity(0.08),
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.arrow_back_rounded, color: AppColors.primary, size: 20),
-                                  SizedBox(width: 8),
+                                  Icon(Icons.arrow_back_rounded,
+                                      color: AppColors.primaryFg, size: 20),
+                                  const SizedBox(width: 8),
                                   Text(
                                     'Voltar',
                                     style: TextStyle(
-                                      color: AppColors.primary,
+                                      color: AppColors.primaryFg,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
                                     ),
@@ -138,13 +204,17 @@ class _MainScreenState extends State<MainScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _buildDesktopNavItem(0, 'Início', Icons.home_rounded),
+                              _buildDesktopNavItem(
+                                  0, 'Início', Icons.home_rounded),
                               const SizedBox(height: 8),
-                              _buildDesktopNavItem(1, 'Dicionário', Icons.book_rounded),
+                              _buildDesktopNavItem(
+                                  1, 'Dicionário', Icons.book_rounded),
                               const SizedBox(height: 8),
-                              _buildDesktopNavItem(2, 'Favoritos', Icons.bookmark_rounded),
+                              _buildDesktopNavItem(
+                                  2, 'Favoritos', Icons.bookmark_rounded),
                               const SizedBox(height: 8),
-                              _buildDesktopNavItem(3, 'Perfil', Icons.person_rounded),
+                              _buildDesktopNavItem(
+                                  3, 'Perfil', Icons.person_rounded),
                             ],
                           ),
                         ),
@@ -176,6 +246,10 @@ class _MainScreenState extends State<MainScreen> {
                                 )
                               : const SizedBox.shrink(key: ValueKey('empty')),
                         ),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          child: _buildInfoPageLayer(),
+                        ),
                       ],
                     ),
                   ),
@@ -205,6 +279,10 @@ class _MainScreenState extends State<MainScreen> {
                         onBackPressed: _clearSelectedTerm,
                       )
                     : const SizedBox.shrink(key: ValueKey('empty')),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: _buildInfoPageLayer(),
               ),
             ],
           ),
@@ -245,22 +323,31 @@ class _MainScreenState extends State<MainScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+          color: isSelected
+              ? AppColors.primaryFg.withOpacity(0.12)
+              : Colors.transparent,
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: isSelected ? AppColors.primary : Colors.grey,
+              color: isSelected ? AppColors.primaryFg : AppColors.textSecondary,
               size: 24,
             ),
             const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? AppColors.primary : Colors.grey,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                fontSize: 16,
+            // Expanded + ellipsis: não estoura a sidebar quando o usuário
+            // aumenta o tamanho da fonte do sistema.
+            Expanded(
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected
+                      ? AppColors.primaryFg
+                      : AppColors.textSecondary,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 16,
+                ),
               ),
             ),
           ],

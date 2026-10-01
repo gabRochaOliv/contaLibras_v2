@@ -5,7 +5,6 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/term_model.dart';
 import '../../../data/managers/favorites_manager.dart';
 import '../../../data/managers/progress_manager.dart';
-import '../../../data/managers/theme_manager.dart';
 
 class TermDetailScreen extends StatefulWidget {
   final TermModel term;
@@ -80,9 +79,7 @@ class _TermDetailScreenState extends State<TermDetailScreen>
   }
 
   void _toggleFullScreen() async {
-    final bool wasPlaying = _videoController!.value.isPlaying;
-
-    if (wasPlaying) {
+    if (_videoController!.value.isPlaying) {
       await _videoController!.pause();
     }
 
@@ -94,83 +91,11 @@ class _TermDetailScreenState extends State<TermDetailScreen>
 
     if (!mounted) return;
 
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) {
-        return Scaffold(
-          backgroundColor: Colors.black,
-          body: SafeArea(
-            child: Stack(
-              children: [
-                Center(
-                  child: AspectRatio(
-                    aspectRatio: _videoController!.value.aspectRatio,
-                    child: ValueListenableBuilder<VideoPlayerValue>(
-                      valueListenable: _videoController!,
-                      builder: (context, value, child) {
-                        return GestureDetector(
-                          onTap: () {
-                            value.isPlaying
-                                ? _videoController!.pause()
-                                : _videoController!.play();
-                          },
-                          child: Stack(
-                            alignment: Alignment.bottomCenter,
-                            children: [
-                              VideoPlayer(_videoController!),
-                              if (!value.isPlaying)
-                                Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.black45,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.play_arrow_rounded,
-                                      color: Colors.white,
-                                      size: 64,
-                                    ),
-                                  ),
-                                ),
-                              VideoProgressIndicator(
-                                _videoController!,
-                                allowScrubbing: true,
-                                colors: const VideoProgressColors(
-                                  playedColor: AppColors.primary,
-                                  bufferedColor: Colors.grey,
-                                  backgroundColor: Colors.white24,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.black45,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.fullscreen_exit_rounded,
-                          color: Colors.white, size: 36),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    )).then((_) async {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+      builder: (_) => _FullScreenVideoPage(controller: _videoController!),
+    ))
+        .then((_) async {
       final bool endedPlaying = _videoController!.value.isPlaying;
       if (endedPlaying) {
         await _videoController!.pause();
@@ -190,10 +115,6 @@ class _TermDetailScreenState extends State<TermDetailScreen>
         setState(() {}); // refresh generic UI
       }
     });
-
-    if (wasPlaying && mounted) {
-      _videoController!.play();
-    }
   }
 
   Widget _buildVideoTab() {
@@ -202,8 +123,8 @@ class _TermDetailScreenState extends State<TermDetailScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryFg),
             ),
             const SizedBox(height: 24),
             Text(
@@ -274,6 +195,9 @@ class _TermDetailScreenState extends State<TermDetailScreen>
           child: AspectRatio(
             aspectRatio: _videoController!.value.aspectRatio,
             child: GestureDetector(
+              // Opaque: o toque em qualquer ponto da área do vídeo pausa ou
+              // retoma, mesmo onde o player nativo não repassa o evento.
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 setState(() {
                   _videoController!.value.isPlaying
@@ -285,28 +209,13 @@ class _TermDetailScreenState extends State<TermDetailScreen>
                 alignment: Alignment.bottomCenter,
                 children: [
                   VideoPlayer(_videoController!),
-                  if (!_videoController!.value.isPlaying)
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: const BoxDecoration(
-                          color: Colors.black45,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow_rounded,
-                          color: Colors.white,
-                          size: 64,
-                        ),
-                      ),
-                    ),
                   VideoProgressIndicator(
                     _videoController!,
                     allowScrubbing: true,
                     colors: const VideoProgressColors(
-                      playedColor: AppColors.primary,
-                      bufferedColor: Colors.grey,
-                      backgroundColor: Colors.white24,
+                      playedColor: AppColors.secondary,
+                      bufferedColor: Colors.black38,
+                      backgroundColor: Colors.black12,
                     ),
                   ),
                   Positioned(
@@ -315,6 +224,7 @@ class _TermDetailScreenState extends State<TermDetailScreen>
                     child: IconButton(
                       icon: const Icon(Icons.fullscreen_rounded,
                           color: Colors.white, size: 30),
+                      tooltip: 'Tela cheia',
                       onPressed: _toggleFullScreen,
                     ),
                   ),
@@ -337,14 +247,14 @@ class _TermDetailScreenState extends State<TermDetailScreen>
             title: 'Categoria',
             content: widget.term.category,
             icon: Icons.category_rounded,
-            color: AppColors.accent,
+            color: AppColors.accentFg,
           ),
           const SizedBox(height: 16),
           _buildInfoCard(
             title: 'Conceito',
             content: widget.term.concept,
             icon: Icons.menu_book_rounded,
-            color: ThemeManager().isDarkMode ? Colors.white : AppColors.primary,
+            color: AppColors.primaryFg,
           ),
           if (widget.term.example.isNotEmpty) ...[
             const SizedBox(height: 16),
@@ -352,7 +262,7 @@ class _TermDetailScreenState extends State<TermDetailScreen>
               title: 'Exemplo',
               content: widget.term.example,
               icon: Icons.lightbulb_outline_rounded,
-              color: AppColors.secondary,
+              color: AppColors.secondaryFg,
             ),
           ],
           if (widget.term.observation.isNotEmpty) ...[
@@ -361,7 +271,7 @@ class _TermDetailScreenState extends State<TermDetailScreen>
               title: 'Observação',
               content: widget.term.observation,
               icon: Icons.info_outline_rounded,
-              color: Colors.amber.shade800,
+              color: AppColors.warningFg,
             ),
           ],
           if (widget.term.relatedTerms.isNotEmpty) ...[
@@ -378,8 +288,8 @@ class _TermDetailScreenState extends State<TermDetailScreen>
                 return Chip(
                   label: Text(term,
                       style: AppTextStyles.label
-                          .copyWith(color: AppColors.primary)),
-                  backgroundColor: AppColors.secondary.withOpacity(0.1),
+                          .copyWith(color: AppColors.primaryFg)),
+                  backgroundColor: AppColors.secondaryFg.withOpacity(0.12),
                   side: BorderSide.none,
                 );
               }).toList(),
@@ -485,9 +395,7 @@ class _TermDetailScreenState extends State<TermDetailScreen>
             Text(
               'Linguagem Brasileira de Sinais',
               style: AppTextStyles.heading2.copyWith(
-                color: ThemeManager().isDarkMode
-                    ? Colors.white
-                    : AppColors.primary,
+                color: AppColors.primaryFg,
               ),
               textAlign: TextAlign.center,
             ),
@@ -521,7 +429,7 @@ class _TermDetailScreenState extends State<TermDetailScreen>
             Text(
               'Representação Visual',
               style:
-                  AppTextStyles.heading2.copyWith(color: AppColors.secondary),
+                  AppTextStyles.heading2.copyWith(color: AppColors.secondaryFg),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -569,8 +477,9 @@ class _TermDetailScreenState extends State<TermDetailScreen>
                   centerTitle: true,
                   elevation: 0,
                   leading: IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded,
-                        color: AppColors.primary, size: 28),
+                    icon: Icon(Icons.arrow_back_rounded,
+                        color: AppColors.primaryFg, size: 28),
+                    tooltip: 'Voltar',
                     onPressed: () {
                       if (widget.onBackPressed != null) {
                         widget.onBackPressed!();
@@ -591,9 +500,7 @@ class _TermDetailScreenState extends State<TermDetailScreen>
                                 ? Icons.bookmark_rounded
                                 : Icons.bookmark_border_rounded,
                             color: isFav
-                                ? (ThemeManager().isDarkMode
-                                    ? Colors.white
-                                    : AppColors.primary)
+                                ? AppColors.primaryFg
                                 : AppColors.textSecondary,
                             size: 32,
                           ),
@@ -642,9 +549,7 @@ class _TermDetailScreenState extends State<TermDetailScreen>
                                         ? Icons.bookmark_rounded
                                         : Icons.bookmark_border_rounded,
                                     color: isFav
-                                        ? (ThemeManager().isDarkMode
-                                            ? Colors.white
-                                            : AppColors.primary)
+                                        ? AppColors.primaryFg
                                         : AppColors.textSecondary,
                                     size: 28,
                                   ),
@@ -666,11 +571,10 @@ class _TermDetailScreenState extends State<TermDetailScreen>
                     color: AppColors.surface,
                     child: TabBar(
                       controller: _tabController,
-                      labelColor: ThemeManager().isDarkMode
-                          ? Colors.white
-                          : AppColors.primary,
+                      labelColor: AppColors.primaryFg,
                       unselectedLabelColor: AppColors.textSecondary,
-                      indicatorColor: AppColors.accent,
+                      indicatorColor: AppColors.accentFg,
+                      dividerColor: AppColors.divider,
                       indicatorWeight: 3,
                       labelStyle: AppTextStyles.label
                           .copyWith(fontWeight: FontWeight.bold),
@@ -724,5 +628,127 @@ class _KeepAliveTabState extends State<_KeepAliveTab>
   Widget build(BuildContext context) {
     super.build(context);
     return widget.child;
+  }
+}
+
+/// Vídeo em tela cheia. Sempre abre rodando em loop.
+class _FullScreenVideoPage extends StatefulWidget {
+  const _FullScreenVideoPage({required this.controller});
+
+  final VideoPlayerController controller;
+
+  @override
+  State<_FullScreenVideoPage> createState() => _FullScreenVideoPageState();
+}
+
+class _FullScreenVideoPageState extends State<_FullScreenVideoPage> {
+  Animation<double>? _routeAnimation;
+
+  /// Depois que o usuário toca no vídeo, a pausa dele é respeitada e o
+  /// play automático não interfere mais.
+  bool _userControlled = false;
+
+  VideoPlayerController get _controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.setLooping(true);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == _routeAnimation) return;
+    _routeAnimation?.removeStatusListener(_onRouteAnimationStatus);
+    _routeAnimation = animation;
+    if (animation == null || animation.isCompleted) {
+      _autoPlay();
+    } else {
+      animation.addStatusListener(_onRouteAnimationStatus);
+    }
+  }
+
+  @override
+  void dispose() {
+    _routeAnimation?.removeStatusListener(_onRouteAnimationStatus);
+    super.dispose();
+  }
+
+  void _onRouteAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) _autoPlay();
+  }
+
+  // Na web o player é um único <video> que muda de lugar na página ao trocar
+  // de rota, e o navegador pausa a mídia sempre que ela é retirada do DOM.
+  // Por isso o play só acontece depois da transição da rota e é conferido
+  // de novo logo em seguida.
+  Future<void> _autoPlay() async {
+    for (var attempt = 0; attempt < 3; attempt++) {
+      if (!mounted || _userControlled) return;
+      if (!_controller.value.isPlaying) await _controller.play();
+      await Future.delayed(const Duration(milliseconds: 250));
+    }
+  }
+
+  void _togglePlay() {
+    _userControlled = true;
+    _controller.value.isPlaying ? _controller.pause() : _controller.play();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // Mesmo fundo do app (acompanha o tema). Antes era preto, o que
+      // gerava faixas pretas grandes ao redor do vídeo vertical.
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Center(
+              child: AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _togglePlay,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      VideoPlayer(_controller),
+                      VideoProgressIndicator(
+                        _controller,
+                        allowScrubbing: true,
+                        colors: const VideoProgressColors(
+                          playedColor: AppColors.secondary,
+                          bufferedColor: Colors.black38,
+                          backgroundColor: Colors.black12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.black45,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.fullscreen_exit_rounded,
+                      color: Colors.white, size: 36),
+                  tooltip: 'Sair da tela cheia',
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/developer_footer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../dictionary/term_detail_screen.dart';
@@ -8,21 +9,42 @@ import '../../../data/managers/user_manager.dart';
 import '../../../data/managers/theme_manager.dart';
 import '../../widgets/evaluation_dialog.dart';
 import '../../widgets/looping_asset_video.dart';
+import '../about/how_to_use_screen.dart';
 
 import '../../../data/models/term_model.dart';
 
 class HomeScreen extends StatelessWidget {
   final String userName;
   final void Function(TermModel)? onTermSelected;
-  const HomeScreen(
-      {super.key, this.userName = 'Estudante', this.onTermSelected});
+
+  /// Abre o guia "Como usar" dentro da MainScreen (mantendo a navegação).
+  /// Sem ele, o guia é empilhado no Navigator.
+  final VoidCallback? onOpenHowToUse;
+
+  /// Controla a rolagem da tela, permitindo que a MainScreen a leve de volta
+  /// ao topo sempre que a Início reaparece.
+  final ScrollController? scrollController;
+
+  const HomeScreen({
+    super.key,
+    this.userName = 'Estudante',
+    this.onTermSelected,
+    this.onOpenHowToUse,
+    this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
     final daysSinceEpoch =
         DateTime.now().difference(DateTime(1970, 1, 1)).inDays;
-    final termIndex = daysSinceEpoch % MockDictionaryRepository.terms.length;
-    final termoDoDia = MockDictionaryRepository.terms[termIndex];
+    // O Termo do Dia só sorteia entre termos que têm vídeo em Libras.
+    final termosComVideo = MockDictionaryRepository.terms
+        .where((t) => t.videoUrl.isNotEmpty)
+        .toList();
+    final candidatos = termosComVideo.isNotEmpty
+        ? termosComVideo
+        : MockDictionaryRepository.terms;
+    final termoDoDia = candidatos[daysSinceEpoch % candidatos.length];
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -44,6 +66,7 @@ class HomeScreen extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
               child: SingleChildScrollView(
+                controller: scrollController,
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,70 +103,8 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    InkWell(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const EvaluationDialog(),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                          border: Border.all(color: AppColors.divider),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.amber.withOpacity(0.15),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.star_rounded,
-                                color: Colors.amber.shade600,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Avalie o app',
-                                    style: AppTextStyles.bodyLarge
-                                        .copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Sua opinião nos ajuda a melhorar!',
-                                    style: AppTextStyles.label,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              color: Colors.grey.shade400,
-                              size: 14,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    _buildQuickActions(context,
+                        isWide: constraints.maxWidth >= 600),
                     const SizedBox(height: 24),
                     AnimatedBuilder(
                       animation: ProgressManager(),
@@ -176,15 +137,13 @@ class HomeScreen extends StatelessWidget {
                                     child: Text(
                                       'Termos Explorados',
                                       overflow: TextOverflow.ellipsis,
-                                      style: AppTextStyles.heading3.copyWith(
-                                          color: ThemeManager().isDarkMode
-                                              ? Colors.white
-                                              : AppColors.primary),
+                                      style: AppTextStyles.heading3
+                                          .copyWith(color: AppColors.primaryFg),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Icon(Icons.emoji_events_rounded,
-                                      color: Colors.amber.shade600, size: 28),
+                                      color: AppColors.highlight, size: 28),
                                 ],
                               ),
                               const SizedBox(height: 12),
@@ -194,9 +153,8 @@ class HomeScreen extends StatelessWidget {
                                   value: progress,
                                   minHeight: 10,
                                   backgroundColor: AppColors.divider,
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                          AppColors.secondary),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.secondaryFg),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -234,6 +192,11 @@ class HomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(16),
+                          // No escuro o navy se confunde com o fundo; a borda
+                          // delimita o card clicável (WCAG 1.4.11, >= 3:1).
+                          border: ThemeManager().isDarkMode
+                              ? Border.all(color: AppColors.action, width: 1.5)
+                              : null,
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.primary.withOpacity(0.3),
@@ -252,8 +215,8 @@ class HomeScreen extends StatelessWidget {
                                   Text(
                                     'Termo do Dia',
                                     style: AppTextStyles.label.copyWith(
-                                      color: Colors.white.withOpacity(0.8),
-                                      fontSize: 10,
+                                      color: Colors.white.withOpacity(0.85),
+                                      fontSize: 11,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
@@ -276,10 +239,11 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 12),
+                            // Mesmo ícone dos termos no Dicionário.
                             const Icon(
-                              Icons.school_rounded,
+                              Icons.menu_book_rounded,
                               color: AppColors.accent,
-                              size: 36,
+                              size: 40,
                             ),
                             const SizedBox(width: 8),
                             Icon(
@@ -291,7 +255,8 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 8),
+                    const Center(child: DeveloperFooter()),
                   ],
                 ),
               ),
@@ -300,5 +265,128 @@ class HomeScreen extends StatelessWidget {
         );
       }, // fim builder
     ); // fim LayoutBuilder
+  }
+
+  Widget _buildQuickActions(BuildContext context, {required bool isWide}) {
+    final howToUse = _ActionCard(
+      icon: Icons.help_outline_rounded,
+      iconColor: AppColors.secondaryFg,
+      title: 'Como usar',
+      subtitle: 'Veja um guia rápido das funções.',
+      onTap: () {
+        if (onOpenHowToUse != null) {
+          onOpenHowToUse!();
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const HowToUseScreen()),
+          );
+        }
+      },
+    );
+    final evaluate = _ActionCard(
+      icon: Icons.star_rounded,
+      iconColor: AppColors.highlight,
+      title: 'Avalie o app',
+      subtitle: 'Sua opinião nos ajuda a melhorar!',
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => const EvaluationDialog(),
+        );
+      },
+    );
+
+    if (isWide) {
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: howToUse),
+            const SizedBox(width: 12),
+            Expanded(child: evaluate),
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [howToUse, const SizedBox(height: 12), evaluate],
+    );
+  }
+}
+
+class _ActionCard extends StatelessWidget {
+  const _ActionCard({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+            border: Border.all(color: AppColors.divider),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTextStyles.bodyLarge
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: AppTextStyles.label),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.textSecondary,
+                size: 14,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

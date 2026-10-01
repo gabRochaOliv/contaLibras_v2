@@ -92,7 +92,7 @@ class _EvaluationSuccessDialogState extends State<EvaluationSuccessDialog>
                   child: CustomPaint(
                     painter: _CheckmarkPainter(
                       progress: _checkProgress.value,
-                      color: AppColors.primary,
+                      color: AppColors.action,
                     ),
                   ),
                 ),
@@ -127,7 +127,7 @@ class _EvaluationSuccessDialogState extends State<EvaluationSuccessDialog>
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(context).maybePop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: AppColors.action,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
