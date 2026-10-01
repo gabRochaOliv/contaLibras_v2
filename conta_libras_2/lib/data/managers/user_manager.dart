@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/user_profile.dart';
+import '../services/avaliacao_ux_bridge.dart';
 
 class UserManager extends ChangeNotifier {
   static final UserManager _instance = UserManager._internal();
@@ -50,6 +51,8 @@ class UserManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Ativa um perfil. É o ponto único por onde passam o primeiro cadastro, a
+  /// escolha de um perfil salvo e a reabertura automática do app.
   void loadFromProfile(UserProfile profile) {
     setUserData(
       profile.id,
@@ -61,6 +64,9 @@ class UserManager extends ChangeNotifier {
       conhecimentoLibras: profile.conhecimentoLibras,
       cadastroId: profile.cadastroId,
     );
+    // Informa o perfil ao ambiente de avaliação de UX do orientador, quando o
+    // app está aberto dentro dele (iframe em conta-libras.labcct.net.br).
+    AvaliacaoUxBridge.notificarPerfil(profile);
   }
 
   void setCadastroId(String id) {
