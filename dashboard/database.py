@@ -51,9 +51,15 @@ def delete_cadastros(ids: list[str]) -> None:
         conn.close()
 
 
-@st.cache_data(ttl="5m")
+# Cache curto: o Streamlit reexecuta o script a cada interação, então algum
+# cache evita consultar o banco a cada clique, mas 5 min deixava cadastros e
+# respostas novas demorando para aparecer. 30 s é quase tempo real.
+CACHE_TTL = "30s"
+
+
+@st.cache_data(ttl=CACHE_TTL)
 def fetch_feedbacks() -> pd.DataFrame:
-    """Busca todos os feedbacks do banco com cache de 5 minutos."""
+    """Busca todos os feedbacks do banco (cache de CACHE_TTL)."""
     conn = get_connection()
     try:
         with conn.cursor() as cur:
@@ -73,7 +79,7 @@ def fetch_feedbacks() -> pd.DataFrame:
         conn.close()
 
 
-@st.cache_data(ttl="5m")
+@st.cache_data(ttl=CACHE_TTL)
 def fetch_cadastros() -> pd.DataFrame:
     """Busca todos os cadastros (first access) do banco, respondido ou não."""
     conn = get_connection()

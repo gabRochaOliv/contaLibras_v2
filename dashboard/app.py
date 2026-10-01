@@ -17,6 +17,10 @@ from transforms import (
     SECOES_IHC,
     LABELS_QUESTOES,
     FULL_QUESTOES,
+    QUESTIONARIOS,
+    VERSAO_ATUAL,
+    classificar_versao,
+    colunas_da_versao,
     calcular_faixa_etaria,
 )
 from charts import (
@@ -27,6 +31,7 @@ from charts import (
     chart_faixa_etaria,
     chart_pizza_pergunta,
     chart_conclusao_cadastro,
+    chart_medias_por_criterio,
     LIKERT_NOMES,
 )
 
@@ -113,6 +118,11 @@ if len(df_raw) == 0 and len(df_cadastros_raw) == 0:
     st.info("Nenhum dado coletado ainda. Os gráficos serão exibidos quando houver dados.")
     st.stop()
 
+# Versão do questionário de cada resposta, identificada pelos IDs das
+# perguntas (ver transforms.QUESTIONARIOS). As respostas antigas continuam no
+# banco e podem ser consultadas escolhendo a versão arquivada na sidebar.
+df_raw["versao"] = df_raw["respostas"].apply(classificar_versao) if len(df_raw) > 0 else None
+
 if len(df_raw) > 0:
     df_raw["_data"] = (
         pd.to_datetime(df_raw["criado_em"])
@@ -144,9 +154,21 @@ if st.sidebar.button("🔄 Atualizar dados agora"):
     fetch_feedbacks.clear()
     fetch_cadastros.clear()
     st.rerun()
-st.sidebar.caption("Os dados ficam em cache por até 5 min — use o botão acima pra forçar a atualização.")
+st.sidebar.caption("Os dados se atualizam sozinhos a cada 30 s — use o botão acima para ver na hora.")
 st.sidebar.divider()
 st.sidebar.subheader("Filtros")
+
+_contagem_versoes = df_raw["versao"].value_counts() if len(df_raw) > 0 else {}
+versao_selecionada = st.sidebar.radio(
+    "Questionário",
+    list(QUESTIONARIOS.keys()),
+    format_func=lambda v: f"{QUESTIONARIOS[v]['rotulo']} ({int(_contagem_versoes.get(v, 0))})",
+    help=(
+        "As respostas de cada versão do questionário ficam guardadas separadamente. "
+        "O número entre parênteses é o total de respostas de cada versão."
+    ),
+)
+rotulo_versao = QUESTIONARIOS[versao_selecionada]["rotulo"]
 
 categorias_disponiveis = [
     "Todos", "Professor", "Estudante", "Intérprete de Libras",
@@ -185,10 +207,14 @@ def _to_csv(df: pd.DataFrame) -> bytes:
 
 if len(df_raw) > 0:
     mask = (df_raw["_data"] >= data_inicio) & (df_raw["_data"] <= data_fim)
-    df_raw_filtrado = df_raw[mask].copy()
+    # Período + categoria, todas as versões: usado em "Cadastros x Questionário",
+    # onde quem respondeu qualquer versão conta como "respondeu".
+    df_raw_periodo = df_raw[mask].copy()
     if categoria_selecionada != "Todos":
-        df_raw_filtrado = df_raw_filtrado[df_raw_filtrado["categoria"] == categoria_selecionada]
+        df_raw_periodo = df_raw_periodo[df_raw_periodo["categoria"] == categoria_selecionada]
+    df_raw_filtrado = df_raw_periodo[df_raw_periodo["versao"] == versao_selecionada].copy()
 else:
+    df_raw_periodo = df_raw
     df_raw_filtrado = df_raw
 
 if len(df_cadastros_raw) > 0:
@@ -200,14 +226,14 @@ else:
     df_cadastros_filtrado = df_cadastros_raw
 
 df_wide = pivot_respostas(df_raw_filtrado)
-q_cols = [c for c in df_wide.columns if c.startswith("q")]
+q_cols = colunas_da_versao(versao_selecionada, df_wide.columns)
 
 # Botão de export só aparece quando há dados
 if len(df_wide) > 0:
     st.sidebar.download_button(
         label="Baixar CSV",
         data=_to_csv(df_wide),
-        file_name="feedbacks_contalibras.csv",
+        file_name=f"feedbacks_contalibras_{versao_selecionada}.csv",
         mime="text/csv",
     )
 
@@ -220,6 +246,7 @@ st.sidebar.caption(f"{len(df_wide)} resposta(s) nos filtros selecionados.")
 
 st.title("Dashboard de Feedback — Glossário de Contabilidade")
 st.caption(
+    f"Questionário: **{rotulo_versao}** · "
     f"Dados coletados de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')} "
     f"· {len(df_wide)} resposta(s)"
 )
@@ -242,8 +269,8 @@ else:
     # cadastro_id/id são UUID — comparamos como string pra não depender de
     # como o driver decide representar o tipo uuid em cada coluna.
     ids_com_resposta = set(
-        df_raw_filtrado["cadastro_id"].dropna().astype(str)
-    ) if "cadastro_id" in df_raw_filtrado.columns and len(df_raw_filtrado) > 0 else set()
+        df_raw_periodo["cadastro_id"].dropna().astype(str)
+    ) if "cadastro_id" in df_raw_periodo.columns and len(df_raw_periodo) > 0 else set()
 
     total_cadastros = len(df_cadastros_filtrado)
     total_responderam = df_cadastros_filtrado["id"].astype(str).isin(ids_com_resposta).sum()
@@ -324,10 +351,18 @@ with st.expander("🗑️ Excluir cadastros"):
 st.divider()
 
 if len(df_wide) == 0:
-    st.warning(
-        "Nenhuma resposta ao questionário encontrada para os filtros selecionados. "
-        "Ajuste a categoria ou o período e tente novamente."
-    )
+    if versao_selecionada == VERSAO_ATUAL and int(_contagem_versoes.get(VERSAO_ATUAL, 0)) == 0:
+        st.info(
+            "Ainda não há respostas com o questionário atual (critérios do orientador). "
+            "Elas aparecem aqui assim que alguém avaliar o app pela versão publicada com as "
+            "novas perguntas. As respostas do questionário anterior continuam disponíveis "
+            "em **Questionário → Anterior (arquivado)**, na barra lateral."
+        )
+    else:
+        st.warning(
+            "Nenhuma resposta a este questionário encontrada para os filtros selecionados. "
+            "Ajuste a categoria ou o período e tente novamente."
+        )
     st.stop()
 
 
@@ -337,11 +372,16 @@ if len(df_wide) == 0:
 
 media_geral = df_wide[q_cols].mean().mean() if q_cols else None
 
-qs_facilidade = [q for q in ("q5", "q8") if q in df_wide.columns]
-media_facilidade = df_wide[qs_facilidade].mean().mean() if qs_facilidade else None
+def _media_secao(secao):
+    qs = [q for q in q_cols if SECOES_IHC.get(q) == secao]
+    return df_wide[qs].mean().mean() if qs else None
 
-qs_utilidade = [q for q in ("q19", "q21") if q in df_wide.columns]
-media_utilidade = df_wide[qs_utilidade].mean().mean() if qs_utilidade else None
+
+# As duas médias de destaque mudam conforme a versão do questionário.
+kpis_secao = [
+    (rotulo, _media_secao(secao))
+    for rotulo, secao in QUESTIONARIOS[versao_selecionada]["kpis"]
+]
 
 if q_cols:
     total_resp_ind = df_wide[q_cols].count().sum()
@@ -353,8 +393,8 @@ else:
 kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
 kpi1.metric("Total de Respostas", len(df_wide))
 kpi2.metric("Média Geral (1–5)", f"{media_geral:.2f}" if media_geral is not None else "—")
-kpi3.metric("Facilidade de Uso", f"{media_facilidade:.2f}" if media_facilidade is not None else "—")
-kpi4.metric("Utilidade p/ Aprendizado", f"{media_utilidade:.2f}" if media_utilidade is not None else "—")
+for _kpi, (_rotulo, _media) in zip((kpi3, kpi4), kpis_secao):
+    _kpi.metric(_rotulo, f"{_media:.2f}" if _media is not None and pd.notna(_media) else "—")
 kpi5.metric("Taxa de Concordância", f"{taxa_concordancia:.0f}%" if taxa_concordancia is not None else "—")
 
 st.divider()
@@ -379,6 +419,15 @@ st.divider()
 
 
 # ---------------------------------------------------------------------------
+# Média por critério — visão geral de todas as perguntas da versão
+# ---------------------------------------------------------------------------
+
+st.plotly_chart(chart_medias_por_criterio(df_wide, q_cols), use_container_width=True)
+
+st.divider()
+
+
+# ---------------------------------------------------------------------------
 # Distribuição Likert horizontal empilhada
 # ---------------------------------------------------------------------------
 
@@ -388,10 +437,11 @@ st.caption(
     "O número à direita é a média da questão."
 )
 
+# Ordem do dicionário SECOES_IHC: critérios atuais primeiro, anteriores depois.
 secoes_com_dados = list(dict.fromkeys(
-    SECOES_IHC[q]
-    for q in q_cols
-    if q in SECOES_IHC
+    secao
+    for q, secao in SECOES_IHC.items()
+    if q in q_cols
 ))
 
 if secoes_com_dados:
@@ -482,7 +532,8 @@ with st.expander("🗑️ Excluir registros"):
     opcoes_exclusao = {
         (
             f"#{row.id} — {row.nome} — {row.categoria} — "
-            f"{pd.to_datetime(row.criado_em).strftime('%d/%m/%Y %H:%M')}"
+            f"{pd.to_datetime(row.criado_em).strftime('%d/%m/%Y %H:%M')} — "
+            f"questionário {row.versao or 'desconhecido'}"
         ): row.id
         for row in df_raw.sort_values("criado_em", ascending=False).itertuples()
     }

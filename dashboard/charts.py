@@ -71,17 +71,13 @@ def chart_perfil_respondentes(df_wide: pd.DataFrame):
 
 
 def chart_avaliacao_geral(df_wide: pd.DataFrame, q_cols: list):
-    """Donut: Excelente (5) / Boa (4) / Regular (3) / Ruim (1–2) baseado em q27."""
+    """Donut: Excelente (5) / Boa (4) / Regular (3) / Ruim (1–2) sobre todas as respostas Likert."""
     if not q_cols:
         fig = go.Figure()
         fig.update_layout(title="Sem dados", height=300)
         return fig
 
-    # q27 = "Satisfação geral" — medida mais direta de avaliação global
-    if "q27" in df_wide.columns:
-        serie = df_wide["q27"].dropna()
-    else:
-        serie = df_wide[q_cols].stack().dropna()
+    serie = df_wide[q_cols].stack().dropna()
 
     if serie.empty:
         fig = go.Figure()
@@ -348,6 +344,55 @@ def chart_medias_por_questao(df_wide: pd.DataFrame):
     fig.update_layout(height=500, xaxis_tickangle=-45, xaxis_tickfont_size=11, margin={"b": 140})
     return fig
 
+
+
+def chart_medias_por_criterio(df_wide: pd.DataFrame, q_cols: list):
+    """Média de cada critério/pergunta geral da versão em barras horizontais,
+    coloridas pela seção (eixo) do questionário. Perguntas por perfil ficam de
+    fora porque só parte dos respondentes as responde."""
+    qs = [q for q in q_cols if SECOES_IHC.get(q) != "Perguntas por Categoria"]
+    if not qs:
+        fig = go.Figure()
+        fig.update_layout(title="Sem dados", height=300)
+        return fig
+
+    medias = pd.DataFrame({
+        "questao": qs,
+        "media": [df_wide[q].mean() for q in qs],
+        "n": [int(df_wide[q].count()) for q in qs],
+    })
+    medias["criterio"] = medias["questao"].apply(lambda q: LABELS_QUESTOES.get(q, q))
+    medias["completa"] = medias["questao"].apply(lambda q: FULL_QUESTOES.get(q, q))
+    medias["secao"] = medias["questao"].apply(lambda q: SECOES_IHC.get(q, "Outras"))
+
+    fig = px.bar(
+        medias,
+        x="media", y="criterio",
+        color="secao",
+        orientation="h",
+        color_discrete_sequence=COLOR_SEQUENCE_SECOES,
+        custom_data=["completa", "n"],
+        text=medias["media"].map(lambda m: f"{m:.2f}"),
+        labels={"media": "Média (1–5)", "criterio": "", "secao": "Eixo"},
+        title="Média por Critério",
+        range_x=[1, 5],
+    )
+    fig.update_traces(
+        textposition="outside",
+        hovertemplate=(
+            "%{customdata[0]}<br>Média: <b>%{x:.2f}</b>"
+            " · %{customdata[1]} resposta(s)<extra></extra>"
+        ),
+    )
+    fig.add_vline(x=3, line_dash="dot", line_color="gray", annotation_text="Neutro (3)")
+    fig.update_layout(
+        # Primeiro critério no topo, na mesma ordem do questionário.
+        yaxis=dict(categoryorder="array", categoryarray=list(reversed(medias["criterio"]))),
+        height=max(300, 45 * len(qs) + 120),
+        margin=dict(t=60, b=40, l=10, r=40),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
+    )
+    return fig
 
 def chart_comparativo_categoria(df_wide: pd.DataFrame):
     """Barras agrupadas por categoria e seção do questionário."""

@@ -2,12 +2,29 @@
 import pandas as pd
 
 # ---------------------------------------------------------------------------
-# Mapeamento de seções (q4 a q32)
-# Parte II (geral, q4-q19) + Parte III por categoria (q20-q32): Bloco B
-# (Professor), Bloco C (Especialista em Libras) e Bloco D (Contabilidade).
-# Fonte: Feedback/questionario.txt
+# Mapeamento de seções
+# Critérios avaliativos atuais (q40-q47), definidos pelo orientador:
+#   Usabilidade, IHC & Acessibilidade em Libras (q40-q43)
+#   Qualidade Técnica & Engenharia de Software (q44-q47)
+# Parte III por categoria (q20-q32): Bloco B (Professor), Bloco C
+# (Especialista em Libras) e Bloco D (Contabilidade).
+# q4-q19 pertencem ao questionário anterior (arquivado) e são mantidas para
+# exibir as respostas já coletadas — ver QUESTIONARIOS abaixo.
 # ---------------------------------------------------------------------------
+SECAO_IHC_LIBRAS = "IHC & Acessibilidade em Libras"
+SECAO_ENG_SOFTWARE = "Qualidade Técnica & Eng. de Software"
+
 SECOES_IHC = {
+    # Usabilidade, IHC & Acessibilidade em Libras — q40 a q43
+    "q40": SECAO_IHC_LIBRAS,
+    "q41": SECAO_IHC_LIBRAS,
+    "q42": SECAO_IHC_LIBRAS,
+    "q43": SECAO_IHC_LIBRAS,
+    # Qualidade Técnica & Engenharia de Software — q44 a q47
+    "q44": SECAO_ENG_SOFTWARE,
+    "q45": SECAO_ENG_SOFTWARE,
+    "q46": SECAO_ENG_SOFTWARE,
+    "q47": SECAO_ENG_SOFTWARE,
     # Usabilidade — q4 a q8
     "q4": "Usabilidade",
     "q5": "Usabilidade",
@@ -45,10 +62,91 @@ SECOES_IHC = {
     "q32": "Perguntas por Categoria",
 }
 
+
+# ---------------------------------------------------------------------------
+# Versões do questionário
+#
+# Todas as respostas ficam na mesma tabela `feedbacks` (coluna JSONB
+# `respostas`). Cada versão usa uma faixa própria de IDs de pergunta, então a
+# versão de uma resposta é identificada pelos IDs que ela contém — sem coluna
+# extra no banco e sem risco de as respostas antigas se misturarem às novas.
+# As perguntas por perfil (q20-q32) existem nas duas versões.
+# ---------------------------------------------------------------------------
+VERSAO_ATUAL = "atual"
+VERSAO_ANTERIOR = "anterior"
+
+PERGUNTAS_PERFIL = set(range(20, 33))
+
+QUESTIONARIOS = {
+    VERSAO_ATUAL: {
+        "rotulo": "Atual — critérios do orientador",
+        "ids": set(range(40, 48)),
+        # (rótulo do KPI, seção) — as duas médias de destaque da versão
+        "kpis": [
+            ("IHC & Acessibilidade", SECAO_IHC_LIBRAS),
+            ("Qualidade Técnica", SECAO_ENG_SOFTWARE),
+        ],
+    },
+    VERSAO_ANTERIOR: {
+        "rotulo": "Anterior (arquivado)",
+        "ids": set(range(4, 20)),
+        "kpis": [
+            ("Usabilidade", "Usabilidade"),
+            ("Utilidade", "Utilidade"),
+        ],
+    },
+}
+
+
+def _parse_respostas(x):
+    """psycopg2 >= 2.9 já devolve JSONB como list de dicts; a conversão de
+    string é só segurança defensiva."""
+    import ast
+
+    if isinstance(x, list):
+        return x
+    try:
+        return ast.literal_eval(x)
+    except Exception:
+        return x
+
+
+def classificar_versao(respostas):
+    """Devolve a versão do questionário de uma resposta (pelos IDs usados).
+
+    Retorna None quando a resposta não tem nenhuma pergunta geral (só perfil
+    ou vazia) — caso que não deveria ocorrer, mas não pode quebrar a tela.
+    """
+    respostas = _parse_respostas(respostas)
+    if not isinstance(respostas, list):
+        return None
+    ids = {r.get("pergunta_id") for r in respostas if isinstance(r, dict)}
+    for versao, cfg in QUESTIONARIOS.items():
+        if ids & cfg["ids"]:
+            return versao
+    return None
+
+
+def colunas_da_versao(versao, colunas):
+    """Colunas qN do DataFrame wide que pertencem à versão (gerais + perfil),
+    em ordem numérica."""
+    ids = QUESTIONARIOS[versao]["ids"] | PERGUNTAS_PERFIL
+    qs = [c for c in colunas if c.startswith("q") and c[1:].isdigit() and int(c[1:]) in ids]
+    return sorted(qs, key=lambda q: int(q[1:]))
+
 # ---------------------------------------------------------------------------
 # Mapeamento de labels curtos por questão (q4 a q32)
 # ---------------------------------------------------------------------------
 LABELS_QUESTOES = {
+    # Critérios atuais
+    "q40": "Clareza e Comunicação",
+    "q41": "Fluidez de Navegação",
+    "q42": "Design Visual e Consistência",
+    "q43": "Prevenção de Erros",
+    "q44": "Completude Funcional",
+    "q45": "Segurança e Privacidade",
+    "q46": "Desempenho e Resposta",
+    "q47": "Estabilidade e Confiabilidade",
     # Usabilidade — rótulo curto para eixo X
     "q4": "Fácil de usar",
     "q5": "Navegação simples",
@@ -88,6 +186,14 @@ LABELS_QUESTOES = {
 
 # Texto completo da pergunta — usado no hover dos gráficos
 FULL_QUESTOES = {
+    "q40": "Q40 (IHC — Clareza e Comunicação): Os conteúdos em Libras/Português, ícones e traduções são claros e compreensíveis?",
+    "q41": "Q41 (IHC — Fluidez de Navegação): A transição entre os módulos e telas ocorre de forma simples e intuitiva?",
+    "q42": "Q42 (IHC — Design Visual e Consistência): Cores, contraste, fontes e elementos visuais facilitam a leitura e a interação?",
+    "q43": "Q43 (IHC — Prevenção de Erros): A interface minimiza ações acidentais e oferece instruções orientadoras?",
+    "q44": "Q44 (Eng. Software — Completude Funcional): As ferramentas necessárias para a rotina financeira/educacional estão totalmente operacionais?",
+    "q45": "Q45 (Eng. Software — Segurança e Privacidade): Sente segurança na apresentação dos dados na tela e na privacidade do seu acesso?",
+    "q46": "Q46 (Eng. Software — Desempenho e Resposta): O carregamento dos vídeos, avatares e telas ocorre sem lentidão ou travamentos?",
+    "q47": "Q47 (Eng. Software — Estabilidade e Confiabilidade): O sistema mantém-se firme e funcional durante toda a sua navegação?",
     "q4": "Q4 (Usabilidade): O aplicativo é fácil de usar.",
     "q5": "Q5 (Usabilidade): Navegar pelo aplicativo é simples.",
     "q6": "Q6 (Usabilidade): Eu aprendi a usar o aplicativo rapidamente.",
@@ -141,19 +247,7 @@ def pivot_respostas(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.copy()
 
-    # psycopg2 >= 2.9 retorna JSONB como list de dicts Python automaticamente.
-    # O .apply abaixo é segurança defensiva para o caso de retornar como string.
-    import ast
-
-    def _parse(x):
-        if isinstance(x, list):
-            return x
-        try:
-            return ast.literal_eval(x)
-        except Exception:
-            return x
-
-    df["respostas"] = df["respostas"].apply(_parse)
+    df["respostas"] = df["respostas"].apply(_parse_respostas)
 
     # Expandir: uma linha por {pergunta_id, valor}
     df_exp = df.explode("respostas").reset_index(drop=True)
