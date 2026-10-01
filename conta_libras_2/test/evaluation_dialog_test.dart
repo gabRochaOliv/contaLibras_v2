@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:conta_libras_2/ui/widgets/evaluation_dialog.dart';
 
 Map<int, int> get _allCommonAnswers =>
-    Map.fromEntries(List.generate(16, (i) => MapEntry(4 + i, 5)));
+    Map.fromEntries(List.generate(8, (i) => MapEntry(40 + i, 5)));
 
 Widget _wrapInApp(Widget child) {
   return MaterialApp(
@@ -43,9 +43,9 @@ void main() {
         reason: 'Botão deve estar desabilitado sem respostas');
   });
 
-  testWidgets('gate_enabled: botão habilitado após responder seção SUS',
+  testWidgets('gate_enabled: botão habilitado após responder seção de IHC',
       (tester) async {
-    const answers = {4: 5, 5: 4, 6: 3, 7: 5, 8: 4, 9: 3, 10: 5};
+    const answers = {40: 5, 41: 4, 42: 3, 43: 5};
     await tester.pumpWidget(_wrapInApp(const EvaluationDialog(
       initialHasAcceptedTerms: true,
       initialPage: 0,
@@ -64,13 +64,17 @@ void main() {
       (tester) async {
     await tester.pumpWidget(_wrapInApp(EvaluationDialog(
       initialHasAcceptedTerms: true,
-      initialPage: 5,
+      initialPage: 2,
       initialAnswers: _allCommonAnswers,
       submitHandler: (_, __) async => false,
     )));
     await tester.pump();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar Avaliação'));
+    final submitButton = find.widgetWithText(ElevatedButton, 'Enviar Avaliação');
+    // Os botões ficam no fim da lista rolável — rola até eles antes de tocar.
+    await tester.ensureVisible(submitButton);
+    await tester.pumpAndSettle();
+    await tester.tap(submitButton);
     await tester.pumpAndSettle();
 
     expect(find.text('Não foi possível enviar sua avaliação.'), findsOneWidget);
@@ -80,13 +84,17 @@ void main() {
       (tester) async {
     await tester.pumpWidget(_wrapInApp(EvaluationDialog(
       initialHasAcceptedTerms: true,
-      initialPage: 5,
+      initialPage: 2,
       initialAnswers: _allCommonAnswers,
       submitHandler: (_, __) async => false,
     )));
     await tester.pump();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar Avaliação'));
+    final submitButton = find.widgetWithText(ElevatedButton, 'Enviar Avaliação');
+    // Os botões ficam no fim da lista rolável — rola até eles antes de tocar.
+    await tester.ensureVisible(submitButton);
+    await tester.pumpAndSettle();
+    await tester.tap(submitButton);
     await tester.pumpAndSettle();
 
     expect(find.byType(EvaluationDialog), findsOneWidget,
@@ -97,7 +105,7 @@ void main() {
       (tester) async {
     await tester.pumpWidget(_wrapInDialog(EvaluationDialog(
       initialHasAcceptedTerms: true,
-      initialPage: 5,
+      initialPage: 2,
       initialAnswers: _allCommonAnswers,
       submitHandler: (_, __) async => true,
     )));
@@ -108,7 +116,11 @@ void main() {
 
     expect(find.byType(EvaluationDialog), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar Avaliação'));
+    final submitButton = find.widgetWithText(ElevatedButton, 'Enviar Avaliação');
+    // Os botões ficam no fim da lista rolável — rola até eles antes de tocar.
+    await tester.ensureVisible(submitButton);
+    await tester.pumpAndSettle();
+    await tester.tap(submitButton);
     await tester.pumpAndSettle();
 
     expect(find.byType(EvaluationDialog), findsNothing,

@@ -19,7 +19,8 @@ class EvaluationDialog extends StatefulWidget {
   final Map<int, int> initialAnswers;
   final Map<String, String> initialOpenAnswers;
   final bool initialHasAcceptedTerms;
-  final Future<bool> Function(Map<int, int>, Map<String, String>)? submitHandler;
+  final Future<bool> Function(Map<int, int>, Map<String, String>)?
+      submitHandler;
 
   @override
   State<EvaluationDialog> createState() => _EvaluationDialogState();
@@ -35,81 +36,127 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
   bool _showError = false;
   bool _isSubmitting = false;
 
+  // Chaves usadas para rolar até a próxima pergunta (ou até os botões de
+  // navegação) depois que o usuário escolhe uma nota.
+  final Map<int, GlobalKey> _questionKeys = {};
+  final Map<int, GlobalKey> _navKeys = {};
+
+  GlobalKey _questionKey(int id) =>
+      _questionKeys.putIfAbsent(id, GlobalKey.new);
+  GlobalKey _navKey(int section) =>
+      _navKeys.putIfAbsent(section, GlobalKey.new);
+
+  // Critérios avaliativos de IHC e Engenharia de Software definidos pelo
+  // orientador. IDs 40-47 substituem as perguntas antigas (4-19) para que
+  // respostas coletadas com o questionário anterior não se misturem.
   static const List<Map<String, dynamic>> _sections = [
     {
-      'title': 'Usabilidade',
-      'icon': Icons.tune,
+      'title': 'Usabilidade, IHC & Acessibilidade em Libras',
+      'icon': Icons.accessibility_new,
       'questions': [
-        {'id': 4, 'text': 'O aplicativo é fácil de usar.'},
-        {'id': 5, 'text': 'Navegar pelo aplicativo é simples.'},
-        {'id': 6, 'text': 'Eu aprendi a usar o aplicativo rapidamente.'},
-        {'id': 7, 'text': 'Eu me senti confiante ao usar o aplicativo.'},
-        {'id': 8, 'text': 'Foi difícil usar o aplicativo.'},
+        // Clareza e Comunicação
+        {
+          'id': 40,
+          'text':
+              'Os conteúdos em Libras/Português, ícones e traduções são claros e compreensíveis?'
+        },
+        // Fluidez de Navegação
+        {
+          'id': 41,
+          'text':
+              'A transição entre os módulos e telas ocorre de forma simples e intuitiva?'
+        },
+        // Design Visual e Consistência
+        {
+          'id': 42,
+          'text':
+              'Cores, contraste, fontes e elementos visuais facilitam a leitura e a interação?'
+        },
+        // Prevenção de Erros
+        {
+          'id': 43,
+          'text':
+              'A interface minimiza ações acidentais e oferece instruções orientadoras?'
+        },
       ],
     },
     {
-      'title': 'Experiência do Usuário (UX)',
-      'icon': Icons.star_outline,
+      'title': 'Qualidade Técnica & Engenharia de Software',
+      'icon': Icons.settings_outlined,
       'questions': [
-        {'id': 9,  'text': 'O design do aplicativo é agradável.'},
-        {'id': 10, 'text': 'As telas são bem organizadas.'},
-        {'id': 11, 'text': 'O aplicativo é claro e fácil de entender.'},
-        {'id': 12, 'text': 'O aplicativo responde rapidamente.'},
-      ],
-    },
-    {
-      'title': 'Qualidade do Conteúdo',
-      'icon': Icons.library_books_outlined,
-      'questions': [
-        {'id': 13, 'text': 'Os vídeos ajudam na compreensão do conteúdo.'},
-        {'id': 14, 'text': 'Os textos são fáceis de entender.'},
-        {'id': 15, 'text': 'O conteúdo apresentado é relevante.'},
-      ],
-    },
-    {
-      'title': 'Utilidade',
-      'icon': Icons.thumb_up_outlined,
-      'questions': [
-        {'id': 16, 'text': 'O aplicativo é útil para aprendizagem.'},
-        {'id': 17, 'text': 'Eu utilizaria o aplicativo novamente.'},
-        {'id': 18, 'text': 'Eu recomendaria o aplicativo para outras pessoas.'},
-      ],
-    },
-    {
-      'title': 'Satisfação Geral',
-      'icon': Icons.assessment_outlined,
-      'questions': [
-        {'id': 19, 'text': 'Estou satisfeito com o aplicativo.'},
+        // Completude Funcional
+        {
+          'id': 44,
+          'text':
+              'As ferramentas necessárias para a rotina financeira/educacional estão totalmente operacionais?'
+        },
+        // Segurança e Privacidade
+        {
+          'id': 45,
+          'text':
+              'Sente segurança na apresentação dos dados na tela e na privacidade do seu acesso?'
+        },
+        // Desempenho e Resposta
+        {
+          'id': 46,
+          'text':
+              'O carregamento dos vídeos, avatares e telas ocorre sem lentidão ou travamentos?'
+        },
+        // Estabilidade e Confiabilidade
+        {
+          'id': 47,
+          'text':
+              'O sistema mantém-se firme e funcional durante toda a sua navegação?'
+        },
       ],
     },
   ];
 
   static const Map<String, List<Map<String, dynamic>>> _categoryQuestions = {
     'Professor': [
-      {'id': 20, 'text': 'O aplicativo pode ser utilizado como recurso pedagógico.'},
+      {
+        'id': 20,
+        'text': 'O aplicativo pode ser utilizado como recurso pedagógico.'
+      },
       {'id': 21, 'text': 'O conteúdo é adequado para uso em sala de aula.'},
-      {'id': 22, 'text': 'O aplicativo favorece a inclusão de estudantes surdos.'},
-      {'id': 23, 'text': 'Eu utilizaria o aplicativo em atividades educacionais.'},
+      {
+        'id': 22,
+        'text': 'O aplicativo favorece a inclusão de estudantes surdos.'
+      },
+      {
+        'id': 23,
+        'text': 'Eu utilizaria o aplicativo em atividades educacionais.'
+      },
       {'id': 24, 'text': 'O aplicativo possui potencial educacional.'},
     ],
     'Intérprete de Libras': [
       {'id': 25, 'text': 'Os sinais apresentados são adequados.'},
       {'id': 26, 'text': 'A comunicação em Libras é clara.'},
       {'id': 27, 'text': 'Os vídeos apresentam boa qualidade linguística.'},
-      {'id': 28, 'text': 'Os conceitos foram representados adequadamente em Libras.'},
+      {
+        'id': 28,
+        'text': 'Os conceitos foram representados adequadamente em Libras.'
+      },
     ],
     'Profissional da Contabilidade': [
       {'id': 29, 'text': 'Os conceitos contábeis apresentados estão corretos.'},
       {'id': 30, 'text': 'A terminologia utilizada é adequada.'},
       {'id': 31, 'text': 'O conteúdo possui relevância para a área contábil.'},
-      {'id': 32, 'text': 'O aplicativo possui potencial para apoiar o ensino de contabilidade.'},
+      {
+        'id': 32,
+        'text':
+            'O aplicativo possui potencial para apoiar o ensino de contabilidade.'
+      },
     ],
   };
 
   static const List<Map<String, String>> _openQuestions = [
     {'key': 'gostou', 'text': 'O que você mais gostou no aplicativo?'},
     {'key': 'melhorar', 'text': 'O que pode ser melhorado?'},
-    {'key': 'sugestao', 'text': 'Gostaria de deixar alguma sugestão adicional?'},
+    {
+      'key': 'sugestao',
+      'text': 'Gostaria de deixar alguma sugestão adicional?'
+    },
   ];
 
   bool get _hasCategorySection =>
@@ -135,7 +182,8 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
     return const [];
   }
 
-  bool _isSectionComplete(int sectionIndex, List<Map<String, dynamic>> questions) {
+  bool _isSectionComplete(
+      int sectionIndex, List<Map<String, dynamic>> questions) {
     if (sectionIndex == _openQuestionsIndex) return true;
     return questions.every((q) => _answers.containsKey(q['id'] as int));
   }
@@ -163,10 +211,57 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
     super.dispose();
   }
 
+  /// Primeira pergunta ainda sem resposta na seção — a "pergunta da vez".
+  int? _activeQuestionId(List<Map<String, dynamic>> questions) {
+    for (final q in questions) {
+      final id = q['id'] as int;
+      if (!_answers.containsKey(id)) return id;
+    }
+    return null;
+  }
+
   void _selectAnswer(int questionId, int value) {
+    final isFirstAnswer = !_answers.containsKey(questionId);
     setState(() {
       _answers[questionId] = value;
     });
+    // Só avança na primeira resposta: quem volta para corrigir uma nota não
+    // deve ser levado para outro lugar.
+    if (isFirstAnswer) _scrollToNextStep(questionId);
+  }
+
+  /// Próxima pergunta sem resposta depois de [answeredId]; se as seguintes
+  /// já foram respondidas, volta à primeira que ficou pulada.
+  int? _nextQuestionId(List<Map<String, dynamic>> questions, int answeredId) {
+    final ids = questions.map((q) => q['id'] as int).toList();
+    final start = ids.indexOf(answeredId) + 1;
+    for (final id in [...ids.skip(start), ...ids.take(start)]) {
+      if (!_answers.containsKey(id)) return id;
+    }
+    return null;
+  }
+
+  /// Leva o usuário à próxima pergunta sem resposta da seção ou, se todas
+  /// já foram respondidas, até os botões Próximo/Enviar.
+  Future<void> _scrollToNextStep(int answeredId) async {
+    // Pausa curta para o usuário ver a nota marcada antes de rolar.
+    await Future.delayed(const Duration(milliseconds: 250));
+    if (!mounted) return;
+
+    final nextId =
+        _nextQuestionId(_getQuestionsForSection(_currentPage), answeredId);
+    final target = nextId != null
+        ? _questionKeys[nextId]?.currentContext
+        : _navKeys[_currentPage]?.currentContext;
+    if (target == null || !target.mounted) return;
+
+    await Scrollable.ensureVisible(
+      target,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      // Pergunta perto do topo; botões encostados no fim da área visível.
+      alignment: nextId != null ? 0.1 : 1.0,
+    );
   }
 
   void _updateOpenAnswer(String key, String value) {
@@ -230,8 +325,8 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.red.shade50,
-          border: Border.all(color: Colors.red.shade200),
+          color: AppColors.errorContainer,
+          border: Border.all(color: AppColors.errorBorder),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -239,13 +334,13 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
           children: [
             Row(
               children: [
-                Icon(Icons.error_outline, color: Colors.red.shade600, size: 18),
+                Icon(Icons.error_outline, color: AppColors.errorFg, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Não foi possível enviar sua avaliação.',
                     style: AppTextStyles.bodyLarge
-                        .copyWith(color: Colors.red.shade700),
+                        .copyWith(color: AppColors.errorFg),
                   ),
                 ),
               ],
@@ -253,8 +348,8 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
             const SizedBox(height: 4),
             Text(
               'Verifique sua conexão com a internet e tente novamente.',
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: Colors.red.shade700),
+              style:
+                  AppTextStyles.bodyMedium.copyWith(color: AppColors.errorFg),
             ),
             const SizedBox(height: 8),
             Semantics(
@@ -278,23 +373,48 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
     );
   }
 
-  Widget _buildSectionProgress() {
+  // Cabeçalho fixo compacto: título, progresso e fechar numa única faixa,
+  // para sobrar mais altura para as perguntas.
+  Widget _buildHeader() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        LinearProgressIndicator(
-          minHeight: 6,
-          value: (_currentPage + 1) / _totalSections,
-          backgroundColor: AppColors.divider,
-          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
+        Row(
+          children: [
+            Expanded(
+              child: _hasAcceptedTerms
+                  ? Text(
+                      'Avaliação',
+                      style: AppTextStyles.heading3,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            if (_hasAcceptedTerms)
+              Text(
+                'Seção ${_currentPage + 1} de $_totalSections',
+                style: AppTextStyles.label,
+              ),
+            IconButton(
+              icon: Icon(Icons.close, color: AppColors.textSecondary),
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Fechar',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            'Seção ${_currentPage + 1} de $_totalSections',
-            style: AppTextStyles.label,
+        if (_hasAcceptedTerms) ...[
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(
+              minHeight: 4,
+              value: (_currentPage + 1) / _totalSections,
+              backgroundColor: AppColors.divider,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondaryFg),
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -304,6 +424,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
     final questions = _getQuestionsForSection(sectionIndex);
     final isLastSection = sectionIndex == _totalSections - 1;
     final isSectionComplete = _isSectionComplete(sectionIndex, questions);
+    final activeId = _activeQuestionId(questions);
 
     String sectionTitle;
     IconData sectionIcon;
@@ -319,141 +440,205 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
       sectionIcon = Icons.chat_bubble_outline;
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    final sectionHeader = <Widget>[
+      Row(
         children: [
-          Row(
-            children: [
-              Icon(sectionIcon, size: 20, color: AppColors.secondary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Text(sectionTitle, style: AppTextStyles.heading3),
-                ),
-              ),
-            ],
-          ),
-          const Divider(height: 16),
+          Icon(sectionIcon, size: 18, color: AppColors.secondaryFg),
+          const SizedBox(width: 8),
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: isOpenQuestionsPage
-                    ? _openQuestions.map((q) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16.0),
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.divider),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                q['text']!,
-                                style: AppTextStyles.bodyLarge
-                                    .copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 12),
-                              TextField(
-                                controller: _openControllers[q['key']],
-                                maxLines: 3,
-                                onChanged: (value) =>
-                                    _updateOpenAnswer(q['key']!, value),
-                                decoration: InputDecoration(
-                                  hintText: 'Resposta opcional',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  contentPadding: const EdgeInsets.all(12),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList()
-                    : questions.map((q) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16.0),
-                          padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.divider),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                q['text'] as String,
-                                style: AppTextStyles.bodyLarge
-                                    .copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 22),
-                              _buildLikertScale(q['id'] as int),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+            child: Semantics(
+              header: true,
+              child: Text(
+                sectionTitle,
+                style: AppTextStyles.bodyLarge
+                    .copyWith(fontWeight: FontWeight.bold),
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          if (_showError && isLastSection) _buildErrorBanner(),
-          Row(
+        ],
+      ),
+      if (sectionIndex < _sections.length)
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            'Use os critérios como guia enquanto navega no ContaLibras.',
+            style: AppTextStyles.label,
+          ),
+        ),
+      if (!isOpenQuestionsPage)
+        Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.secondaryFg.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
             children: [
-              if (sectionIndex > 0) ...[
-                Expanded(
-                  child: SizedBox(
-                    height: 48,
-                    child: OutlinedButton(
-                      onPressed: _goBack,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: const Text('Voltar'),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
+              Icon(Icons.touch_app_rounded,
+                  size: 18, color: AppColors.secondaryFg),
+              const SizedBox(width: 8),
               Expanded(
-                child: SizedBox(
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: (isSectionComplete && !_isSubmitting)
-                        ? _goForward
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor:
-                          AppColors.primary.withOpacity(0.4),
-                      disabledForegroundColor:
-                          Colors.white.withOpacity(0.6),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: (_isSubmitting && isLastSection)
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
-                          )
-                        : Text(isLastSection ? 'Enviar Avaliação' : 'Próximo'),
-                  ),
+                child: Text(
+                  'Toque em uma nota de 1 a 5. Ao responder, você vai direto '
+                  'para a próxima pergunta.',
+                  style: AppTextStyles.label
+                      .copyWith(color: AppColors.textPrimary),
                 ),
               ),
             ],
+          ),
+        ),
+      const SizedBox(height: 10),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            // O título e a instrução da seção rolam junto com as perguntas,
+            // em vez de ficarem fixos ocupando espaço.
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ...sectionHeader,
+                  ...(isOpenQuestionsPage
+                      ? _openQuestions.map((q) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.divider),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  q['text']!,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppColors.primaryFg,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: _openControllers[q['key']],
+                                  maxLines: 3,
+                                  onChanged: (value) =>
+                                      _updateOpenAnswer(q['key']!, value),
+                                  decoration: InputDecoration(
+                                    hintText: 'Resposta opcional',
+                                    isDense: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    contentPadding: const EdgeInsets.all(10),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        })
+                      : questions.map((q) {
+                          final id = q['id'] as int;
+                          final isActive = id == activeId;
+                          return AnimatedContainer(
+                            key: _questionKey(id),
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(12),
+                              // A pergunta da vez ganha borda de destaque.
+                              border: Border.all(
+                                color: isActive
+                                    ? AppColors.action
+                                    : AppColors.divider,
+                                width: isActive ? 2 : 1,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  q['text'] as String,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppColors.primaryFg,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                _buildLikertScale(q['id'] as int),
+                              ],
+                            ),
+                          );
+                        })),
+                  // Navegação no fim da lista: só aparece após ver todas as
+                  // perguntas e não ocupa espaço fixo na tela.
+                  const SizedBox(height: 4),
+                  if (_showError && isLastSection) _buildErrorBanner(),
+                  Row(
+                    key: _navKey(sectionIndex),
+                    children: [
+                      if (sectionIndex > 0) ...[
+                        Expanded(
+                          child: SizedBox(
+                            height: 44,
+                            child: OutlinedButton(
+                              onPressed: _goBack,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.primaryFg,
+                                side: BorderSide(color: AppColors.primaryFg),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: const Text('Voltar'),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: ElevatedButton(
+                            onPressed: (isSectionComplete && !_isSubmitting)
+                                ? _goForward
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.action,
+                              foregroundColor: Colors.white,
+                              // Desabilitado continua legível nos dois modos.
+                              disabledBackgroundColor: AppColors.divider,
+                              disabledForegroundColor: AppColors.textSecondary,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: (_isSubmitting && isLastSection)
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2, color: Colors.white),
+                                  )
+                                : Text(isLastSection
+                                    ? 'Enviar Avaliação'
+                                    : 'Próximo'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -474,7 +659,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
       builder: (context, constraints) {
         // Shrink the circles on narrow screens so 5 of them always fit
         // instead of overflowing the row.
-        final circleSize = (constraints.maxWidth / 5 - 8).clamp(34.0, 50.0);
+        final circleSize = (constraints.maxWidth / 5 - 12).clamp(32.0, 40.0);
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -484,7 +669,9 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                 final value = index + 1;
                 final isSelected = _answers[questionIndex] == value;
                 return Semantics(
-                  label: 'Opção $value de 5',
+                  label: 'Nota $value de 5',
+                  button: true,
+                  selected: isSelected,
                   child: GestureDetector(
                     onTap: () => _selectAnswer(questionIndex, value),
                     child: AnimatedContainer(
@@ -492,18 +679,22 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                       width: circleSize,
                       height: circleSize,
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary : AppColors.surface,
+                        color:
+                            isSelected ? AppColors.action : AppColors.surface,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isSelected ? AppColors.primary : AppColors.divider,
+                          // Contorno dos itens não selecionados com >= 3:1
+                          // para serem percebidos como clicáveis.
+                          color:
+                              isSelected ? AppColors.action : AppColors.border,
                           width: 2,
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  spreadRadius: 2,
+                                  color: AppColors.action.withOpacity(0.3),
+                                  blurRadius: 6,
+                                  spreadRadius: 1,
                                 ),
                               ]
                             : null,
@@ -512,9 +703,11 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                       child: Text(
                         value.toString(),
                         style: TextStyle(
-                          fontSize: circleSize < 42 ? 15 : 18,
+                          fontSize: circleSize < 36 ? 14 : 16,
                           fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -522,7 +715,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                 );
               }),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -559,14 +752,15 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                _buildSectionTitle('Pesquisa: Avaliação do Aplicativo ContaLibras'),
+                _buildSectionTitle(
+                    'Pesquisa: Avaliação do Aplicativo ContaLibras'),
                 _buildParagraph(
                     'Você está sendo convidado(a) a participar de uma pesquisa acadêmica relacionada ao desenvolvimento e avaliação do aplicativo ContaLibras, realizada no contexto de um TCC do curso de Ciência da Computação.'),
                 _buildParagraph(
-                    'O objetivo desta pesquisa é avaliar aspectos relacionados à usabilidade, experiência do usuário e utilidade educacional do aplicativo, voltado para termos contábeis em Libras.'),
+                    'O objetivo desta pesquisa é avaliar o aplicativo, voltado para termos contábeis em Libras, segundo critérios de Usabilidade, IHC e Acessibilidade em Libras e de Qualidade Técnica e Engenharia de Software.'),
                 _buildSectionTitle('Sobre a participação'),
                 _buildParagraph(
-                    'Sua participação é voluntária e consiste em responder a um questionário sobre sua experiência (usabilidade, qualidade do conteúdo, etc.). Tempo estimado: 5 a 10 minutos.'),
+                    'Sua participação é voluntária e consiste em responder a um questionário sobre sua experiência (clareza, navegação, design, prevenção de erros, funcionalidades, segurança, desempenho e estabilidade). Tempo estimado: 5 a 10 minutos.'),
                 _buildSectionTitle('Confidencialidade e privacidade'),
                 _buildParagraph(
                     'As informações serão usadas exclusivamente para fins acadêmicos. Nenhuma informação de identidade será divulgada. Os dados coletados serão analisados de forma anônima.'),
@@ -591,8 +785,8 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red.shade400,
-                  side: BorderSide(color: Colors.red.shade200),
+                  foregroundColor: AppColors.accentFg,
+                  side: BorderSide(color: AppColors.accentFg),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -609,7 +803,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.action,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -629,8 +823,8 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
       padding: const EdgeInsets.only(top: 12, bottom: 4),
       child: Text(
         title,
-        style: AppTextStyles.bodyMedium.copyWith(
-            fontWeight: FontWeight.bold, color: AppColors.primary),
+        style: AppTextStyles.bodyMedium
+            .copyWith(fontWeight: FontWeight.bold, color: AppColors.primaryFg),
       ),
     );
   }
@@ -667,7 +861,8 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
         height: dialogHeight,
         width: dialogWidth,
         constraints: const BoxConstraints(maxHeight: 860, maxWidth: 640),
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.fromLTRB(isCompact ? 14 : 20, isCompact ? 6 : 10,
+            isCompact ? 14 : 20, isCompact ? 12 : 16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
@@ -681,27 +876,7 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
         ),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    _hasAcceptedTerms ? 'Avaliação' : '',
-                    style: AppTextStyles.heading2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.close, color: AppColors.textSecondary),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            const Divider(),
-            if (_hasAcceptedTerms) ...[
-              _buildSectionProgress(),
-              const SizedBox(height: 8),
-            ],
+            _buildHeader(),
             Expanded(
               child: _hasAcceptedTerms
                   ? PageView.builder(
