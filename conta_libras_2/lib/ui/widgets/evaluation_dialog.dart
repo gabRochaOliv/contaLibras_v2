@@ -457,14 +457,6 @@ class _EvaluationDialogState extends State<EvaluationDialog> {
           ),
         ],
       ),
-      if (sectionIndex < _sections.length)
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            'Use os critérios como guia enquanto navega no ContaLibras.',
-            style: AppTextStyles.label,
-          ),
-        ),
       if (!isOpenQuestionsPage)
         Container(
           margin: const EdgeInsets.only(top: 8),
