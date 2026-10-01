@@ -1,4 +1,6 @@
 """Transformações puras JSONB → DataFrame tabular — sem dependência de Streamlit."""
+from datetime import date
+
 import pandas as pd
 
 # ---------------------------------------------------------------------------
@@ -75,6 +77,13 @@ SECOES_IHC = {
 VERSAO_ATUAL = "atual"
 VERSAO_ANTERIOR = "anterior"
 
+# Data em que o questionário atual entrou em vigor. A tabela `cadastros` não
+# guarda versão (e um cadastro não tem perguntas para identificá-la), então os
+# cadastros são separados por data: a partir desta data contam para a versão
+# atual; antes dela, para a anterior. Ajuste se a publicação do app com as
+# novas perguntas acontecer em outro dia.
+INICIO_VERSAO_ATUAL = date(2026, 10, 1)
+
 PERGUNTAS_PERFIL = set(range(20, 33))
 
 QUESTIONARIOS = {
@@ -126,6 +135,11 @@ def classificar_versao(respostas):
             return versao
     return None
 
+
+
+def versao_do_cadastro(data_cadastro):
+    """Versão do questionário vigente quando o cadastro foi feito."""
+    return VERSAO_ATUAL if data_cadastro >= INICIO_VERSAO_ATUAL else VERSAO_ANTERIOR
 
 def colunas_da_versao(versao, colunas):
     """Colunas qN do DataFrame wide que pertencem à versão (gerais + perfil),

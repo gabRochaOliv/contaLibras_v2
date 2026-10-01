@@ -88,3 +88,11 @@ def test_kpis_apontam_para_secoes_existentes():
     for cfg in QUESTIONARIOS.values():
         for _rotulo, secao in cfg["kpis"]:
             assert secao in secoes
+
+
+def test_versao_do_cadastro_pela_data():
+    from datetime import timedelta
+    from transforms import versao_do_cadastro, INICIO_VERSAO_ATUAL
+    assert versao_do_cadastro(INICIO_VERSAO_ATUAL) == "atual"
+    assert versao_do_cadastro(INICIO_VERSAO_ATUAL + timedelta(days=30)) == "atual"
+    assert versao_do_cadastro(INICIO_VERSAO_ATUAL - timedelta(days=1)) == "anterior"

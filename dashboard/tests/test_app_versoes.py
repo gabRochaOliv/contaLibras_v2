@@ -45,14 +45,22 @@ def _atuais():
     ]
 
 
-def _cadastros(ids):
+def _cadastros(ids, criado_em="2026-09-01T09:00:00+00:00"):
     return pd.DataFrame([
         {"id": i, "nome": f"Pessoa {i}", "idade": 25, "categoria": "Estudante",
          "escolaridade": "Ensino Superior", "usa_libras": True,
          "conhecimento_libras": "Básico",
-         "criado_em": pd.Timestamp("2026-09-01T09:00:00+00:00")}
+         "criado_em": pd.Timestamp(criado_em)}
         for i in ids
     ])
+
+
+def _cadastros_misturados():
+    """c1/c2 antes da troca do questionário; c3/c4/c5 depois (c5 sem resposta)."""
+    return pd.concat([
+        _cadastros(["c1", "c2"], "2026-09-01T09:00:00+00:00"),
+        _cadastros(["c3", "c4", "c5"], "2026-10-01T09:00:00+00:00"),
+    ], ignore_index=True)
 
 
 def _run(feedbacks, cadastros, versao=None):
@@ -105,13 +113,25 @@ def test_versao_anterior_mostra_respostas_arquivadas():
     assert _metric(at, "Utilidade") == "3.00"
 
 
-def test_cadastros_contam_resposta_de_qualquer_versao():
-    # Quem respondeu o questionário antigo não pode aparecer como
-    # "não respondeu" na visão da versão atual.
-    at = _run(_anteriores() + _atuais(), _cadastros(["c1", "c2", "c3", "c4", "c5"]))
+def test_cadastros_da_versao_atual_so_a_partir_da_troca():
+    at = _run(_anteriores() + _atuais(), _cadastros_misturados())
 
-    assert _metric(at, "Total de Cadastros") == "5"
-    assert _metric(at, "Responderam o Questionário") == "4"
+    assert _metric(at, "Total de Cadastros") == "3"
+    assert _metric(at, "Responderam o Questionário") == "2"
+
+
+def test_cadastros_da_versao_anterior_so_antes_da_troca():
+    at = _run(_anteriores() + _atuais(), _cadastros_misturados(), versao="anterior")
+
+    assert _metric(at, "Total de Cadastros") == "2"
+    assert _metric(at, "Responderam o Questionário") == "2"
+
+
+def test_sem_cadastros_novos_a_versao_atual_comeca_zerada():
+    # Situação real hoje: todos os cadastros são de antes da troca.
+    at = _run(_anteriores(), _cadastros(["c1", "c2"]))
+
+    assert "Nenhum cadastro a partir de" in _textos(at)
 
 
 def test_sem_respostas_novas_orienta_a_ver_o_arquivado():

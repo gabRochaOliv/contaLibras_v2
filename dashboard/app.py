@@ -19,7 +19,9 @@ from transforms import (
     FULL_QUESTOES,
     QUESTIONARIOS,
     VERSAO_ATUAL,
+    INICIO_VERSAO_ATUAL,
     classificar_versao,
+    versao_do_cadastro,
     colunas_da_versao,
     calcular_faixa_etaria,
 )
@@ -222,6 +224,10 @@ if len(df_cadastros_raw) > 0:
     df_cadastros_filtrado = df_cadastros_raw[mask_cad].copy()
     if categoria_selecionada != "Todos":
         df_cadastros_filtrado = df_cadastros_filtrado[df_cadastros_filtrado["categoria"] == categoria_selecionada]
+    # Só os cadastros feitos enquanto a versão selecionada estava em vigor.
+    df_cadastros_filtrado = df_cadastros_filtrado[
+        df_cadastros_filtrado["_data"].apply(versao_do_cadastro) == versao_selecionada
+    ]
 else:
     df_cadastros_filtrado = df_cadastros_raw
 
@@ -258,13 +264,19 @@ st.divider()
 # ---------------------------------------------------------------------------
 
 st.subheader("Cadastros x Questionário Respondido")
+_inicio_atual = INICIO_VERSAO_ATUAL.strftime("%d/%m/%Y")
+_vigencia = (
+    f"a partir de {_inicio_atual}" if versao_selecionada == VERSAO_ATUAL
+    else f"antes de {_inicio_atual}"
+)
 st.caption(
-    "Quem se cadastrou no app (tela de primeiro acesso) dentro do período/categoria "
-    "selecionados, tenha ou não respondido o questionário de avaliação depois."
+    f"Quem se cadastrou no app (tela de primeiro acesso) {_vigencia}, quando o questionário "
+    "selecionado estava em vigor, dentro do período/categoria escolhidos — tenha ou não "
+    "respondido a avaliação depois."
 )
 
 if len(df_cadastros_filtrado) == 0:
-    st.info("Nenhum cadastro encontrado para os filtros selecionados.")
+    st.info(f"Nenhum cadastro {_vigencia} para os filtros selecionados.")
 else:
     # cadastro_id/id são UUID — comparamos como string pra não depender de
     # como o driver decide representar o tipo uuid em cada coluna.
