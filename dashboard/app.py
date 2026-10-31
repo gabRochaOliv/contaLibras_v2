@@ -36,6 +36,7 @@ from charts import (
     chart_medias_por_criterio,
     LIKERT_NOMES,
 )
+from export import build_markdown_export
 
 st.set_page_config(
     page_title="ContaLibras — Dashboard",
@@ -237,13 +238,33 @@ q_cols = colunas_da_versao(versao_selecionada, df_wide.columns)
 # Botão de export só aparece quando há dados
 if len(df_wide) > 0:
     st.sidebar.download_button(
-        label="Baixar CSV",
+        label="Baixar CSV (filtros atuais)",
         data=_to_csv(df_wide),
         file_name=f"feedbacks_contalibras_{versao_selecionada}.csv",
         mime="text/csv",
     )
 
 st.sidebar.caption(f"{len(df_wide)} resposta(s) nos filtros selecionados.")
+
+# Export completo da versão atual — pensado para análise em IA.
+# Ignora filtros de propósito: a ideia é entregar o quadro completo (todos os
+# cadastros, quem respondeu, quem não respondeu, demografia, Likert e
+# comentários) num único arquivo Markdown.
+_total_atual = int(_contagem_versoes.get(VERSAO_ATUAL, 0)) if len(df_raw) > 0 else 0
+if _total_atual > 0 or len(df_cadastros_raw) > 0:
+    _md_export = build_markdown_export(df_raw, df_cadastros_raw)
+    _hoje = pd.Timestamp.now(tz="America/Sao_Paulo").strftime("%Y-%m-%d")
+    st.sidebar.download_button(
+        label="Baixar relatório para IA (.md)",
+        data=_md_export.encode("utf-8"),
+        file_name=f"contalibras_relatorio_atual_{_hoje}.md",
+        mime="text/markdown",
+        help=(
+            "Relatório completo da versão atual do questionário — inclui "
+            "todos os cadastros, respondentes, demografia, médias, "
+            "distribuição Likert e comentários. Ignora os filtros da sidebar."
+        ),
+    )
 
 
 # ---------------------------------------------------------------------------
